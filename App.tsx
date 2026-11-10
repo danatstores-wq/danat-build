@@ -143,7 +143,23 @@ export default function App() {
       onPress={() => openTool(tool.id)}
       style={styles.toolCard}
     >
-      <Text style={styles.toolEmoji}>{tool.icon}</Text>
+      <Image
+        source={
+          tool.id === 'concrete'
+            ? require('./assets/icons/concrete.png')
+            : tool.id === 'tiles'
+            ? require('./assets/icons/tiles-ceramics.png')
+            : tool.id === 'paint'
+            ? require('./assets/icons/paint.png')
+            : tool.id === 'blocks'
+            ? require('./assets/icons/blocks-bricks.png')
+            : tool.id === 'sand'
+            ? require('./assets/icons/sand-cement.png')
+            : require('./assets/icons/project-cost.png')
+        }
+        style={styles.toolImage}
+        resizeMode="contain"
+      />
 
       <Text style={styles.toolTitle}>{title(tool)}</Text>
 
@@ -771,6 +787,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 12,
     position: 'relative',
+  },
+  toolImage: {
+    width: 58,
+    height: 58,
+    marginBottom: 7,
   },
   toolEmoji: {
     fontSize: 31,
