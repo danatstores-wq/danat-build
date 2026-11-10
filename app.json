@@ -14,8 +14,13 @@
     "android": {
       "package": "com.danatstore.danatbuild"
     },
-    "plugins": [
-      "expo-router"
-    ]
+    "plugins": [],
+    "experiments": {
+      "baseUrl": "/danat-build"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    }
   }
 }
