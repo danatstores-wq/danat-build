@@ -5,8 +5,17 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "splash": {"backgroundColor":"#080B0E"},
-    "ios": {"bundleIdentifier":"com.danatstore.danatbuild"},
-    "android": {"package":"com.danatstore.danatbuild"}
+    "splash": {
+      "backgroundColor": "#080B0E"
+    },
+    "ios": {
+      "bundleIdentifier": "com.danatstore.danatbuild"
+    },
+    "android": {
+      "package": "com.danatstore.danatbuild"
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }
