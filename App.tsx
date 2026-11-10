@@ -12,9 +12,10 @@ import {
 } from 'react-native';
 
 import CalculatorScreen from './src/components/CalculatorScreen';
+import BuildingCalculatorScreen from './src/components/BuildingCalculatorScreen';
 
 type Language = 'en' | 'ar' | 'fr';
-type Screen = 'welcome' | 'home' | 'calculator' | 'favorites' | 'menu';
+type Screen = 'welcome' | 'home' | 'calculator' | 'building' | 'favorites' | 'menu';
 type Mode = 'professional' | 'homeowner';
 
 type Tool = {
@@ -374,6 +375,30 @@ export default function App() {
                     </Pressable>
                   </View>
 
+                  <Pressable
+                    onPress={() => setScreen('building')}
+                    style={styles.buildingCard}
+                  >
+                    <Text style={styles.buildingIcon}>🏗️</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.buildingTitle}>
+                        {tr(
+                          'FULL BUILDING CALCULATOR',
+                          'حاسبة البناء الشاملة',
+                          'CALCULATEUR COMPLET DU BÂTIMENT'
+                        )}
+                      </Text>
+                      <Text style={styles.buildingDesc}>
+                        {tr(
+                          'Calculate from foundations to finishing',
+                          'احسب من الأساسات حتى التشطيبات',
+                          'Des fondations jusqu’aux finitions'
+                        )}
+                      </Text>
+                    </View>
+                    <Text style={styles.buildingArrow}>›</Text>
+                  </Pressable>
+
                   <Text style={styles.section}>
                     {tr(
                       'QUICK CALCULATORS',
@@ -410,6 +435,14 @@ export default function App() {
                 <CalculatorScreen
                   calculatorId={selected}
                   language={lang}
+                  onBack={() => setScreen('home')}
+                />
+              )}
+
+              {screen === 'building' && (
+                <BuildingCalculatorScreen
+                  language={lang}
+                  mode={mode}
                   onBack={() => setScreen('home')}
                 />
               )}
@@ -818,6 +851,35 @@ const styles = StyleSheet.create({
   star: {
     fontSize: 20,
     color: GOLD,
+  },
+  buildingCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 22,
+    padding: 16,
+    backgroundColor: '#1c1a15',
+    borderWidth: 1,
+    borderColor: GOLD,
+    borderRadius: 16,
+  },
+  buildingIcon: {
+    fontSize: 32,
+  },
+  buildingTitle: {
+    color: GOLD,
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+  },
+  buildingDesc: {
+    color: '#c7c9cb',
+    fontSize: 10,
+    marginTop: 5,
+  },
+  buildingArrow: {
+    color: GOLD,
+    fontSize: 28,
   },
   tipBox: {
     marginTop: 22,
