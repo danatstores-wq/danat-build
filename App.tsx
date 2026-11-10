@@ -375,6 +375,7 @@ export default function App() {
                     </Pressable>
                   </View>
 
+                  {mode === 'professional' && (
                   <Pressable
                     onPress={() => setScreen('building')}
                     style={styles.buildingCard}
@@ -398,6 +399,7 @@ export default function App() {
                     </View>
                     <Text style={styles.buildingArrow}>›</Text>
                   </Pressable>
+                  )}
 
                   <Text style={styles.section}>
                     {tr(
