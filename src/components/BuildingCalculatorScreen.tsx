@@ -1,5 +1,5 @@
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -23,6 +23,7 @@ type FloorData = {
 type Props = {
   language: Language;
   mode: 'professional' | 'homeowner';
+  units: 'metric' | 'imperial';
   onBack: () => void;
 };
 
@@ -314,9 +315,113 @@ const money = (value: number) =>
 const quantity = (value: number) =>
   value.toLocaleString(undefined, { maximumFractionDigits: 2 });
 
+const FT_TO_M = 0.3048;
+const IN_TO_CM = 2.54;
+const SQFT_TO_SQM = 0.09290304;
+const CUFT_TO_CUM = 0.028316846592;
+const US_GAL_TO_L = 3.785411784;
+const SQFT_PER_SQM = 1 / SQFT_TO_SQM;
+const CUFT_PER_CUM = 1 / CUFT_TO_CUM;
+const SQFT_PER_GAL_TO_SQM_PER_L = SQFT_PER_SQM * US_GAL_TO_L;
+
+const lengthKeys = [
+  'length', 'width', 'height',
+  'footingLength', 'footingWidth', 'footingDepth',
+  'excavationDepth', 'columnWidth', 'columnDepth',
+  'beamLength', 'beamWidth', 'beamDepth', 'slabThickness',
+];
+
+const areaKeys = ['openings', 'partitions', 'waterproof'];
+const blockDimensionKeys = ['blockLength', 'blockHeight'];
+const areaPriceKeys = ['plasterPrice', 'tilePrice', 'waterproofPrice'];
+
+function inputAsMetric(key: string, value: number, units: 'metric' | 'imperial') {
+  if (units === 'metric') return value;
+
+  if (lengthKeys.includes(key)) return value * FT_TO_M;
+  if (areaKeys.includes(key)) return value * SQFT_TO_SQM;
+  if (blockDimensionKeys.includes(key)) return value * IN_TO_CM;
+  if (key === 'stairVolume') return value * CUFT_TO_CUM;
+  if (key === 'paintCoverage') return value / SQFT_PER_GAL_TO_SQM_PER_L;
+  if (key === 'concretePrice') return value * CUFT_PER_CUM;
+  if (areaPriceKeys.includes(key)) return value * SQFT_PER_SQM;
+  if (key === 'paintPrice') return value * US_GAL_TO_L;
+
+  return value;
+}
+
+function convertStoredValue(
+  key: string,
+  value: string,
+  toUnits: 'metric' | 'imperial'
+) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return value;
+
+  if (toUnits === 'imperial') {
+    if (lengthKeys.includes(key)) return String(n / FT_TO_M);
+    if (areaKeys.includes(key)) return String(n / SQFT_TO_SQM);
+    if (blockDimensionKeys.includes(key)) return String(n / IN_TO_CM);
+    if (key === 'stairVolume') return String(n / CUFT_TO_CUM);
+    if (key === 'paintCoverage') return String(n * SQFT_PER_GAL_TO_SQM_PER_L);
+    if (key === 'concretePrice') return String(n / CUFT_PER_CUM);
+    if (areaPriceKeys.includes(key)) return String(n / SQFT_PER_SQM);
+    if (key === 'paintPrice') return String(n / US_GAL_TO_L);
+    return value;
+  }
+
+  if (lengthKeys.includes(key)) return String(n * FT_TO_M);
+  if (areaKeys.includes(key)) return String(n * SQFT_TO_SQM);
+  if (blockDimensionKeys.includes(key)) return String(n * IN_TO_CM);
+  if (key === 'stairVolume') return String(n * CUFT_TO_CUM);
+  if (key === 'paintCoverage') return String(n / SQFT_PER_GAL_TO_SQM_PER_L);
+  if (key === 'concretePrice') return String(n * CUFT_PER_CUM);
+  if (areaPriceKeys.includes(key)) return String(n * SQFT_TO_SQM);
+  if (key === 'paintPrice') return String(n * US_GAL_TO_L);
+
+  return value;
+}
+
+function labelForUnits(label: string, units: 'metric' | 'imperial') {
+  if (units === 'metric') return label;
+
+  return label
+    .replaceAll('m²/L', 'ft²/US gal')
+    .replaceAll('m²/litre', 'ft²/US gallon')
+    .replaceAll('m²/liter', 'ft²/US gallon')
+    .replaceAll('m³', 'ft³')
+    .replaceAll('m²', 'ft²')
+    .replaceAll('(m)', '(ft)')
+    .replaceAll('(cm)', '(in)')
+    .replaceAll('cm)', 'in)')
+    .replaceAll('litre', 'US gallon')
+    .replaceAll('litres', 'US gallons')
+    .replaceAll('liter', 'US gallon')
+    .replaceAll('liters', 'US gallons')
+    .replaceAll('م²/لتر', 'قدم²/غالون أمريكي')
+    .replaceAll('م³', 'قدم³')
+    .replaceAll('م²', 'قدم²')
+    .replaceAll('(م)', '(قدم)')
+    .replaceAll('سم)', 'إنش)')
+    .replaceAll('لتر', 'غالون أمريكي');
+}
+
+function displayArea(value: number, units: 'metric' | 'imperial') {
+  return units === 'imperial' ? value * SQFT_PER_SQM : value;
+}
+
+function displayVolume(value: number, units: 'metric' | 'imperial') {
+  return units === 'imperial' ? value * CUFT_PER_CUM : value;
+}
+
+function displayPaint(value: number, units: 'metric' | 'imperial') {
+  return units === 'imperial' ? value / US_GAL_TO_L : value;
+}
+
 export default function BuildingCalculatorScreen({
   language,
   mode,
+  units,
   onBack,
 }: Props) {
   const t = translations[language];
@@ -330,6 +435,34 @@ export default function BuildingCalculatorScreen({
   const [values, setValues] = useState(initialValues);
   const [result, setResult] = useState<Record<string, number> | null>(null);
   const [error, setError] = useState('');
+  const previousUnits = useRef<'metric' | 'imperial'>('metric');
+
+  useEffect(() => {
+    if (previousUnits.current === units) return;
+
+    setFloors(old =>
+      old.map(floor => ({
+        ...floor,
+        length: convertStoredValue('length', floor.length, units),
+        width: convertStoredValue('width', floor.width, units),
+        height: convertStoredValue('height', floor.height, units),
+        openings: convertStoredValue('openings', floor.openings, units),
+        partitions: convertStoredValue('partitions', floor.partitions, units),
+      }))
+    );
+
+    setValues(old => {
+      const converted = { ...old };
+      Object.keys(converted).forEach(key => {
+        converted[key] = convertStoredValue(key, converted[key], units);
+      });
+      return converted;
+    });
+
+    previousUnits.current = units;
+    setResult(null);
+    setError('');
+  }, [units]);
 
   const updateValue = (key: string, value: string) => {
     setValues(old => ({ ...old, [key]: value }));
@@ -359,11 +492,11 @@ export default function BuildingCalculatorScreen({
 
   const calculations = useMemo(() => {
     const floorData = floors.map(floor => ({
-      length: Number(floor.length),
-      width: Number(floor.width),
-      height: Number(floor.height),
-      openings: Number(floor.openings),
-      partitions: Number(floor.partitions),
+      length: inputAsMetric('length', Number(floor.length), units),
+      width: inputAsMetric('width', Number(floor.width), units),
+      height: inputAsMetric('height', Number(floor.height), units),
+      openings: inputAsMetric('openings', Number(floor.openings), units),
+      partitions: inputAsMetric('partitions', Number(floor.partitions), units),
     }));
 
     const allFloorValues = floorData.every(f =>
@@ -381,7 +514,8 @@ export default function BuildingCalculatorScreen({
       return null;
     }
 
-    const v = (key: string) => number(values, key);
+    const v = (key: string) =>
+      inputAsMetric(key, number(values, key), units);
 
     const floorArea = floorData.reduce(
       (sum, floor) => sum + floor.length * floor.width,
@@ -525,7 +659,7 @@ export default function BuildingCalculatorScreen({
       reserve,
       total,
     };
-  }, [floors, values]);
+  }, [floors, values, units]);
 
   const calculate = () => {
     if (!calculations) {
@@ -545,7 +679,9 @@ export default function BuildingCalculatorScreen({
     onChange: (value: string) => void
   ) => (
     <View key={key} style={styles.field}>
-      <Text style={[styles.label, isArabic && styles.rtl]}>{label}</Text>
+      <Text style={[styles.label, isArabic && styles.rtl]}>
+        {labelForUnits(label, units)}
+      </Text>
       <TextInput
         value={value}
         onChangeText={onChange}
@@ -740,15 +876,39 @@ export default function BuildingCalculatorScreen({
       {result && (
         <View style={styles.resultsCard}>
           <Text style={styles.resultHeading}>{t.results}</Text>
-          {resultRow(t.floorArea, `${quantity(result.floorArea)} m²`)}
-          {resultRow(t.excavation, `${quantity(result.excavation)} m³`)}
-          {resultRow(t.concrete, `${quantity(result.concrete)} m³`)}
+          {resultRow(
+            labelForUnits(t.floorArea, units),
+            `${quantity(displayArea(result.floorArea, units))} ${units === 'imperial' ? 'ft²' : 'm²'}`
+          )}
+          {resultRow(
+            labelForUnits(t.excavation, units),
+            `${quantity(displayVolume(result.excavation, units))} ${units === 'imperial' ? 'ft³' : 'm³'}`
+          )}
+          {resultRow(
+            labelForUnits(t.concrete, units),
+            `${quantity(displayVolume(result.concrete, units))} ${units === 'imperial' ? 'ft³' : 'm³'}`
+          )}
           {resultRow(t.blocks, `${quantity(result.blocks)} blocks`)}
-          {resultRow(t.wallArea, `${quantity(result.netWallArea)} m²`)}
-          {resultRow(t.plasterArea, `${quantity(result.plasterArea)} m²`)}
-          {resultRow(t.tileArea, `${quantity(result.tileArea)} m²`)}
-          {resultRow(t.paintLitres, `${quantity(result.paintLitres)} L`)}
-          {resultRow(t.waterproofArea, `${quantity(result.waterproofArea)} m²`)}
+          {resultRow(
+            labelForUnits(t.wallArea, units),
+            `${quantity(displayArea(result.netWallArea, units))} ${units === 'imperial' ? 'ft²' : 'm²'}`
+          )}
+          {resultRow(
+            labelForUnits(t.plasterArea, units),
+            `${quantity(displayArea(result.plasterArea, units))} ${units === 'imperial' ? 'ft²' : 'm²'}`
+          )}
+          {resultRow(
+            labelForUnits(t.tileArea, units),
+            `${quantity(displayArea(result.tileArea, units))} ${units === 'imperial' ? 'ft²' : 'm²'}`
+          )}
+          {resultRow(
+            labelForUnits(t.paintLitres, units),
+            `${quantity(displayPaint(result.paintLitres, units))} ${units === 'imperial' ? 'US gal' : 'L'}`
+          )}
+          {resultRow(
+            labelForUnits(t.waterproofArea, units),
+            `${quantity(displayArea(result.waterproofArea, units))} ${units === 'imperial' ? 'ft²' : 'm²'}`
+          )}
           {resultRow(t.electricalPoints, quantity(result.electrical))}
           {resultRow(t.plumbingPoints, quantity(result.plumbing))}
 

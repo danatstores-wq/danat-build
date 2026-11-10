@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import { calculateTool } from '../calculators';
 type Props = {
   calculatorId: string;
   language: 'en' | 'ar' | 'fr';
+  units: 'metric' | 'imperial';
   onBack: () => void;
 };
 
@@ -113,23 +114,121 @@ const resultLabels: Record<string, Record<string, string>> = {
   totalCost: { en: 'Total project cost', ar: 'التكلفة الإجمالية للمشروع', fr: 'Coût total du projet' },
 };
 
-function formatLabel(key: string, language: Props['language']): string {
-  return resultLabels[key]?.[language] || key;
+
+const FT_TO_M = 0.3048;
+const IN_TO_CM = 2.54;
+const SQFT_TO_SQM = 0.09290304;
+const CUFT_TO_CUM = 0.028316846592;
+const US_GAL_TO_L = 3.785411784;
+
+const feetInputKeys = [
+  'length', 'width', 'thickness', 'wallLength', 'wallHeight',
+];
+
+const inchInputKeys = [
+  'tileLength', 'tileWidth', 'blockLength', 'blockHeight',
+];
+
+const areaInputKeys = ['openings'];
+
+const areaResultKeys = [
+  'floorArea', 'tileArea', 'totalAreaWithWaste',
+  'wallArea', 'totalArea', 'blockArea',
+];
+
+const volumeResultKeys = [
+  'result', 'wetVolume', 'dryVolume',
+  'cementVolume', 'sandVolume',
+];
+
+function inputToMetric(key: string, value: number, units: Props['units']) {
+  if (units === 'metric') return value;
+  if (feetInputKeys.includes(key)) return value * FT_TO_M;
+  if (inchInputKeys.includes(key)) return value * IN_TO_CM;
+  if (areaInputKeys.includes(key)) return value * SQFT_TO_SQM;
+  if (key === 'coverage') return value * SQFT_TO_SQM / US_GAL_TO_L;
+  return value;
+}
+
+function resultFromMetric(key: string, value: number, units: Props['units']) {
+  if (units === 'metric') return value;
+  if (areaResultKeys.includes(key)) return value / SQFT_TO_SQM;
+  if (volumeResultKeys.includes(key)) return value / CUFT_TO_CUM;
+  if (key === 'paintLitres' || key === 'recommendedLitres') {
+    return value / US_GAL_TO_L;
+  }
+  return value;
+}
+
+function defaultInputValue(field: Field, units: Props['units']) {
+  const value = Number(field.defaultValue);
+  if (units === 'metric') return field.defaultValue;
+
+  if (feetInputKeys.includes(field.key)) {
+    return String(Number((value / FT_TO_M).toFixed(3)));
+  }
+  if (inchInputKeys.includes(field.key)) {
+    return String(Number((value / IN_TO_CM).toFixed(3)));
+  }
+  if (areaInputKeys.includes(field.key)) {
+    return String(Number((value / SQFT_TO_SQM).toFixed(3)));
+  }
+  if (field.key === 'coverage') {
+    return String(Number((value * US_GAL_TO_L / SQFT_TO_SQM).toFixed(3)));
+  }
+  return field.defaultValue;
+}
+
+function unitLabel(label: string, units: Props['units']) {
+  if (units === 'metric') return label;
+
+  return label
+    .replaceAll('(m²/L)', '(ft²/US gal)')
+    .replaceAll('(m²)', '(ft²)')
+    .replaceAll('(m³)', '(ft³)')
+    .replaceAll('(m)', '(ft)')
+    .replaceAll('(cm)', '(in)')
+    .replaceAll('(م²/لتر)', '(ft²/US gal)')
+    .replaceAll('(م²)', '(ft²)')
+    .replaceAll('(م³)', '(ft³)')
+    .replaceAll('(م)', '(ft)')
+    .replaceAll('(سم)', '(in)')
+    .replaceAll('(لتر)', '(US gal)')
+    .replaceAll('باللتر', 'بالغالون')
+    .replaceAll('(L)', '(US gal)');
+}
+
+function formatLabel(key: string, language: Props['language'], units: Props['units']): string {
+  return unitLabel(resultLabels[key]?.[language] || key, units);
 }
 
 export default function CalculatorScreen({
   calculatorId,
   language,
+  units,
   onBack,
 }: Props) {
   const [values, setValues] = useState<Record<string, string>>(
     Object.fromEntries(
       (fields[calculatorId] || []).map(field => [
         field.key,
-        field.defaultValue,
+        defaultInputValue(field, units),
       ])
     )
   );
+
+  useEffect(() => {
+    setValues(
+      Object.fromEntries(
+        (fields[calculatorId] || []).map(field => [
+          field.key,
+          defaultInputValue(field, units),
+        ])
+      )
+    );
+    setResult(null);
+    setError('');
+  }, [calculatorId, units]);
 
   const [result, setResult] = useState<
     Record<string, number> | number | null
@@ -157,7 +256,7 @@ export default function CalculatorScreen({
           throw new Error('Please enter valid numbers');
         }
 
-        numericValues[field.key] = value;
+        numericValues[field.key] = inputToMetric(field.key, value, units);
       }
 
       const calculated = calculateTool(calculatorId, numericValues);
@@ -213,7 +312,7 @@ export default function CalculatorScreen({
         {(fields[calculatorId] || []).map(field => (
           <View key={field.key} style={styles.field}>
             <Text style={[styles.label, isArabic && styles.rtl]}>
-              {field.label[language]}
+              {unitLabel(field.label[language], units)}
             </Text>
 
             <TextInput
@@ -267,11 +366,11 @@ export default function CalculatorScreen({
                   isArabic && styles.rtl,
                 ]}
               >
-                {formatLabel(key, language)}
+                {formatLabel(key, language, units)}
               </Text>
 
               <Text style={styles.resultValue}>
-                {Number(value).toLocaleString(undefined, {
+                {resultFromMetric(key, Number(value), units).toLocaleString(undefined, {
                   maximumFractionDigits: 2,
                 })}
               </Text>

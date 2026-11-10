@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   SafeAreaView,
   StatusBar,
@@ -19,7 +20,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from './src/firebase';
 
 type Language = 'en' | 'ar' | 'fr';
-type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide';
+type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings';
 type Mode = 'professional' | 'homeowner';
 
 type Tool = {
@@ -89,8 +90,41 @@ export default function App() {
   const [lang, setLang] = useState<Language>('en');
   const [screen, setScreen] = useState<Screen>('welcome');
   const [mode, setMode] = useState<Mode>('professional');
+  const [units, setUnits] = useState<'metric' | 'imperial'>('metric');
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [selected, setSelected] = useState('concrete');
   const [favourites, setFavourites] = useState<string[]>([]);
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const saved = await AsyncStorage.getItem('danatBuildSettings');
+
+        if (saved) {
+          const settings = JSON.parse(saved);
+
+          if (['en', 'ar', 'fr'].includes(settings.lang)) setLang(settings.lang);
+          if (['professional', 'homeowner'].includes(settings.mode)) setMode(settings.mode);
+          if (['metric', 'imperial'].includes(settings.units)) setUnits(settings.units);
+        }
+      } catch (error) {
+        console.warn('Could not load settings:', error);
+      } finally {
+        setSettingsLoaded(true);
+      }
+    };
+
+    loadSettings();
+  }, []);
+
+  useEffect(() => {
+    if (!settingsLoaded) return;
+
+    AsyncStorage.setItem(
+      'danatBuildSettings',
+      JSON.stringify({ lang, mode, units })
+    ).catch(error => console.warn('Could not save settings:', error));
+  }, [lang, mode, units, settingsLoaded]);
 
   const isAr = lang === 'ar';
 
@@ -446,6 +480,7 @@ export default function App() {
                 <CalculatorScreen
                   calculatorId={selected}
                   language={lang}
+                  units={units}
                   onBack={() => setScreen('home')}
                 />
               )}
@@ -454,6 +489,7 @@ export default function App() {
                 <BuildingCalculatorScreen
                   language={lang}
                   mode={mode}
+                  units={units}
                   onBack={() => setScreen('home')}
                 />
               )}
@@ -651,6 +687,78 @@ export default function App() {
                 </>
               )}
 
+              {screen === 'settings' && (
+                <>
+                  <Text style={styles.h1}>
+                    {tr('Settings', 'الإعدادات', 'Paramètres')}
+                  </Text>
+
+                  <Text style={styles.section}>
+                    {tr('LANGUAGE', 'اللغة', 'LANGUE')}
+                  </Text>
+
+                  <View style={styles.langRow}>
+                    {(['en', 'ar', 'fr'] as const).map(language => (
+                      <Pressable
+                        key={language}
+                        onPress={() => setLang(language)}
+                        style={[styles.langBtn, lang === language && styles.langOn]}
+                      >
+                        <Text style={[styles.langText, lang === language && styles.langTextOn]}>
+                          {language === 'en' ? 'English' : language === 'ar' ? 'العربية' : 'Français'}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+
+                  <Text style={styles.section}>
+                    {tr('MEASUREMENT UNITS', 'وحدات القياس', 'UNITÉS DE MESURE')}
+                  </Text>
+
+                  <View style={styles.langRow}>
+                    {(['metric', 'imperial'] as const).map(unit => (
+                      <Pressable
+                        key={unit}
+                        onPress={() => setUnits(unit)}
+                        style={[styles.langBtn, units === unit && styles.langOn]}
+                      >
+                        <Text style={[styles.langText, units === unit && styles.langTextOn]}>
+                          {unit === 'metric'
+                            ? tr('Metric (m, cm)', 'متري (م، سم)', 'Métrique (m, cm)')
+                            : tr('Imperial (ft, in)', 'إمبراطوري (قدم، بوصة)', 'Impérial (pi, po)')}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+
+                  <Text style={styles.section}>
+                    {tr('DEFAULT WORKING MODE', 'وضع العمل الافتراضي', 'MODE DE TRAVAIL PAR DÉFAUT')}
+                  </Text>
+
+                  <View style={styles.langRow}>
+                    {(['professional', 'homeowner'] as const).map(option => (
+                      <Pressable
+                        key={option}
+                        onPress={() => setMode(option)}
+                        style={[styles.langBtn, mode === option && styles.langOn]}
+                      >
+                        <Text style={[styles.langText, mode === option && styles.langTextOn]}>
+                          {option === 'professional'
+                            ? tr('Professional', 'احترافي', 'Professionnel')
+                            : tr('Homeowner', 'صاحب المنزل', 'Propriétaire')}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+
+                  <Pressable onPress={() => setScreen('menu')} style={styles.menuRow}>
+                    <Text style={styles.menuRowText}>
+                      ‹  {tr('Back to More', 'العودة إلى المزيد', 'Retour au menu')}
+                    </Text>
+                  </Pressable>
+                </>
+              )}
+
               {screen === 'menu' && (
                 <>
                   <Text style={styles.h1}>
@@ -668,6 +776,7 @@ export default function App() {
                       onPress={() => {
                         if (index === 0) setScreen('about');
                         if (index === 1) setScreen('guide');
+                        if (index === 3) setScreen('settings');
                       }}
                       style={styles.menuRow}
                     >
