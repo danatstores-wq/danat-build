@@ -13,9 +13,13 @@ import {
 
 import CalculatorScreen from './src/components/CalculatorScreen';
 import BuildingCalculatorScreen from './src/components/BuildingCalculatorScreen';
+import AuthScreen from './src/components/AuthScreen';
+import ProfileScreen from './src/components/ProfileScreen';
+import { signOut } from 'firebase/auth';
+import { auth } from './src/firebase';
 
 type Language = 'en' | 'ar' | 'fr';
-type Screen = 'welcome' | 'home' | 'calculator' | 'building' | 'favorites' | 'menu';
+type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'favorites' | 'menu' | 'profile';
 type Mode = 'professional' | 'homeowner';
 
 type Tool = {
@@ -253,7 +257,7 @@ export default function App() {
 
             <Pressable
               style={styles.goldButton}
-              onPress={() => setScreen('home')}
+              onPress={() => setScreen('auth')}
             >
               <Text style={styles.goldButtonText}>
                 {tr(
@@ -268,6 +272,11 @@ export default function App() {
               DANAT BUILD • BUILD SMARTER
             </Text>
           </ScrollView>
+        ) : screen === 'auth' ? (
+          <AuthScreen
+            language={lang}
+            onAuthenticated={() => setScreen('home')}
+          />
         ) : (
           <View style={styles.screenWrapper}>
             <ScrollView
@@ -449,6 +458,17 @@ export default function App() {
                 />
               )}
 
+              {screen === 'profile' && (
+                <ProfileScreen
+                  language={lang}
+                  mode={mode}
+                  onSignOut={async () => {
+                    await signOut(auth);
+                    setScreen('auth');
+                  }}
+                />
+              )}
+
               {screen === 'favorites' && (
                 <>
                   <Text style={styles.h1}>
@@ -560,6 +580,12 @@ export default function App() {
                 'menu',
                 tr('More', 'المزيد', 'Plus'),
                 '•••'
+              )}
+
+              {nav(
+                'profile',
+                tr('Profile', 'ملفي', 'Profil'),
+                '●'
               )}
             </View>
           </View>
