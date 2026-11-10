@@ -5,17 +5,8 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "splash": {
-      "backgroundColor": "#080b0e"
-    },
-    "android": {
-      "package": "com.danatstore.danatbuild"
-    },
-    "ios": {
-      "bundleIdentifier": "com.danatstore.danatbuild"
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ]
+    "splash": {"backgroundColor":"#080B0E"},
+    "ios": {"bundleIdentifier":"com.danatstore.danatbuild"},
+    "android": {"package":"com.danatstore.danatbuild"}
   }
 }

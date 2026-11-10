@@ -1,38 +1,23 @@
-# Danat Build
+# Danat Build — first visual implementation
 
-A GitHub-ready starter for the Danat Build construction calculator mobile app.
+This is the first implemented mobile UI pass based on the supplied Danat Build concept: black/charcoal surfaces, warm gold accents, welcome screen, language selector, professional/homeowner choice, calculator dashboard, calculator navigation, and a concrete calculator with a working volume + wastage formula.
 
-## Stack
-- React Native
-- Expo
-- TypeScript
-
-## Current starter features
-- Dark charcoal and gold visual theme
-- English, Arabic and French language toggle (starter labels)
-- Home dashboard with calculator categories
-- Working concrete-volume calculator with wastage percentage
-- Basic project summary screen
-
-## Run locally
-1. Install Node.js (LTS) and Git.
-2. Install Expo tooling if needed: `npm install`
-3. Start the app: `npx expo start`
-4. Scan the QR code with Expo Go, or press `a` for Android / `i` for iOS (with the relevant tooling installed).
-
-## Push to GitHub
-Create an empty GitHub repository named `danat-build`, then run these commands from this folder:
-
+## Run
 ```bash
-git init
-git add .
-git commit -m "Initial Danat Build app"
-git branch -M main
-git remote add origin https://github.com/YOUR-USERNAME/danat-build.git
-git push -u origin main
+npm install
+npx expo start
 ```
 
-Replace `YOUR-USERNAME` with your GitHub account name.
+## Important scope notes
+- The welcome, dashboard, navigation, calculator shell, and concrete calculation are implemented in React Native.
+- Tiles, paint, blocks/bricks, sand/cement, and project-cost screens currently have designed placeholders. Their formulas, pricing inputs, saved projects, and PDF export have not yet been implemented.
+- The Arabic labels are starter translations; full RTL layout and professional Arabic copy need a dedicated pass.
+- Construction formulas and material assumptions must be reviewed by a qualified construction professional before real-world purchasing or building decisions.
 
-## Important next steps
-This is the first runnable foundation, not the finished production app. Before release, we should add and test each material calculator, pricing configuration, saved projects, PDF reports, robust Arabic RTL layout, app icon/splash artwork, and real-device testing. Construction formulas and local material assumptions should be reviewed by a qualified construction professional before being used for purchasing or building decisions.
+## GitHub update
+Copy these project files into your existing local repository, inspect the changes, then run:
+```bash
+git add .
+git commit -m "Build Danat Build visual interface"
+git push origin main
+```
