@@ -19,7 +19,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from './src/firebase';
 
 type Language = 'en' | 'ar' | 'fr';
-type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'favorites' | 'menu' | 'profile';
+type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide';
 type Mode = 'professional' | 'homeowner';
 
 type Tool = {
@@ -501,6 +501,156 @@ export default function App() {
                 </>
               )}
 
+              {screen === 'about' && (
+                <>
+                  <Text style={styles.h1}>
+                    {tr('About Danat Build', 'عن دانات بيلد', 'À propos de Danat Build')}
+                  </Text>
+
+                  <View style={styles.emptyCard}>
+                    <Text style={styles.emptyIcon}>⌂</Text>
+                    <Text style={styles.menuRowText}>DANAT BUILD</Text>
+
+                    <Text style={styles.emptyText}>
+                      {tr(
+                        'Build smarter. Plan better.',
+                        'ابنِ بذكاء وخطط بشكل أفضل.',
+                        'Construisez intelligemment. Planifiez mieux.'
+                      )}
+                    </Text>
+
+                    <Text style={styles.emptyText}>
+                      {tr(
+                        'Danat Build is a construction planning application designed to help professionals and homeowners calculate building materials, estimate quantities and plan projects more efficiently.',
+                        'دانات بيلد هو تطبيق لتخطيط أعمال البناء، يساعد المهندسين والمحترفين وأصحاب المنازل على حساب مواد البناء وتقدير الكميات وتخطيط المشاريع بكفاءة.',
+                        'Danat Build est une application de planification de construction qui aide les professionnels et les propriétaires à calculer les matériaux, estimer les quantités et organiser leurs projets.'
+                      )}
+                    </Text>
+                  </View>
+
+                  <Text style={styles.section}>
+                    {tr('WHAT YOU CAN DO', 'ماذا يمكنك أن تفعل', 'CE QUE VOUS POUVEZ FAIRE')}
+                  </Text>
+
+                  {[
+                    tr('Professional construction calculations', 'حسابات البناء للمحترفين', 'Calculs de construction professionnels'),
+                    tr('Homeowner project planning', 'تخطيط مشاريع أصحاب المنازل', 'Planification pour les propriétaires'),
+                    tr('Full building quantity calculations', 'حساب كميات المباني بالكامل', 'Calcul des quantités d’un bâtiment complet'),
+                    tr('Save your favorite calculators', 'حفظ أدواتك المفضلة', 'Enregistrer vos calculateurs favoris'),
+                  ].map((feature, index) => (
+                    <View key={index} style={styles.menuRow}>
+                      <Text style={styles.menuRowText}>✓  {feature}</Text>
+                    </View>
+                  ))}
+
+                  <Pressable
+                    onPress={() => setScreen('menu')}
+                    style={styles.menuRow}
+                  >
+                    <Text style={styles.menuRowText}>
+                      ‹  {tr('Back to More', 'العودة إلى المزيد', 'Retour au menu')}
+                    </Text>
+                  </Pressable>
+                </>
+              )}
+
+
+              {screen === 'guide' && (
+                <>
+                  <Text style={styles.h1}>
+                    {tr('Tips & Guide', 'النصائح والإرشادات', 'Conseils et guide')}
+                  </Text>
+
+                  <View style={styles.emptyCard}>
+                    <Text style={styles.emptyIcon}>📐</Text>
+                    <Text style={styles.menuRowText}>
+                      {tr('PLAN BEFORE YOU BUILD', 'خطط قبل البناء', 'PLANIFIEZ AVANT DE CONSTRUIRE')}
+                    </Text>
+                    <Text style={styles.emptyText}>
+                      {tr(
+                        'Good planning helps reduce waste, control costs and avoid mistakes.',
+                        'التخطيط الجيد يساعد على تقليل الهدر وضبط التكاليف وتجنب الأخطاء.',
+                        'Une bonne planification réduit les pertes, maîtrise les coûts et évite les erreurs.'
+                      )}
+                    </Text>
+                  </View>
+
+                  {[
+                    {
+                      icon: '📏',
+                      title: tr('1. Measure accurately', '١. قِس بدقة', '1. Mesurez avec précision'),
+                      body: tr(
+                        'Measure length, width and height carefully. Record every dimension and use the same unit throughout your project.',
+                        'قِس الطول والعرض والارتفاع بعناية. سجّل جميع الأبعاد واستخدم وحدة قياس موحدة في المشروع.',
+                        'Mesurez soigneusement la longueur, la largeur et la hauteur. Notez chaque dimension et gardez la même unité.'
+                      )
+                    },
+                    {
+                      icon: '🧱',
+                      title: tr('2. Calculate material quantities', '٢. احسب كميات المواد', '2. Calculez les quantités de matériaux'),
+                      body: tr(
+                        'Check the dimensions and thickness of each element before calculating concrete, blocks, cement, sand or other materials.',
+                        'تحقق من أبعاد وسماكة كل عنصر قبل حساب الخرسانة والبلوك والإسمنت والرمل وباقي المواد.',
+                        'Vérifiez les dimensions et l’épaisseur de chaque élément avant de calculer le béton, les blocs, le ciment et le sable.'
+                      )
+                    },
+                    {
+                      icon: '🎨',
+                      title: tr('3. Plan paint and finishing', '٣. خطط للدهان والتشطيبات', '3. Planifiez la peinture et les finitions'),
+                      body: tr(
+                        'Measure the surface area, account for doors and windows where appropriate, and check the product coverage and number of coats.',
+                        'احسب مساحة الأسطح، واطرح مساحة الأبواب والنوافذ عند الحاجة، وتحقق من تغطية المنتج وعدد الطبقات.',
+                        'Mesurez les surfaces, déduisez les portes et fenêtres si nécessaire, puis vérifiez le rendement du produit et le nombre de couches.'
+                      )
+                    },
+                    {
+                      icon: '📦',
+                      title: tr('4. Allow for material waste', '٤. احسب نسبة الهدر', '4. Prévoyez les pertes'),
+                      body: tr(
+                        'Allow an appropriate extra quantity for cutting, breakage and site waste. The allowance depends on the material and project conditions.',
+                        'أضف كمية احتياطية مناسبة للقص والكسر وهدر الموقع. تختلف النسبة حسب نوع المادة وظروف المشروع.',
+                        'Prévoyez une quantité supplémentaire adaptée aux découpes, à la casse et aux pertes sur chantier.'
+                      )
+                    },
+                    {
+                      icon: '⭐',
+                      title: tr('5. Save your favorite tools', '٥. احفظ أدواتك المفضلة', '5. Enregistrez vos outils favoris'),
+                      body: tr(
+                        'Use the star icon on calculators to add them to Favorites for quick access later.',
+                        'استخدم علامة النجمة على الآلات الحاسبة لإضافتها إلى المفضلة والوصول إليها بسرعة.',
+                        'Utilisez l’étoile sur les calculateurs pour les ajouter aux favoris et y accéder rapidement.'
+                      )
+                    },
+                    {
+                      icon: '🦺',
+                      title: tr('6. Work safely', '٦. اعمل بأمان', '6. Travaillez en sécurité'),
+                      body: tr(
+                        'Follow site safety procedures. Structural dimensions and reinforcement must always be checked by a qualified engineer.',
+                        'اتبع إجراءات السلامة في موقع العمل. يجب أن يتحقق مهندس مختص من الأبعاد الإنشائية وحديد التسليح.',
+                        'Respectez les règles de sécurité du chantier. Les dimensions structurelles et les armatures doivent être vérifiées par un ingénieur qualifié.'
+                      )
+                    }
+                  ].map((tip, index) => (
+                    <View key={index} style={styles.menuRow}>
+                      <Text style={styles.emptyIcon}>{tip.icon}</Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.menuRowText}>{tip.title}</Text>
+                        <Text style={styles.emptyText}>{tip.body}</Text>
+                      </View>
+                    </View>
+                  ))}
+
+                  <Pressable
+                    onPress={() => setScreen('menu')}
+                    style={styles.menuRow}
+                  >
+                    <Text style={styles.menuRowText}>
+                      ‹  {tr('Back to More', 'العودة إلى المزيد', 'Retour au menu')}
+                    </Text>
+                  </Pressable>
+                </>
+              )}
+
               {screen === 'menu' && (
                 <>
                   <Text style={styles.h1}>
@@ -515,6 +665,10 @@ export default function App() {
                   ].map((item, index) => (
                     <Pressable
                       key={item}
+                      onPress={() => {
+                        if (index === 0) setScreen('about');
+                        if (index === 1) setScreen('guide');
+                      }}
                       style={styles.menuRow}
                     >
                       <Text style={styles.menuRowText}>
