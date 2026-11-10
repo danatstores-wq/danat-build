@@ -4,6 +4,7 @@ import {
   StatusBar,
   View,
   Text,
+  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -183,13 +184,11 @@ export default function App() {
             contentContainerStyle={styles.welcome}
             showsVerticalScrollIndicator={false}
           >
-            <View style={styles.logoSymbol}>
-              <Text style={styles.shell}>✿</Text>
-              <Text style={styles.pearl}>●</Text>
-            </View>
-
-            <Text style={styles.welcomeBrand}>DANAT</Text>
-            <Text style={styles.welcomeBrand}>BUILD</Text>
+            <Image
+              source={require('./assets/branding/danat-build-brand.png')}
+              style={styles.welcomeLogo}
+              resizeMode="contain"
+            />
 
             <Text style={styles.welcomeSub}>
               SMART CONSTRUCTION
@@ -265,10 +264,12 @@ export default function App() {
                   </Text>
                 </Pressable>
 
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.brand}>
-                    ✿ DANAT BUILD
-                  </Text>
+                <View style={{ flex: 1, alignItems: 'center' }}>
+                  <Image
+                    source={require('./assets/branding/danat-build-brand.png')}
+                    style={styles.innerBrandLogo}
+                    resizeMode="contain"
+                  />
 
                   <Text style={styles.topSub}>
                     SMART CONSTRUCTION CALCULATOR
@@ -575,6 +576,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     top: 33,
   },
+  welcomeLogo: {
+    width: 300,
+    height: 160,
+    alignSelf: 'center',
+    marginBottom: 10,
+  },
   welcomeBrand: {
     fontSize: 46,
     fontWeight: '300',
@@ -672,6 +679,11 @@ const styles = StyleSheet.create({
     fontSize: 19,
     fontWeight: '900',
     letterSpacing: 2,
+  },
+  innerBrandLogo: {
+    width: 150,
+    height: 65,
+    alignSelf: 'center',
   },
   topSub: {
     fontSize: 8,
