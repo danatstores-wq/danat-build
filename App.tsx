@@ -324,7 +324,7 @@ export default function App() {
               showsVerticalScrollIndicator={false}
             >
               <View style={ui.topbar}>
-                <Pressable onPress={() => setScreen('home')}>
+                <Pressable onPress={() => setScreen(screen === 'home' ? 'menu' : 'home')}>
                   <Text style={ui.backIcon}>
                     {screen === 'home' ? '☰' : '‹'}
                   </Text>
