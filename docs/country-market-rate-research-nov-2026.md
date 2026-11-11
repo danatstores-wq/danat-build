@@ -34,6 +34,8 @@ Sources:
 
 The listed manpower rates include visa, accommodation and transport by the supplier; overtime is excluded. These are labor-supply rates, not installed BOQ rates.
 
+**Historical cross-check (AECOM Middle East Property & Construction Handbook 2024; labor observations Q3 2023):** Dubai skilled operatives were listed at USD 6.00/hour for concreters and steel fixers, USD 6.50/hour for bricklayers and carpenters, and USD 9.00/hour for electricians. AECOM describes these as all-in employment-cost benchmarks including recruitment, visas, leave, travel, accommodation and welfare, but excluding overtime, contractor overhead/profit and VAT. These are historical reference values only; the newer QS Mind market-day rates above take precedence for current planning.
+
 **Material reference (Turner & Townsend, UAE market intelligence 2025):**
 - 30 MPa ready-mix concrete: AED 300/m³ in Dubai and AED 325/m³ in Abu Dhabi, for a 1,500 m³ job.
 - 16 mm reinforcement bar: AED 2,900/t Dubai and AED 2,940/t Abu Dhabi, for a 120 t job.
@@ -86,6 +88,8 @@ The same data source reports official national averages for 37 material specific
 
 These are Riyadh subcontract benchmarks with defined specifications. Installed prices must not be entered as material-only rates.
 
+**Historical cross-check (AECOM 2024; Q3 2023 labor observations):** Riyadh skilled operatives were listed at USD 9.30/hour for concreters, USD 9.80/hour for steel fixers, USD 10.40/hour for bricklayers and carpenters, and USD 12.30/hour for electricians. These all-in employment-cost figures are historical and should not replace the newer Riyadh QS Mind observations.
+
 Sources:
 - GASTAT national material averages via iBuild: https://ibuild.sa/material-prices
 - QS Mind Riyadh installed works: https://prices.qsmind.app/en/saudi/works
@@ -107,6 +111,8 @@ Ashghal's price list gives validity dates; do not substitute a past-month price 
 - Concrete worker: QAR 37.42/hour.
 
 BoqCalc is a commercial pricing source, not an official authority. Use as a cross-check only until supported by supplier quotations or a quantity-surveyor schedule.
+
+**Historical cross-check (AECOM 2024; Q3 2023 labor observations):** Doha skilled operatives were listed at USD 6.30/hour for concreters and steel fixers, USD 8.00/hour for bricklayers and carpenters, and USD 9.30/hour for electricians. These are all-in employment-cost references, not subcontract charge-out rates.
 
 **2025 procurement reference (Turner & Townsend):**
 - 30 MPa concrete: QAR 340/m³ for a 1,500 m³ job.
@@ -149,8 +155,12 @@ Etimadco also describes a Kuwait rolling 30-day median for rebar, cement, ready-
 
 These are whole-project benchmarks for a stated house configuration and finish levels, not unit rates for Danat Build's BOQ. They cannot be used to price individual trades without a matching scope breakdown.
 
+**Construction trade wage references (Taj HR Services, data period Oct 2025–Sep 2026; updated 21 September 2026):** electrician basic median KWD 185/month (range 150–250), formwork carpenter KWD 180/month (150–260), and plumber KWD 170/month (140–230). These are overseas-intake basic wages; housing, transport, food, overtime and contractor employment costs are separate. They are not hourly charge-out rates.
+
 Sources:
 - GCCPricing Kuwait: https://www.gccpricing.com/kuwait-construction-prices
+- Taj HR Services Kuwait 2026 salary guide: https://tajhrservices.com/salary-guide/kuwait
+- AECOM Middle East Property & Construction Handbook 2024: https://publications.aecom.com/MEH/static/69a84a66cc94f48d41d456bfc959f519/4714f9cc02b32c869d15d7378fcb142e.pdf
 - Etimadco Kuwait index: https://etimadco.com/kw/services/material-prices
 - Al Qabas / Al-Hisba annual report summary: https://www.alqabas.com/
 
@@ -165,6 +175,8 @@ Sources:
 - Regular 20 cm hollow block: OMR 0.165–0.175/piece, depending on delivery area.
 - 20 cm solid block: OMR 0.210–0.220/piece, depending on delivery area.
 
+**Construction trade wage references (Taj HR Services, data period Oct 2025–Sep 2026; updated 21 September 2026):** electrician basic median OMR 210/month (range 180–280), plumber OMR 190/month (160–260), and formwork carpenter OMR 190/month (160–270). These are overseas-intake basic wages; housing, transport, food, overtime and employer costs are separate. They are not contractor charge-out rates.
+
 **Oman labor planning lead (EngiCore, 25 April 2026):** daily ranges listed are OMR 4–6 for general labor, OMR 8–12 for masons/carpenters/steel fixers, and OMR 10–15 for electricians/plumbers. This is a commercial estimating guide, not an official wage schedule; treat as provisional and verify against local subcontractor quotations.
 
 Oman's Consumer Protection Authority reported in May 2026 that iron prices had increased 12% and cement 18% over February–May 2026, and advised checking current supplier prices. This reinforces the need to date-stamp and refresh rates.
@@ -173,6 +185,8 @@ Golden Muscat lists local material price-list categories by governorate and date
 
 Sources:
 - GCCPricing Oman: https://www.gccpricing.com/oman-construction-prices
+- Taj HR Services Oman 2026 salary guide: https://tajhrservices.com/salary-guide/oman
+- AECOM Middle East Property & Construction Handbook 2024: https://publications.aecom.com/MEH/static/69a84a66cc94f48d41d456bfc959f519/4714f9cc02b32c869d15d7378fcb142e.pdf
 - Al Madina Cement Products block prices: https://www.mcp.om/en/cement-blocks
 - EngiCore Oman construction cost guide: https://engicore-9478b.web.app/blog-construction-cost-oman.html
 - Golden Muscat price lists: https://www.goldenmuscat.com/price-lists/building-materials/
@@ -203,7 +217,7 @@ Sources:
 
 - Country selector supports Lebanon (USD), UAE (AED), Saudi Arabia (SAR), Qatar (QAR), Kuwait (KWD) and Oman (OMR).
 - Lebanon defaults are unchanged.
-- Each GCC market has an independent itemized rate-input state. GCC rate fields start at zero/blank rather than inheriting Lebanon USD values; switching countries preserves each market's edits.
+- Each GCC market has an independent itemized rate-input state. A small set of directly mappable source-backed material/service rates is prefilled in local currency; unsupported items and labor remain zero rather than inheriting Lebanon USD values. Switching countries preserves each market's edits.
 - The detailed catalogue is visible in every market. The calculator can produce a partial total and explicitly flags active items with missing required material/service or labor rates.
 - Published market benchmarks remain displayed separately from the editable itemized rate inputs. They are not silently treated as installed rates.
 
