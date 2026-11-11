@@ -150,6 +150,10 @@ Sources:
 - Hollow cement block, 390×190×90 mm: KWD 0.202/piece; the product page states 25 pieces/m².
 - These are specific products, not generic installed wall rates. The stated coverage for the 9 cm hollow block should be reconciled with the actual laying pattern before conversion to a per-m² calculator default. The 17 cm product is a sandlime/limestone block marketed for garden walls and rooftop fences, so it is not assumed to represent standard structural masonry.
 
+**Additional Kuwait supplier-marketplace cross-check (Ybnee, listing snapshot last updated 1 August 2026):** the platform displays more than 100 pages of Kuwait building-material listings across structural concrete, masonry, electrical, plumbing, plaster, insulation, flooring, paint, doors and windows. Examples include a locally made 9 × 19 × 29 cm cement block at KWD 0.110/piece and broad category ranges for tiles, electrical accessories and finishes. These are useful product-level leads, but the snapshot is several months older than this review, individual product specifications and delivery terms vary, and the platform does not provide installed labour rates. I have therefore recorded it as a supplier-discovery cross-check only and have not used its broad category ranges as default BOQ unit rates.
+
+Source: Ybnee Kuwait building-material marketplace (listing snapshot dated 1 August 2026): https://ybnee.com/
+
 Etimadco also describes a Kuwait rolling 30-day median for rebar, cement, ready-mix concrete, blocks and sand based on actual supplier-platform prices and RFQs, with a minimum sample threshold. The accessible public page does not expose a full item-by-item rate table in the retrieved view.
 
 **Whole-project cross-check (Al Qabas, 16 February 2026, quoting Al-Hisba annual report):**
