@@ -334,11 +334,11 @@ const COST_CATEGORIES = [
 
 const COST_ITEMS: CostItem[] = [
   // 1. EARTHWORKS
-  { id: 'excavation', category: 'earthworks', names: ['Excavation', 'حفر التربة', 'Excavation'], unit: 'm³' },
-  { id: 'soilRemoval', category: 'earthworks', names: ['Soil removal and disposal', 'نقل وترحيل الأتربة', 'Évacuation des terres'], unit: 'm³' },
-  { id: 'backfilling', category: 'earthworks', names: ['Backfilling', 'ردم التربة', 'Remblayage'], unit: 'm³' },
-  { id: 'soilCompaction', category: 'earthworks', names: ['Soil compaction', 'دك التربة', 'Compactage du sol'], unit: 'm²' },
-  { id: 'sitePreparation', category: 'earthworks', names: ['Site preparation', 'تجهيز الموقع', 'Préparation du chantier'], unit: 'm²' },
+  { id: 'excavation', category: 'earthworks', names: ['Excavation', 'حفر التربة', 'Excavation'], unit: 'm³', requiresLabor: false },
+  { id: 'soilRemoval', category: 'earthworks', names: ['Soil removal and disposal', 'نقل وترحيل الأتربة', 'Évacuation des terres'], unit: 'm³', requiresLabor: false },
+  { id: 'backfilling', category: 'earthworks', names: ['Backfilling', 'ردم التربة', 'Remblayage'], unit: 'm³', requiresLabor: false },
+  { id: 'soilCompaction', category: 'earthworks', names: ['Soil compaction', 'دك التربة', 'Compactage du sol'], unit: 'm²', requiresLabor: false },
+  { id: 'sitePreparation', category: 'earthworks', names: ['Site preparation', 'تجهيز الموقع', 'Préparation du chantier'], unit: 'm²', requiresLabor: false },
 
   // 2. FOUNDATION
   { id: 'leanConcrete', category: 'foundation', names: ['Blinding concrete', 'خرسانة النظافة', 'Béton de propreté'], unit: 'm³' },
@@ -356,7 +356,7 @@ const COST_ITEMS: CostItem[] = [
   { id: 'columnFormwork', category: 'structure', names: ['Column formwork', 'قوالب الأعمدة', 'Coffrage des poteaux'], unit: 'm²' },
   { id: 'beamFormwork', category: 'structure', names: ['Beam formwork', 'قوالب الجسور', 'Coffrage des poutres'], unit: 'm²' },
   { id: 'slabFormwork', category: 'structure', names: ['Slab formwork', 'قوالب الأسقف', 'Coffrage des dalles'], unit: 'm²' },
-  { id: 'scaffolding', category: 'structure', names: ['Scaffolding and supports', 'السقالات والدعائم', 'Échafaudages et étais'], unit: 'm²' },
+  { id: 'scaffolding', category: 'structure', names: ['Scaffolding and supports', 'السقالات والدعائم', 'Échafaudages et étais'], unit: 'm²', requiresLabor: false },
 
   // 4. MASONRY
   { id: 'externalBlocks', category: 'masonry', names: ['External wall blocks', 'بلوك الجدران الخارجية', 'Blocs des murs extérieurs'], unit: 'm²' },
