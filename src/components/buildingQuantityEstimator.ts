@@ -77,7 +77,7 @@ export function estimateBuildingQuantities(
     'excavation', 'soilRemoval', 'backfilling', 'soilCompaction',
     'sitePreparation', 'leanConcrete', 'footingConcrete',
     'foundationSteel', 'foundationFormwork',
-    'foundationWaterproofing', 'columnConcrete', 'beamConcrete',
+    'foundationWaterproofing', 'columnConcrete', 'beamConcrete', 'stairConcrete',
     'slabConcrete', 'structuralSteel', 'columnFormwork',
     'beamFormwork', 'slabFormwork', 'scaffolding',
     'externalBlocks', 'internalBlocks', 'cementMasonry',
@@ -202,10 +202,13 @@ export function estimateBuildingQuantities(
   set('footingConcrete', footingConcrete);
   set('foundationSteel', footingConcrete * 80);
   set('foundationFormwork', foundationFormwork);
-  set('foundationWaterproofing', foundationFormwork);
+  // Do not invent foundation waterproofing quantity from formwork area.
+  // Leave at zero until a measured waterproofing area is entered manually.
+  set('foundationWaterproofing', 0);
   set('columnConcrete', columnConcrete);
   set('beamConcrete', beamConcrete);
   set('slabConcrete', slabConcrete);
+  set('stairConcrete', v('stairVolume'));
   set('structuralSteel', structuralConcrete * 110);
   set('columnFormwork', columnFormwork);
   set('beamFormwork', beamFormwork);
@@ -227,7 +230,8 @@ export function estimateBuildingQuantities(
   set('roofDrainage', Math.max(1, ceil(roof / 100)));
 
   // Plaster and finishing
-  set('internalPlaster', externalWallArea + partitionArea);
+  // Interior face of external walls plus both faces of internal partitions.
+  set('internalPlaster', externalWallArea + partitionArea * 2);
   set('externalPlaster', externalWallArea);
   set('ceilingPlaster', ceilingArea);
   set('plasterMesh', wallArea * 0.1);
@@ -344,7 +348,7 @@ export function estimateBuildingQuantities(
     const volumeIds = [
       'excavation', 'soilRemoval', 'backfilling', 'leanConcrete',
       'footingConcrete', 'columnConcrete', 'beamConcrete',
-      'slabConcrete', 'plasterMaterials',
+      'slabConcrete', 'stairConcrete', 'plasterMaterials',
     ];
 
     const lengthIds = [
