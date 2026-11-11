@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 type Language = 'en' | 'ar' | 'fr';
+type CountryCode = 'LB' | 'AE' | 'SA' | 'QA' | 'KW' | 'OM';
 
 type FloorData = {
   id: number;
@@ -40,10 +41,25 @@ type DetailedValues = Record<string, string>;
 
 const GOLD = '#E9B85D';
 
+const COUNTRY_OPTIONS: {
+  id: CountryCode;
+  currency: string;
+  names: [string, string, string];
+}[] = [
+  { id: 'LB', currency: 'USD', names: ['Lebanon', 'لبنان', 'Liban'] },
+  { id: 'AE', currency: 'AED', names: ['United Arab Emirates', 'الإمارات العربية المتحدة', 'Émirats arabes unis'] },
+  { id: 'SA', currency: 'SAR', names: ['Saudi Arabia', 'السعودية', 'Arabie saoudite'] },
+  { id: 'QA', currency: 'QAR', names: ['Qatar', 'قطر', 'Qatar'] },
+  { id: 'KW', currency: 'KWD', names: ['Kuwait', 'الكويت', 'Koweït'] },
+  { id: 'OM', currency: 'OMR', names: ['Oman', 'عُمان', 'Oman'] },
+];
+
 const translations = {
   en: {
     title: 'Full Building Calculator',
     subtitle: 'Complete building quantity and cost estimation',
+    country: 'COUNTRY / CONSTRUCTION MARKET',
+    ratesPending: 'Country-specific rates for this market are still being prepared. The Lebanon USD rate profile has not been applied, so a cost total is disabled until verified local rates are loaded.',
     floors: 'FLOOR DIMENSIONS',
     addFloor: '+ ADD FLOOR',
     remove: 'Remove',
@@ -134,6 +150,8 @@ const translations = {
   ar: {
     title: 'حاسبة البناء الشاملة',
     subtitle: 'تقدير كميات وتكاليف المبنى بالكامل',
+    country: 'الدولة / سوق البناء',
+    ratesPending: 'لا تزال الأسعار الخاصة بهذا السوق قيد الإعداد. لم نستخدم أسعار لبنان بالدولار، لذلك تم إيقاف حساب التكلفة إلى حين إدخال أسعار محلية موثوقة.',
     floors: 'أبعاد الطوابق',
     addFloor: '+ إضافة طابق',
     remove: 'حذف',
@@ -224,6 +242,8 @@ const translations = {
   fr: {
     title: 'Calculateur complet du bâtiment',
     subtitle: 'Estimation complète des quantités et des coûts',
+    country: 'PAYS / MARCHÉ DE CONSTRUCTION',
+    ratesPending: 'Les tarifs propres à ce marché sont en préparation. Les tarifs du Liban en USD ne sont pas appliqués ; le calcul du coût reste désactivé jusqu’au chargement de tarifs locaux vérifiés.',
     floors: 'DIMENSIONS DES ÉTAGES',
     addFloor: '+ AJOUTER UN ÉTAGE',
     remove: 'Supprimer',
@@ -675,6 +695,8 @@ export default function BuildingCalculatorScreen({
 }: Props) {
   const t = translations[language];
   const isArabic = language === 'ar';
+  const [selectedCountry, setSelectedCountry] = useState<CountryCode>('LB');
+  const selectedMarket = COUNTRY_OPTIONS.find(country => country.id === selectedCountry)!;
 
   const [floors, setFloors] = useState<FloorData[]>([
     initialFloor(1),
@@ -1007,6 +1029,11 @@ export default function BuildingCalculatorScreen({
   }, [floors, values, detailedValues, units]);
 
   const calculate = () => {
+    if (selectedCountry !== 'LB') {
+      setError(t.ratesPending);
+      setResult(null);
+      return;
+    }
     if (!calculations) {
       setError(t.invalid);
       setResult(null);
@@ -1112,6 +1139,50 @@ export default function BuildingCalculatorScreen({
         <Text style={styles.infoText}>
           {mode === 'professional' ? t.professional : t.homeowner}
         </Text>
+      </View>
+
+      <View style={styles.sectionCard}>
+        <Text style={[styles.sectionTitle, isArabic && styles.rtl]}>
+          {t.country}
+        </Text>
+        <View style={styles.countryOptions}>
+          {COUNTRY_OPTIONS.map(country => (
+            <Pressable
+              key={country.id}
+              onPress={() => {
+                setSelectedCountry(country.id);
+                setResult(null);
+                setError('');
+              }}
+              style={[
+                styles.countryOption,
+                selectedCountry === country.id && styles.countryOptionSelected,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.countryOptionText,
+                  selectedCountry === country.id && styles.countryOptionTextSelected,
+                ]}
+              >
+                {country.names[language === 'ar' ? 1 : language === 'fr' ? 2 : 0]}
+              </Text>
+              <Text
+                style={[
+                  styles.countryCurrency,
+                  selectedCountry === country.id && styles.countryOptionTextSelected,
+                ]}
+              >
+                {country.currency}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+        {selectedCountry !== 'LB' && (
+          <View style={styles.warningBox}>
+            <Text style={styles.warningText}>{t.ratesPending}</Text>
+          </View>
+        )}
       </View>
 
       {section(
@@ -1450,6 +1521,39 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     letterSpacing: 0.8,
     marginBottom: 14,
+  },
+  countryOptions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  countryOption: {
+    borderWidth: 1,
+    borderColor: '#45484d',
+    borderRadius: 9,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    minWidth: 105,
+    flexGrow: 1,
+    backgroundColor: '#20262d',
+  },
+  countryOptionSelected: {
+    borderColor: GOLD,
+    backgroundColor: '#302719',
+  },
+  countryOptionText: {
+    color: '#ddd',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  countryOptionTextSelected: {
+    color: GOLD,
+  },
+  countryCurrency: {
+    color: '#9ca3af',
+    fontSize: 10,
+    marginTop: 4,
+    fontWeight: '700',
   },
   floorCard: {
     backgroundColor: '#20262d',
