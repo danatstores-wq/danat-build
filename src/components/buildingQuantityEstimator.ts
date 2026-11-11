@@ -186,7 +186,7 @@ export function estimateBuildingQuantities(
       : 0;
 
   const waterproofInput = v('waterproof');
-  const waterproofArea = waterproofInput > 0 ? waterproofInput : roof;
+  const waterproofArea = waterproofInput;
 
   const set = (id: string, value: number) => {
     result[`${id}Qty`] = String(
@@ -354,7 +354,7 @@ export function estimateBuildingQuantities(
 
     const volumeIds = [
       'excavation', 'soilRemoval', 'backfilling', 'leanConcrete',
-      'footingConcrete', 'columnConcrete', 'beamConcrete',
+      'footingConcrete', 'columnConcrete', 'beamConcrete', 'sandMasonry',
       'slabConcrete', 'stairConcrete', 'plasterMaterials',
     ];
 
