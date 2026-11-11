@@ -696,7 +696,6 @@ export default function BuildingCalculatorScreen({
   const t = translations[language];
   const isArabic = language === 'ar';
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>('LB');
-  const selectedMarket = COUNTRY_OPTIONS.find(country => country.id === selectedCountry)!;
 
   const [floors, setFloors] = useState<FloorData[]>([
     initialFloor(1),
@@ -1273,7 +1272,7 @@ export default function BuildingCalculatorScreen({
       )}
 
 
-      {section(
+      {selectedCountry === 'LB' && section(
         t.prices,
         <>
           {(
@@ -1289,7 +1288,7 @@ export default function BuildingCalculatorScreen({
       )}
 
       {/* COMPLETE ITEMIZED COST CATALOG */}
-      {section(
+      {selectedCountry === 'LB' && section(
         t.detailedCosts,
         <>
           <Text style={styles.detailedHint}>{t.detailedHint}</Text>
