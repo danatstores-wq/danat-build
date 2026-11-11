@@ -5,6 +5,7 @@ import {
   COUNTRY_ITEM_RATE_DEFAULTS,
   MARKET_RATE_LABELS,
 } from '../data/constructionMarketBenchmarks';
+import { marketBenchmarkLabel } from '../data/marketBenchmarkTranslations';
 import {
   View,
   Text,
@@ -1306,14 +1307,14 @@ export default function BuildingCalculatorScreen({
               {CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].benchmarks.map((benchmark, index) => (
                 <View key={`${benchmark.item}-${index}`} style={styles.marketBenchmarkRow}>
                   <View style={styles.marketBenchmarkText}>
-                    <Text style={styles.marketBenchmarkItem}>{benchmark.item}</Text>
-                    <Text style={styles.marketBenchmarkNote}>{benchmark.note || benchmark.source.replace('https://', '').replace('http://', '')}</Text>
+                    <Text style={styles.marketBenchmarkItem}>{marketBenchmarkLabel(benchmark.item, language)}</Text>
+                    <Text style={styles.marketBenchmarkNote}>{benchmark.note ? marketBenchmarkLabel(benchmark.note, language) : benchmark.source.replace('https://', '').replace('http://', '')}</Text>
                   </View>
                   <View style={styles.marketBenchmarkValueWrap}>
                     <Text style={styles.marketBenchmarkValue}>
                       {new Intl.NumberFormat(undefined, { style: 'currency', currency: CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].currency }).format(benchmark.value)}
                     </Text>
-                    <Text style={styles.marketBenchmarkUnit}>{benchmark.unit}</Text>
+                    <Text style={styles.marketBenchmarkUnit}>{marketBenchmarkLabel(benchmark.unit, language)}</Text>
                     <Text style={styles.marketBenchmarkStatus}>
                       {benchmark.status === 'published'
                         ? (language === 'ar' ? 'منشور' : language === 'fr' ? 'Publié' : 'Published')
