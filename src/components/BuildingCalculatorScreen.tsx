@@ -335,6 +335,7 @@ const COST_ITEMS: CostItem[] = [
 
   // 3. STRUCTURE
   { id: 'columnConcrete', category: 'structure', names: ['Column concrete', 'خرسانة الأعمدة', 'Béton des poteaux'], unit: 'm³' },
+  { id: 'stairConcrete', category: 'structure', names: ['Staircase concrete', 'خرسانة الدرج', 'Béton des escaliers'], unit: 'm³' },
   { id: 'beamConcrete', category: 'structure', names: ['Beam concrete', 'خرسانة الجسور', 'Béton des poutres'], unit: 'm³' },
   { id: 'slabConcrete', category: 'structure', names: ['Slab concrete', 'خرسانة الأسقف', 'Béton des dalles'], unit: 'm³' },
   { id: 'structuralSteel', category: 'structure', names: ['Structural reinforcement steel', 'حديد التسليح الإنشائي', 'Acier de structure'], unit: 'kg' },
@@ -1271,7 +1272,44 @@ export default function BuildingCalculatorScreen({
                   const qty = Number(detailedValues[`${item.id}Qty`] || 0);
                   const material = Number(detailedValues[`${item.id}Material`] || 0);
                   const labor = Number(detailedValues[`${item.id}Labor`] || 0);
-                  const itemTotal = qty * (material + labor);
+                  const legacyRateKey: Record<string, string> = {
+                    footingConcrete: 'concretePrice',
+                    columnConcrete: 'concretePrice',
+                    beamConcrete: 'concretePrice',
+                    slabConcrete: 'concretePrice',
+                    externalBlocks: 'blockPrice',
+                    internalBlocks: 'blockPrice',
+                    internalPlaster: 'plasterPrice',
+                    externalPlaster: 'plasterPrice',
+                    floorTiles: 'tilePrice',
+                    interiorPaint: 'paintPrice',
+                    exteriorPaint: 'paintPrice',
+                    roofWaterproofing: 'waterproofPrice',
+                    lightingPoints: 'electricalPrice',
+                    singleSockets: 'electricalPrice',
+                    doubleSockets: 'electricalPrice',
+                    acPoints: 'electricalPrice',
+                    waterHeaterPoints: 'electricalPrice',
+                    tvPoints: 'electricalPrice',
+                    internetPoints: 'electricalPrice',
+                    switchPoints: 'electricalPrice',
+                    distributionBoard: 'electricalPrice',
+                    electricalCables: 'electricalPrice',
+                    electricalConduits: 'electricalPrice',
+                    grounding: 'electricalPrice',
+                    coldWaterPoints: 'plumbingPrice',
+                    hotWaterPoints: 'plumbingPrice',
+                    toiletConnections: 'plumbingPrice',
+                    showerConnections: 'plumbingPrice',
+                    basinConnections: 'plumbingPrice',
+                    kitchenConnections: 'plumbingPrice',
+                    drainagePipes: 'plumbingPrice',
+                    waterPipes: 'plumbingPrice',
+                  }[item.id];
+                  const legacyMaterialCovered =
+                    !!legacyRateKey && Number(values[legacyRateKey] || 0) > 0;
+                  const itemTotal =
+                    qty * ((legacyMaterialCovered ? 0 : material) + labor);
 
                   return (
                     <View key={item.id} style={styles.detailedItem}>
