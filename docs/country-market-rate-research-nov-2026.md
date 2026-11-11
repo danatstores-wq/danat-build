@@ -220,12 +220,13 @@ Sources:
 - Each GCC market has an independent itemized rate-input state. Switching countries preserves each market's edits.
 - The detailed catalogue is visible in every market. The calculator can produce a partial total and flags active items with missing required material/service or labor rates.
 - GCC material/service defaults now map the available source benchmarks to the relevant catalogue lines:
-  - UAE: machine excavation, 30 MPa ready-mix concrete, 16 mm reinforcement and 50 kg cement.
-  - Saudi Arabia: machine excavation, 350K normal concrete, 12 mm reinforcement, 50 kg cement and soft sand.
+  - UAE: machine excavation, 30 MPa ready-mix concrete, 16 mm reinforcement, 100 mm solid block material (converted to m²) and 50 kg cement.
+  - Saudi Arabia: machine excavation, 350K normal concrete, 12 mm reinforcement, 15 cm block material (converted to m²), 50 kg cement and soft sand.
   - Qatar: ordinary soil excavation, C30/37 ready-mix concrete, reinforcement, 50 kg cement and sand.
   - Kuwait: reinforcement and 50 kg cement.
-  - Oman: C25–C40 ready-mix concrete, reinforcement and 50 kg cement.
-- Concrete and reinforcement defaults are **material-only**. Their labor fields remain zero and active quantities therefore continue to be flagged until a local labor rate is entered. The excavation entries are measured machine/service rates where the source includes machine/operator; the app stores them in the service/material column because the catalogue line does not require a separate labor amount.
+  - Oman: C25–C40 ready-mix concrete, reinforcement, 20 cm hollow block material (converted to m²) and 50 kg cement.
+- Block material conversions assume a 400 × 200 mm face module (12.5 blocks/m²); mortar and installation labor are separate and are not included in those block rates.
+- Concrete, reinforcement and block defaults are **material-only**. Their labor fields remain zero and active quantities therefore continue to be flagged until a local labor rate is entered. The excavation entries are measured machine/service rates where the source includes machine/operator; the app stores them in the service/material column because the catalogue line does not require a separate labor amount.
 - The rates are reference anchors, not a complete installed price book. In particular, the same published concrete benchmark is currently used as a planning material anchor across the structural concrete lines; actual grade, mix design, pump, delivery distance and project volume must be confirmed before quotation.
 - Published market benchmarks remain displayed separately from editable itemized rates. They are not silently treated as installed rates.
 
