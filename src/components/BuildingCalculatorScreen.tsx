@@ -247,7 +247,7 @@ const translations = {
     title: 'Calculateur complet du bâtiment',
     subtitle: 'Estimation complète des quantités et des coûts',
     country: 'PAYS / MARCHÉ DE CONSTRUCTION',
-    ratesPending: 'Les tarifs propres à ce marché sont en préparation. Les tarifs du Liban en USD ne sont pas appliqués ; le calcul du coût reste désactivé jusqu’au chargement de tarifs locaux vérifiés.',
+    ratesPending: 'Les tarifs préremplis de ce marché restent partiels. Les tarifs du Liban en USD ne sont pas appliqués ; le calculateur affiche un sous-total et signale les postes actifs auxquels il manque un tarif local.',
     floors: 'DIMENSIONS DES ÉTAGES',
     addFloor: '+ AJOUTER UN ÉTAGE',
     remove: 'Supprimer',
@@ -553,8 +553,8 @@ function createDetailedCostValues(): DetailedValues {
   return values;
 }
 
-// GCC markets start with blank editable rates until a country-specific rate card
-// is approved. This prevents Lebanon USD values from being shown as local prices.
+// GCC markets start with country-specific local rates where supported; all other
+// rates remain editable zeros and are flagged when their line item is used.
 function createCountryCostValues(
   country: Exclude<CountryCode, 'LB'>
 ): DetailedValues {
