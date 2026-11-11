@@ -462,7 +462,7 @@ const COST_ITEMS: CostItem[] = [
   { id: 'wasteDisposal', category: 'other', names: ['Construction waste disposal', 'ترحيل مخلفات البناء', 'Évacuation des déchets'], unit: 'job', requiresLabor: false },
   { id: 'permits', category: 'other', names: ['Permits and inspections', 'رخص وفحوصات', 'Permis et inspections'], unit: 'job', requiresLabor: false },
   { id: 'siteManagement', category: 'other', names: ['Site management', 'إدارة الموقع', 'Gestion du chantier'], unit: 'job', requiresMaterial: false },
-  { id: 'miscellaneous', category: 'other', names: ['Miscellaneous expenses', 'مصاريف متنوعة', 'Dépenses diverses'], unit: 'job' },
+  { id: 'miscellaneous', category: 'other', names: ['Miscellaneous expenses', 'مصاريف متنوعة', 'Dépenses diverses'], unit: 'job', requiresLabor: false },
 ];
 
 // Lebanon USD planning benchmarks (November 2026). These are editable
@@ -509,7 +509,8 @@ const DEFAULT_LABOR_RATES: Record<string, string> = {
   basinConnections: '12', kitchenConnections: '15', drainagePipes: '1.5', waterPipes: '1.25',
   waterTank: '50', waterPump: '50',
   toilets: '35', washBasins: '25', showers: '40', faucets: '15', sanitaryAccessories: '20',
-  elevatorInstallation: '2500',
+  elevatorCabin: '500', elevatorMotor: '300', elevatorController: '250', elevatorRails: '250',
+  elevatorLandingDoors: '100', elevatorCables: '100', elevatorSafety: '150', elevatorInstallation: '2500',
   floorTiles: '10', wallTiles: '12', skirting: '3',
   internalDoors: '50', externalDoors: '100', aluminumWindows: '10', glassWork: '3', doorHardware: '20',
   wallPrimer: '0.5', wallPutty: '2', interiorPaint: '2.5', exteriorPaint: '3', metalWoodPaint: '4',
