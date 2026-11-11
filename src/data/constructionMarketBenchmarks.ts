@@ -32,11 +32,11 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
       { item: 'cement', value: 13.13, unit: '50 kg bag', status: 'published', source: 'https://quantohq.com/price-index.html', checkedAt: '2026-11-11', note: 'Dubai indicative index, October 2026, excluding VAT.' },
       { item: 'rebar', value: 2936, unit: 'tonne', status: 'published', source: 'https://quantohq.com/price-index.html', checkedAt: '2026-11-11', note: 'Emirates Steel delivered-to-Dubai indicative benchmark; ex-works and retail quotes differ.' },
       { item: 'C40 ready-mix concrete', value: 261, unit: 'm³', status: 'published', source: 'https://quantohq.com/price-index.html', checkedAt: '2026-11-11', note: 'Dubai indicative index, excluding VAT.' },
-      { item: 'formwork carpenter', value: 206, unit: '9-hour day', status: 'market-survey', source: 'https://qsmind.com/', checkedAt: '2026-11-11', note: 'Dubai labor survey; do not treat as a per-m² installed rate.' },
-      { item: 'plasterer', value: 164, unit: '8-hour day', status: 'market-survey', source: 'https://qsmind.com/', checkedAt: '2026-11-11', note: 'Dubai labor survey; supplier-provided accommodation/transport assumptions apply.' },
-      { item: 'electrician', value: 208, unit: '8-hour day', status: 'market-survey', source: 'https://qsmind.com/', checkedAt: '2026-11-11' },
-      { item: 'plumber', value: 190, unit: '8-hour day', status: 'market-survey', source: 'https://qsmind.com/', checkedAt: '2026-11-11' },
-      { item: 'painter', value: 150, unit: '8-hour day', status: 'market-survey', source: 'https://qsmind.com/', checkedAt: '2026-11-11' },
+      { item: 'formwork carpenter', value: 206, unit: '9-hour day', status: 'market-survey', source: 'https://prices.qsmind.app/en/uae/labour', checkedAt: '2026-11-11', note: 'Dubai labor survey; do not treat as a per-m² installed rate.' },
+      { item: 'plasterer', value: 164, unit: '8-hour day', status: 'market-survey', source: 'https://prices.qsmind.app/en/uae/labour', checkedAt: '2026-11-11', note: 'Dubai labor survey; supplier-provided accommodation/transport assumptions apply.' },
+      { item: 'electrician', value: 208, unit: '8-hour day', status: 'market-survey', source: 'https://prices.qsmind.app/en/uae/labour', checkedAt: '2026-11-11' },
+      { item: 'plumber', value: 190, unit: '8-hour day', status: 'market-survey', source: 'https://prices.qsmind.app/en/uae/labour', checkedAt: '2026-11-11' },
+      { item: 'painter', value: 150, unit: '8-hour day', status: 'market-survey', source: 'https://prices.qsmind.app/en/uae/labour', checkedAt: '2026-11-11' },
     ],
   },
   SA: {
@@ -47,11 +47,11 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
       { item: '350K normal ready-mix concrete', value: 212.52, unit: 'm³', status: 'published', source: 'https://ibuild.sa/material-prices', checkedAt: '2026-11-11', note: 'GASTAT September 2026 national average.' },
       { item: '15 cm block', value: 1.67778, unit: 'piece', status: 'published', source: 'https://ibuild.sa/material-prices', checkedAt: '2026-11-11', note: 'Converted from SAR 1,677.78 per 1,000 pieces.' },
       { item: 'white soft sand', value: 77.61, unit: 'm³', status: 'published', source: 'https://ibuild.sa/material-prices', checkedAt: '2026-11-11', note: 'GASTAT September 2026 national average.' },
-      { item: 'mason', value: 16, unit: 'hour', status: 'market-survey', source: 'https://qsmind.com/', checkedAt: '2026-11-11', note: 'Riyadh labor benchmark; unit productivity is not implied.' },
-      { item: 'steel fixer', value: 16, unit: 'hour', status: 'market-survey', source: 'https://qsmind.com/', checkedAt: '2026-11-11', note: 'Riyadh labor benchmark; unit productivity is not implied.' },
-      { item: 'tile mason', value: 18, unit: 'hour', status: 'market-survey', source: 'https://qsmind.com/', checkedAt: '2026-11-11', note: 'Riyadh labor benchmark; unit productivity is not implied.' },
-      { item: 'plaster mason', value: 15, unit: 'hour', status: 'market-survey', source: 'https://qsmind.com/', checkedAt: '2026-11-11', note: 'Riyadh labor benchmark; unit productivity is not implied.' },
-      { item: 'plumber', value: 15, unit: 'hour', status: 'market-survey', source: 'https://qsmind.com/', checkedAt: '2026-11-11', note: 'Riyadh labor benchmark; unit productivity is not implied.' },
+      { item: 'mason', value: 16, unit: 'hour', status: 'market-survey', source: 'https://prices.qsmind.app/en/uae/labour', checkedAt: '2026-11-11', note: 'Riyadh labor benchmark; unit productivity is not implied.' },
+      { item: 'steel fixer', value: 16, unit: 'hour', status: 'market-survey', source: 'https://prices.qsmind.app/en/uae/labour', checkedAt: '2026-11-11', note: 'Riyadh labor benchmark; unit productivity is not implied.' },
+      { item: 'tile mason', value: 18, unit: 'hour', status: 'market-survey', source: 'https://prices.qsmind.app/en/uae/labour', checkedAt: '2026-11-11', note: 'Riyadh labor benchmark; unit productivity is not implied.' },
+      { item: 'plaster mason', value: 15, unit: 'hour', status: 'market-survey', source: 'https://prices.qsmind.app/en/uae/labour', checkedAt: '2026-11-11', note: 'Riyadh labor benchmark; unit productivity is not implied.' },
+      { item: 'plumber', value: 15, unit: 'hour', status: 'market-survey', source: 'https://prices.qsmind.app/en/uae/labour', checkedAt: '2026-11-11', note: 'Riyadh labor benchmark; unit productivity is not implied.' },
     ],
   },
   QA: {
@@ -70,8 +70,8 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
   KW: {
     currency: 'KWD',
     benchmarks: [
-      { item: 'deformed rebar Y8-Y32', value: 245, unit: 'tonne', status: 'market-survey', source: 'https://gccpricing.com/', checkedAt: '2026-11-11', note: 'Indicative GCCPricing benchmark; verify grade, delivery and supplier quote.' },
-      { item: 'cement', value: 3, unit: '50 kg bag', status: 'market-survey', source: 'https://gccpricing.com/', checkedAt: '2026-11-11', note: 'Indicative GCCPricing benchmark.' },
+      { item: 'deformed rebar Y8-Y32', value: 245, unit: 'tonne', status: 'market-survey', source: 'https://www.gccpricing.com/materials', checkedAt: '2026-11-11', note: 'Indicative GCCPricing benchmark; verify grade, delivery and supplier quote.' },
+      { item: 'cement', value: 3, unit: '50 kg bag', status: 'market-survey', source: 'https://www.gccpricing.com/materials', checkedAt: '2026-11-11', note: 'Indicative GCCPricing benchmark.' },
     ],
   },
   OM: {
@@ -79,7 +79,7 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
     benchmarks: [
       { item: '12 mm rebar', value: 248.5, unit: 'tonne', status: 'market-survey', source: 'https://madaar.om/', checkedAt: '2026-11-11', note: 'Indicative supplier gateway price; confirm stock and delivery.' },
       { item: '16 mm rebar', value: 246.1, unit: 'tonne', status: 'market-survey', source: 'https://madaar.om/', checkedAt: '2026-11-11', note: 'Indicative supplier gateway price; confirm stock and delivery.' },
-      { item: 'cement', value: 3, unit: '50 kg bag', status: 'market-survey', source: 'https://gccpricing.com/', checkedAt: '2026-11-11', note: 'Indicative GCCPricing benchmark; verify brand and delivery.' },
+      { item: 'cement', value: 3, unit: '50 kg bag', status: 'market-survey', source: 'https://www.gccpricing.com/materials', checkedAt: '2026-11-11', note: 'Indicative GCCPricing benchmark; verify brand and delivery.' },
       { item: 'ready-mix concrete C25-C40', value: 24, unit: 'm³', status: 'market-survey', source: 'https://binaasouq.com/', checkedAt: '2026-11-11', note: 'Lower end of listed OMR 24-38/m³ range; mix grade and delivery change price.' },
       { item: 'hollow block', value: 0.22, unit: 'piece', status: 'market-survey', source: 'https://binaasouq.com/', checkedAt: '2026-11-11', note: 'Lower end of listed OMR 0.22-0.38 per block range.' },
     ],
