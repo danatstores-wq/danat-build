@@ -130,6 +130,7 @@ export const COUNTRY_ITEM_RATE_DEFAULTS: Partial<
     slabConcrete: { material: 300, labor: 0 },
     foundationSteel: { material: 2.9, labor: 0 }, // T&T 16 mm rebar AED 2,900/t converted to kg
     structuralSteel: { material: 2.9, labor: 0 },
+    internalBlocks: { material: 40.63, labor: 0 }, // T&T 100 mm solid block AED3.25/each × 12.5 blocks/m² (400×200 mm face module)
     cementMasonry: { material: 13.13, labor: 0 }, // Quanto UAE cement, AED/50 kg bag
   },
   SA: {
@@ -141,6 +142,7 @@ export const COUNTRY_ITEM_RATE_DEFAULTS: Partial<
     slabConcrete: { material: 212.52, labor: 0 },
     foundationSteel: { material: 3.12285, labor: 0 }, // GASTAT 12 mm rebar SAR/t converted to kg
     structuralSteel: { material: 3.12285, labor: 0 },
+    externalBlocks: { material: 20.97, labor: 0 }, // GASTAT 15 cm block SAR1.67778/each × 12.5 blocks/m² (400×200 mm face module)
     cementMasonry: { material: 15.53, labor: 0 }, // GASTAT black cement, SAR/50 kg bag
     sandMasonry: { material: 77.61, labor: 0 }, // GASTAT white soft sand, SAR/m³
   },
@@ -169,6 +171,7 @@ export const COUNTRY_ITEM_RATE_DEFAULTS: Partial<
     slabConcrete: { material: 24, labor: 0 },
     foundationSteel: { material: 0.307, labor: 0 }, // GCCPricing OMR307/t converted to kg
     structuralSteel: { material: 0.307, labor: 0 },
+    externalBlocks: { material: 2.13, labor: 0 }, // MCP 20 cm hollow block OMR0.17/each × 12.5 blocks/m² (400×200 mm face module)
     cementMasonry: { material: 3, labor: 0 }, // GCCPricing OMR/50 kg bag
   },
 };
