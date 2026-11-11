@@ -7,7 +7,7 @@ import {
 } from '../data/constructionMarketBenchmarks';
 import { marketBenchmarkLabel, marketBenchmarkSourceLabel } from '../data/marketBenchmarkTranslations';
 import { getThemedStyles } from '../theme';
-import { saveLocalCalculation } from '../storage/localProjects';
+import { saveLocalCalculation, SavedCalculation } from '../storage/localProjects';
 import {
   View,
   Text,
@@ -37,6 +37,7 @@ type Props = {
   onBack: () => void;
   theme: 'dark' | 'light';
   userId: string;
+  savedCalculation?: SavedCalculation | null;
 };
 
 type CostItem = {
@@ -747,6 +748,7 @@ export default function BuildingCalculatorScreen({
   units,
   onBack,
   userId,
+  savedCalculation,
 }: Props) {
   const ui = getThemedStyles(styles, theme);
   const t = translations[language];
@@ -798,6 +800,26 @@ export default function BuildingCalculatorScreen({
   const [error, setError] = useState('');
   const [projectName, setProjectName] = useState('');
   const [saveMessage, setSaveMessage] = useState('');
+  useEffect(() => {
+    if (!savedCalculation || savedCalculation.kind !== 'building') return;
+    const payload = savedCalculation.payload as {
+      selectedCountry?: CountryCode;
+      floors?: FloorData[];
+      values?: typeof initialValues;
+      detailedValues?: DetailedValues;
+      result?: Record<string, any>;
+    };
+    const country = payload.selectedCountry || 'LB';
+    setSelectedCountry(country);
+    if (payload.floors) setFloors(payload.floors);
+    if (payload.values) setValues(payload.values);
+    if (payload.detailedValues) {
+      setDetailedValuesByCountry(old => ({ ...old, [country]: payload.detailedValues! }));
+    }
+    if (payload.result) setResult(payload.result);
+    setError('');
+  }, [savedCalculation]);
+
   const previousUnits = useRef<'metric' | 'imperial'>('metric');
 
   useEffect(() => {

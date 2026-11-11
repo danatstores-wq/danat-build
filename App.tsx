@@ -18,6 +18,7 @@ import BuildingCalculatorScreen from './src/components/BuildingCalculatorScreen'
 import AuthScreen from './src/components/AuthScreen';
 import ProfileScreen from './src/components/ProfileScreen';
 import MyProjectsScreen from './src/components/MyProjectsScreen';
+import { SavedCalculation } from './src/storage/localProjects';
 import { AppTheme, getThemedStyles } from './src/theme';
 import { signOut } from 'firebase/auth';
 import { auth } from './src/firebase';
@@ -97,6 +98,7 @@ export default function App() {
   const [theme, setTheme] = useState<AppTheme>('dark');
   const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [selected, setSelected] = useState('concrete');
+  const [savedCalculation, setSavedCalculation] = useState<SavedCalculation | null>(null);
   const [favourites, setFavourites] = useState<string[]>([]);
 
   useEffect(() => {
@@ -142,6 +144,7 @@ export default function App() {
     lang === 'ar' ? tool.ar : lang === 'fr' ? tool.fr : tool.en;
 
   const openTool = (id: string) => {
+    setSavedCalculation(null);
     setSelected(id);
     setScreen('calculator');
   };
@@ -415,7 +418,7 @@ export default function App() {
                         source={require("./assets/icons/homeowner.png")}
                         style={ui.modeBackground}
                         imageStyle={ui.modeBackgroundImage}
-                        resizeMode="contain"
+                        resizeMode="cover"
                       >
                         <View style={ui.modeTextOverlay}>
                           <Text style={ui.modeText}>
@@ -503,7 +506,8 @@ export default function App() {
                   theme={theme}
                   units={units}
                   userId={auth.currentUser?.uid || 'guest'}
-                  onBack={() => setScreen('home')}
+                  savedCalculation={savedCalculation}
+                  onBack={() => { setSavedCalculation(null); setScreen('home'); }}
                 />
               )}
 
@@ -514,12 +518,25 @@ export default function App() {
                   mode={mode}
                   units={units}
                   userId={auth.currentUser?.uid || 'guest'}
-                  onBack={() => setScreen('home')}
+                  savedCalculation={savedCalculation}
+                  onBack={() => { setSavedCalculation(null); setScreen('home'); }}
                 />
               )}
 
               {screen === 'projects' && (
-                <MyProjectsScreen language={lang} theme={theme} userId={auth.currentUser?.uid || 'guest'} onBack={() => setScreen('home')} />
+                <MyProjectsScreen language={lang} theme={theme} userId={auth.currentUser?.uid || 'guest'} onBack={() => setScreen('home')} onOpen={calculation => {
+                  setSavedCalculation(calculation);
+                  if (calculation.kind === 'quick') {
+                    const payload = calculation.payload as { calculatorId?: string; units?: 'metric' | 'imperial' };
+                    if (payload.calculatorId) setSelected(payload.calculatorId);
+                    if (payload.units) setUnits(payload.units);
+                    setScreen('calculator');
+                  } else {
+                    const payload = calculation.payload as { units?: 'metric' | 'imperial' };
+                    if (payload.units) setUnits(payload.units);
+                    setScreen('building');
+                  }
+                }} />
               )}
 
               {screen === 'profile' && (

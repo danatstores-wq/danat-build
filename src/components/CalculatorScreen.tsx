@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { calculateTool } from '../calculators';
 import { getThemedStyles } from '../theme';
-import { saveLocalCalculation } from '../storage/localProjects';
+import { saveLocalCalculation, SavedCalculation } from '../storage/localProjects';
 
 type Props = {
   calculatorId: string;
@@ -19,6 +19,7 @@ type Props = {
   onBack: () => void;
   theme: 'dark' | 'light';
   userId: string;
+  savedCalculation?: SavedCalculation | null;
 };
 
 type Field = {
@@ -213,6 +214,7 @@ export default function CalculatorScreen({
   units,
   onBack,
   userId,
+  savedCalculation,
 }: Props) {
   const ui = getThemedStyles(styles, theme);
   const [values, setValues] = useState<Record<string, string>>(
@@ -240,6 +242,15 @@ export default function CalculatorScreen({
   const [result, setResult] = useState<
     Record<string, number> | number | null
   >(null);
+
+  useEffect(() => {
+    if (!savedCalculation || savedCalculation.kind !== 'quick') return;
+    const payload = savedCalculation.payload as { calculatorId?: string; values?: Record<string, string>; result?: Record<string, number> | number };
+    if (payload.calculatorId !== calculatorId) return;
+    if (payload.values) setValues(payload.values);
+    if (payload.result !== undefined) setResult(payload.result);
+    setError('');
+  }, [savedCalculation, calculatorId]);
 
   const [error, setError] = useState('');
   const [projectName, setProjectName] = useState('');
