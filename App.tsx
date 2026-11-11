@@ -446,9 +446,15 @@ export default function App() {
                     onPress={() => setScreen('building')}
                     style={ui.buildingCard}
                   >
-                    <Image source={require("./assets/icons/full-building-calculator.png")} style={ui.buildingImage} resizeMode="contain" />
-                    <View style={{ flex: 1 }}>
-                      <Text style={ui.buildingTitle}>
+                    <ImageBackground
+                      source={require("./assets/icons/full-building-calculator.png")}
+                      style={ui.buildingBackground}
+                      imageStyle={ui.buildingBackgroundImage}
+                      resizeMode="cover"
+                    >
+                      <View style={ui.buildingOverlay}>
+                        <View style={{ flex: 1 }}>
+                          <Text style={ui.buildingTitle}>
                         {tr(
                           'FULL BUILDING CALCULATOR',
                           'حاسبة البناء الشاملة',
@@ -461,9 +467,11 @@ export default function App() {
                           'احسب من الأساسات حتى التشطيبات',
                           'Des fondations jusqu’aux finitions'
                         )}
-                      </Text>
-                    </View>
-                    <Text style={ui.buildingArrow}>›</Text>
+                          </Text>
+                        </View>
+                        <Text style={ui.buildingArrow}>›</Text>
+                      </View>
+                    </ImageBackground>
                   </Pressable>
                   )}
 
@@ -1222,19 +1230,29 @@ const styles = StyleSheet.create({
     color: GOLD,
   },
   buildingCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
     marginTop: 22,
-    padding: 16,
-    backgroundColor: '#1c1a15',
     borderWidth: 1,
     borderColor: GOLD,
     borderRadius: 16,
+    overflow: 'hidden',
+    minHeight: 126,
   },
-  buildingImage: {
-    width: 48,
-    height: 48,
+  buildingBackground: {
+    flex: 1,
+    minHeight: 126,
+    justifyContent: 'center',
+  },
+  buildingBackgroundImage: {
+    borderRadius: 15,
+  },
+  buildingOverlay: {
+    flex: 1,
+    minHeight: 126,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 16,
+    backgroundColor: 'rgba(0,0,0,0.52)',
   },
   buildingTitle: {
     color: GOLD,
