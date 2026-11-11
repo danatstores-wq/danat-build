@@ -6,6 +6,7 @@ import {
   View,
   Text,
   Image,
+  ImageBackground,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -376,9 +377,14 @@ export default function App() {
                         mode === 'professional' && ui.modeActive,
                       ]}
                     >
-                      <Image source={require("./assets/icons/professional.png")} style={ui.modeImage} resizeMode="contain" />
-
-                      <Text style={ui.modeText}>
+                      <ImageBackground
+                        source={require("./assets/icons/professional.png")}
+                        style={ui.modeBackground}
+                        imageStyle={ui.modeBackgroundImage}
+                        resizeMode="cover"
+                      >
+                        <View style={ui.modeTextOverlay}>
+                          <Text style={ui.modeText}>
                         {tr(
                           'Professional',
                           'المهني',
@@ -386,13 +392,15 @@ export default function App() {
                         )}
                       </Text>
 
-                      <Text style={ui.modeHint}>
-                        {tr(
-                          'Advanced tools',
-                          'أدوات متقدمة',
-                          'Outils avancés'
-                        )}
-                      </Text>
+                          <Text style={ui.modeHint}>
+                            {tr(
+                              'Advanced tools',
+                              'أدوات متقدمة',
+                              'Outils avancés'
+                            )}
+                          </Text>
+                        </View>
+                      </ImageBackground>
                     </Pressable>
 
                     <Pressable
@@ -402,9 +410,14 @@ export default function App() {
                         mode === 'homeowner' && ui.modeActive,
                       ]}
                     >
-                      <Image source={require("./assets/icons/homeowner.png")} style={ui.modeImage} resizeMode="contain" />
-
-                      <Text style={ui.modeText}>
+                      <ImageBackground
+                        source={require("./assets/icons/homeowner.png")}
+                        style={ui.modeBackground}
+                        imageStyle={ui.modeBackgroundImage}
+                        resizeMode="cover"
+                      >
+                        <View style={ui.modeTextOverlay}>
+                          <Text style={ui.modeText}>
                         {tr(
                           'Homeowner',
                           'صاحب المنزل',
@@ -412,13 +425,15 @@ export default function App() {
                         )}
                       </Text>
 
-                      <Text style={ui.modeHint}>
-                        {tr(
-                          'Simple estimates',
-                          'حسابات بسيطة',
-                          'Estimations simples'
-                        )}
-                      </Text>
+                          <Text style={ui.modeHint}>
+                            {tr(
+                              'Simple estimates',
+                              'حسابات بسيطة',
+                              'Estimations simples'
+                            )}
+                          </Text>
+                        </View>
+                      </ImageBackground>
                     </Pressable>
                   </View>
 
@@ -1086,23 +1101,32 @@ const styles = StyleSheet.create({
   },
   modeCard: {
     flex: 1,
-    backgroundColor: '#191e24',
+    minHeight: 158,
     borderWidth: 1,
     borderColor: '#66553a',
     borderRadius: 16,
-    padding: 14,
-    alignItems: 'center',
-    minHeight: 130,
-    justifyContent: 'center',
+    padding: 0,
+    overflow: 'hidden',
+    backgroundColor: '#191e24',
   },
   modeActive: {
     borderColor: GOLD,
-    backgroundColor: '#242019',
+    borderWidth: 2,
   },
-  modeImage: {
-    width: 56,
-    height: 56,
-    marginBottom: 8,
+  modeBackground: {
+    width: '100%',
+    minHeight: 156,
+    justifyContent: 'flex-end',
+  },
+  modeBackgroundImage: {
+    opacity: 0.95,
+  },
+  modeTextOverlay: {
+    width: '100%',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 10,
+    backgroundColor: 'rgba(8, 11, 14, 0.68)',
   },
   modeText: {
     fontSize: 16,
