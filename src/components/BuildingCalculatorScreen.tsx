@@ -78,13 +78,13 @@ const COUNTRY_OPTIONS: {
   currency: string;
   names: [string, string, string];
 }[] = [
-  { id: 'LB', currency: 'USD', names: ['Lebanon', 'لبنان', 'Liban'] },
-  { id: 'AE', currency: 'AED', names: ['United Arab Emirates', 'الإمارات العربية المتحدة', 'Émirats arabes unis'] },
   { id: 'SA', currency: 'SAR', names: ['Saudi Arabia', 'السعودية', 'Arabie saoudite'] },
-  { id: 'QA', currency: 'QAR', names: ['Qatar', 'قطر', 'Qatar'] },
+  { id: 'AE', currency: 'AED', names: ['United Arab Emirates', 'الإمارات العربية المتحدة', 'Émirats arabes unis'] },
   { id: 'KW', currency: 'KWD', names: ['Kuwait', 'الكويت', 'Koweït'] },
+  { id: 'QA', currency: 'QAR', names: ['Qatar', 'قطر', 'Qatar'] },
   { id: 'OM', currency: 'OMR', names: ['Oman', 'عُمان', 'Oman'] },
   { id: 'BH', currency: 'BHD', names: ['Bahrain', 'البحرين', 'Bahreïn'] },
+  { id: 'LB', currency: 'USD', names: ['Lebanon', 'لبنان', 'Liban'] },
 ];
 
 const translations = {
