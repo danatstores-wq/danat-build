@@ -850,8 +850,9 @@ export default function BuildingCalculatorScreen({
     const tileArea =
       floorArea * (1 + v('tileWaste') / 100);
 
-    const paintArea =
-      netExternalWallArea + partitions + floorArea;
+    const interiorPaintArea =
+      netExternalWallArea + partitions * 2 + floorArea;
+    const paintArea = interiorPaintArea + netExternalWallArea;
 
     const paintLitres =
       v('paintCoverage') > 0
