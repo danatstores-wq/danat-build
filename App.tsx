@@ -414,8 +414,8 @@ export default function App() {
                       <ImageBackground
                         source={require("./assets/icons/homeowner.png")}
                         style={ui.modeBackground}
-                        imageStyle={[ui.modeBackgroundImage, { transform: [{ scale: 1.18 }] }]}
-                        resizeMode="cover"
+                        imageStyle={ui.modeBackgroundImage}
+                        resizeMode="contain"
                       >
                         <View style={ui.modeTextOverlay}>
                           <Text style={ui.modeText}>
