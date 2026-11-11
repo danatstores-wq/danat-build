@@ -378,7 +378,7 @@ export default function App() {
                         mode === 'professional' && ui.modeActive,
                       ]}
                     >
-                      <Text style={ui.modeEmoji}>👷</Text>
+                      <Image source={require("./assets/icons/professional.png")} style={ui.modeImage} resizeMode="contain" />
 
                       <Text style={ui.modeText}>
                         {tr(
@@ -404,7 +404,7 @@ export default function App() {
                         mode === 'homeowner' && ui.modeActive,
                       ]}
                     >
-                      <Text style={ui.modeEmoji}>🏡</Text>
+                      <Image source={require("./assets/icons/homeowner.png")} style={ui.modeImage} resizeMode="contain" />
 
                       <Text style={ui.modeText}>
                         {tr(
@@ -429,7 +429,7 @@ export default function App() {
                     onPress={() => setScreen('building')}
                     style={ui.buildingCard}
                   >
-                    <Text style={ui.buildingIcon}>🏗️</Text>
+                    <Image source={require("./assets/icons/full-building-calculator.png")} style={ui.buildingImage} resizeMode="contain" />
                     <View style={{ flex: 1 }}>
                       <Text style={ui.buildingTitle}>
                         {tr(
@@ -1101,8 +1101,9 @@ const styles = StyleSheet.create({
     borderColor: GOLD,
     backgroundColor: '#242019',
   },
-  modeEmoji: {
-    fontSize: 35,
+  modeImage: {
+    width: 56,
+    height: 56,
     marginBottom: 8,
   },
   modeText: {
@@ -1183,8 +1184,9 @@ const styles = StyleSheet.create({
     borderColor: GOLD,
     borderRadius: 16,
   },
-  buildingIcon: {
-    fontSize: 32,
+  buildingImage: {
+    width: 48,
+    height: 48,
   },
   buildingTitle: {
     color: GOLD,
