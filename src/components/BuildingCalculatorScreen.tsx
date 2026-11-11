@@ -1752,13 +1752,17 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   countryOption: {
+    width: '31%',
+    minWidth: 0,
+    minHeight: 76,
+    flexGrow: 0,
     borderWidth: 1,
     borderColor: '#45484d',
     borderRadius: 9,
     paddingVertical: 10,
-    paddingHorizontal: 12,
-    minWidth: 105,
-    flexGrow: 1,
+    paddingHorizontal: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#20262d',
   },
   countryOptionSelected: {
@@ -1767,8 +1771,9 @@ const styles = StyleSheet.create({
   },
   countryOptionText: {
     color: '#ddd',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
+    textAlign: 'center',
   },
   countryOptionTextSelected: {
     color: GOLD,
