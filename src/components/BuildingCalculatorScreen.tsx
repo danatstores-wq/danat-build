@@ -1404,11 +1404,13 @@ export default function BuildingCalculatorScreen({
                         )}
                         {detailedField(
                           `${item.id}Material`,
-                          t.materialUnit.replace('                          detailedValues[`${item.id}Material`]
+                          t.materialUnit.replace(String.fromCharCode(36), selectedCurrency),
+                          detailedValues[`${item.id}Material`]
                         )}
                         {detailedField(
                           `${item.id}Labor`,
-                          t.laborUnit.replace('                          detailedValues[`${item.id}Labor`]
+                          t.laborUnit.replace(String.fromCharCode(36), selectedCurrency),
+                          detailedValues[`${item.id}Labor`]
                         )}
                       </View>
 
