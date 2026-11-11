@@ -75,7 +75,7 @@ const translations = {
     services: 'ELECTRICAL AND PLUMBING',
     electrical: 'Electrical points',
     plumbing: 'Plumbing points',
-    prices: 'UNIT PRICES (USD)',
+    prices: 'PROJECT ALLOWANCES (USD)',
     concretePrice: 'Concrete price per m³ ($)',
     blockPrice: 'Price per block ($)',
     plasterPrice: 'Plaster price per m² ($)',
@@ -161,7 +161,7 @@ const translations = {
     services: 'الكهرباء والسباكة',
     electrical: 'عدد نقاط الكهرباء',
     plumbing: 'عدد نقاط السباكة',
-    prices: 'أسعار الوحدات (دولار)',
+    prices: 'مصاريف المشروع الإضافية (دولار)',
     concretePrice: 'سعر الباطون للمتر المكعب ($)',
     blockPrice: 'سعر البلوكة ($)',
     plasterPrice: 'سعر القصارة للمتر المربع ($)',
@@ -247,7 +247,7 @@ const translations = {
     services: 'ÉLECTRICITÉ ET PLOMBERIE',
     electrical: 'Points électriques',
     plumbing: 'Points de plomberie',
-    prices: 'PRIX UNITAIRES (USD)',
+    prices: 'FRAIS SUPPLÉMENTAIRES (USD)',
     concretePrice: 'Prix du béton par m³ ($)',
     blockPrice: 'Prix par bloc ($)',
     plasterPrice: 'Prix enduit par m² ($)',
@@ -450,11 +450,17 @@ const COST_ITEMS: CostItem[] = [
   { id: 'miscellaneous', category: 'other', names: ['Miscellaneous expenses', 'مصاريف متنوعة', 'Dépenses diverses'], unit: 'job' },
 ];
 
+const DEFAULT_MATERIAL_RATES: Record<string, string> = {
+  cementMasonry: '8.50',
+  tileAdhesive: '13.00',
+  floorTiles: '8.00',
+};
+
 function createDetailedCostValues(): DetailedValues {
   const values: DetailedValues = {};
   COST_ITEMS.forEach(item => {
     values[`${item.id}Qty`] = '0';
-    values[`${item.id}Material`] = '0';
+    values[`${item.id}Material`] = DEFAULT_MATERIAL_RATES[item.id] ?? '0';
     values[`${item.id}Labor`] = '0';
   });
   return values;
@@ -666,6 +672,32 @@ export default function BuildingCalculatorScreen({
       return converted;
     });
 
+    setDetailedValues(old => {
+      const next = { ...old };
+
+      COST_ITEMS.forEach(item => {
+        const factor =
+          item.unit === 'm²' ? SQFT_TO_SQM :
+          item.unit === 'm³' ? CUFT_TO_CUM :
+          item.unit === 'm' ? FT_TO_M : 1;
+
+        if (factor === 1) return;
+
+        ['Material', 'Labor'].forEach(suffix => {
+          const key = `${item.id}${suffix}`;
+          const amount = Number(next[key]);
+
+          if (Number.isFinite(amount)) {
+            next[key] = String(
+              units === 'imperial' ? amount * factor : amount / factor
+            );
+          }
+        });
+      });
+
+      return next;
+    });
+
     previousUnits.current = units;
     setResult(null);
     setError('');
@@ -854,25 +886,6 @@ export default function BuildingCalculatorScreen({
         ? v('waterproof')
         : lastFloor.length * lastFloor.width;
 
-    const concreteCost = concrete * v('concretePrice');
-    const blockCost = blocks * v('blockPrice');
-    const plasterCost = plasterArea * v('plasterPrice');
-    const tileCost = tileArea * v('tilePrice');
-    const paintCost = paintLitres * v('paintPrice');
-    const waterproofCost = waterproofArea * v('waterproofPrice');
-    const electricalCost = v('electrical') * v('electricalPrice');
-    const plumbingCost = v('plumbing') * v('plumbingPrice');
-
-    const basicMaterialTotal =
-      concreteCost +
-      blockCost +
-      plasterCost +
-      tileCost +
-      paintCost +
-      waterproofCost +
-      electricalCost +
-      plumbingCost;
-
     let detailedMaterialTotal = 0;
     let detailedLaborTotal = 0;
     const categoryTotals: Record<string, number> = {};
@@ -894,9 +907,33 @@ export default function BuildingCalculatorScreen({
 
     const detailedTotal = detailedMaterialTotal + detailedLaborTotal;
 
-    // The original unit-price estimate is preserved.
-    // Itemized entries are added to it as additional cost lines.
-    const materialTotal = basicMaterialTotal + detailedMaterialTotal;
+    // Preserve the original full-construction estimate.
+    const concreteCost = concrete * v('concretePrice');
+    const blockCost = blocks * v('blockPrice');
+    const plasterCost = plasterArea * v('plasterPrice');
+    const tileCost = tileArea * v('tilePrice');
+    const paintCost = paintLitres * v('paintPrice');
+    const waterproofCost = waterproofArea * v('waterproofPrice');
+    const electricalCost = v('electrical') * v('electricalPrice');
+    const plumbingCost = v('plumbing') * v('plumbingPrice');
+
+    const basicMaterialTotal =
+      concreteCost +
+      blockCost +
+      plasterCost +
+      tileCost +
+      paintCost +
+      waterproofCost +
+      electricalCost +
+      plumbingCost;
+
+    // Floor tiles are already included in the original tile estimate.
+    const additionalDetailedMaterials =
+      detailedMaterialTotal -
+      Number(detailedValues.floorTilesQty || 0) *
+      Number(detailedValues.floorTilesMaterial || 0);
+
+    const materialTotal = basicMaterialTotal + additionalDetailedMaterials;
     const labor = v('labor') + detailedLaborTotal;
     const equipment = v('equipment');
     const extra = v('extra');
@@ -917,7 +954,6 @@ export default function BuildingCalculatorScreen({
       waterproofArea,
       electrical: v('electrical'),
       plumbing: v('plumbing'),
-      basicMaterialTotal,
       detailedMaterialTotal,
       detailedLaborTotal,
       detailedTotal,
@@ -1147,15 +1183,6 @@ export default function BuildingCalculatorScreen({
         <>
           {(
             [
-              ['concretePrice', t.concretePrice],
-              ['blockPrice', t.blockPrice],
-              ['plasterPrice', t.plasterPrice],
-              ['tilePrice', t.tilePrice],
-              ['paintPrice', t.paintPrice],
-              ['waterproofPrice', t.waterproofPrice],
-              ['electricalPrice', t.electricalPrice],
-              ['plumbingPrice', t.plumbingPrice],
-              ['labor', t.labor],
               ['equipment', t.equipment],
               ['extra', t.extra],
               ['contingency', t.contingency],
@@ -1298,9 +1325,6 @@ export default function BuildingCalculatorScreen({
 
           <View style={styles.resultDivider} />
           {resultRow(t.materialTotal, money(result.materialTotal))}
-          {resultRow(t.detailedMaterial, money(result.detailedMaterialTotal))}
-          {resultRow(t.detailedLabor, money(result.detailedLaborTotal))}
-          {resultRow(t.detailedTotal, money(result.detailedTotal))}
           {resultRow(t.laborResult, money(result.labor))}
           {resultRow(t.equipmentResult, money(result.equipment))}
           {resultRow(t.extraResult, money(result.extra))}
