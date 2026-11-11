@@ -156,6 +156,13 @@ Source: Ybnee Kuwait building-material marketplace (listing snapshot dated 1 Aug
 
 Etimadco also describes a Kuwait rolling 30-day median for rebar, cement, ready-mix concrete, blocks and sand based on actual supplier-platform prices and RFQs, with a minimum sample threshold. The accessible public page does not expose a full item-by-item rate table in the retrieved view.
 
+**MEP supplier discovery (checked 11 November 2026):** Tasawuk Kuwait lists Gulf Cables single-core 2.5 mm² wire at KWD 13.500 and 4 mm² at KWD 19.000, but the listing view does not clearly state reel length/packaging, so these are not converted to a per-metre default. Jawad Al-Saffar lists a 2.5 mm² single-core wire at KWD 0.078, but likewise omits a clear sale unit/pack length. Art House Kuwait lists PPR valves and plumbing fittings, but the visible catalogue does not provide enough pipe diameter/class and project-unit context for BOQ mapping. These are supplier leads only; obtain a written quote with conductor grade, insulation, reel length, pipe diameter/pressure class and VAT/delivery terms before using them.
+
+Sources:
+- Tasawuk Kuwait wires and cables: https://tasawuk.com/wires-cables/
+- Jawad Al-Saffar 2.5 mm² single-core wire: https://jawad-alsaffar.com/shop/en/19524-single-core-electric-wire-25-mm.html
+- Art House Kuwait plumbing materials: https://arthousekuwait.com/product-category/صحي/مواد-السباكة/
+
 **Whole-project cross-check (Al Qabas, 16 February 2026, quoting Al-Hisba annual report):**
 - Average-quality residential construction and finishing: approximately KWD 135/m².
 - Good quality: approximately KWD 161/m².
@@ -194,6 +201,13 @@ Sources:
 - 20 cm solid block: OMR 0.210–0.220/piece, depending on delivery area.
 
 **Construction trade wage references (Taj HR Services, data period Oct 2025–Sep 2026; updated 21 September 2026):** electrician basic median OMR 210/month (range 180–280), plumber OMR 190/month (160–260), and formwork carpenter OMR 190/month (160–270). These are overseas-intake basic wages; housing, transport, food, overtime and employer costs are separate. They are not contractor charge-out rates.
+
+**Oman MEP supplier and cable references (checked 11 November 2026):** United Plastics Manufacturing Company in Muscat publishes PPR/uPVC product catalogues but no public unit-price schedule on the catalogue page; request a local quotation by diameter, pressure class and length. Easy Technology Global Services lists electrical cable products in OMR, but the displayed category listing does not consistently state cable length or exact electrical specification. GCCPricing lists H07RN-F 3G2.5 mm² flexible cable at OMR 1.48/m, but explicitly identifies Oman as a calibrated regional reference-parity rate, not a local merchant submittal. This is useful for quotation checking only and is not mapped to a generic electrical-point rate.
+
+Sources:
+- United Plastics Manufacturing Company PPR/uPVC catalogue: https://unitedplasticoman.com/catalogue/
+- Easy Technology Oman cable listings: https://easytechno.net/product-category/accessories-5/cable-electric/
+- GCCPricing Oman H07RN-F 3G2.5 mm² cable benchmark: https://www.gccpricing.com/materials/flexible-cable-h07rnf-2-5mm-price-oman
 
 **Oman labor planning lead (EngiCore, 25 April 2026):** daily ranges listed are OMR 4–6 for general labor, OMR 8–12 for masons/carpenters/steel fixers, and OMR 10–15 for electricians/plumbers. This is a commercial estimating guide, not an official wage schedule; treat as provisional and verify against local subcontractor quotations.
 
