@@ -1167,6 +1167,17 @@ export default function BuildingCalculatorScreen({
 
   const rateProvenanceNote = (itemId: string, rateType: 'Material' | 'Labor', value: string) => {
     if (selectedCountry === 'LB') return undefined;
+    const costItem = COST_ITEMS.find(item => item.id === itemId);
+    const rateNotRequired = rateType === 'Labor'
+      ? costItem?.requiresLabor === false
+      : costItem?.requiresMaterial === false;
+    if (rateNotRequired) {
+      return language === 'ar'
+        ? 'غير مطلوب لهذا البند'
+        : language === 'fr'
+        ? 'Non requis pour ce poste'
+        : 'Not required for this item';
+    }
     if (Number(value) <= 0) {
       return language === 'ar'
         ? 'لا يوجد سعر محلي معبأ — أدخل عرض سعر'
