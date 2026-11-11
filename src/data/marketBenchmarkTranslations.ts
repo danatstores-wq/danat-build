@@ -138,3 +138,46 @@ export function marketBenchmarkLabel(value: string, language: MarketBenchmarkLan
   const translated = ITEM_LABELS[value] || UNIT_LABELS[value] || NOTE_LABELS[value];
   return translated ? translated[language === 'ar' ? 0 : 1] : value;
 }
+
+
+const SOURCE_LABELS: Record<string, [string, string]> = {
+  'prices.qsmind.app': ['QSMind – مسح أجور السوق', 'QSMind – enquête salariale'],
+  'quantohq.com': ['QuantoHQ – مؤشر أسعار الإمارات', 'QuantoHQ – indice des prix des Émirats'],
+  'marketintelligence.turnerandtownsend.com': ['Turner & Townsend – بيانات تكاليف البناء', 'Turner & Townsend – données de coûts de construction'],
+  'ibuild.sa': ['iBuild / GASTAT – أسعار المواد', 'iBuild / GASTAT – prix des matériaux'],
+  'boqcalc.com': ['BOQCalc – تقديرات سوق قطر', 'BOQCalc – estimations du marché qatari'],
+  'carbonblueglobal.com': ['CarbonBlue – نموذج جدول كميات', 'CarbonBlue – exemple de bordereau'],
+  'gccpricing.com': ['GCCPricing – مؤشر أسعار إقليمي', 'GCCPricing – indice régional des prix'],
+  'online.nicbm.com': ['NIC Kuwait – قائمة أسعار المصنع', 'NIC Kuwait – catalogue tarifaire du fabricant'],
+  'tajhrservices.com': ['Taj HR Services – دليل الأجور', 'Taj HR Services – guide des salaires'],
+  'madaar.om': ['Madaar – بوابة الموردين', 'Madaar – portail fournisseurs'],
+  'shabiba.com': ['الشبيبة – تقرير أسعار محلي', 'Shabiba – article sur les prix locaux'],
+  'binaasouq.com': ['BinaaSouq – أسعار موردين محليين', 'BinaaSouq – prix de fournisseurs locaux'],
+  'mcp.om': ['MCP Oman – أسعار المصنع المنشورة', 'MCP Oman – prix publiés du fabricant'],
+};
+
+export function marketBenchmarkSourceLabel(source: string, language: MarketBenchmarkLanguage): string {
+  let host = source;
+  try { host = new URL(source).hostname.replace(/^www\\./, ''); } catch { /* keep safe fallback */ }
+  const key = Object.keys(SOURCE_LABELS).find(domain => host === domain || host.endsWith('.' + domain));
+  if (!key) return language === 'ar' ? 'عرض المصدر' : language === 'fr' ? 'Consulter la source' : 'Open source';
+  if (language === 'en') {
+    const labels: Record<string, string> = {
+      'prices.qsmind.app': 'QSMind – labour market survey',
+      'quantohq.com': 'QuantoHQ – UAE price index',
+      'marketintelligence.turnerandtownsend.com': 'Turner & Townsend – construction cost data',
+      'ibuild.sa': 'iBuild / GASTAT – material prices',
+      'boqcalc.com': 'BOQCalc – Qatar market estimates',
+      'carbonblueglobal.com': 'CarbonBlue – sample bill of quantities',
+      'gccpricing.com': 'GCCPricing – regional price index',
+      'online.nicbm.com': 'NIC Kuwait – manufacturer price list',
+      'tajhrservices.com': 'Taj HR Services – salary guide',
+      'madaar.om': 'Madaar – supplier gateway',
+      'shabiba.com': 'Shabiba – local price report',
+      'binaasouq.com': 'BinaaSouq – local supplier prices',
+      'mcp.om': 'MCP Oman – published manufacturer prices',
+    };
+    return labels[key];
+  }
+  return SOURCE_LABELS[key][language === 'ar' ? 0 : 1];
+}
