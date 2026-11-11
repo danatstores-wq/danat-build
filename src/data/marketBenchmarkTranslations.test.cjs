@@ -18,6 +18,14 @@ test('market benchmark notes and units are translated without changing English',
   assert.equal(marketBenchmarkLabel('black cement', 'en'), 'black cement');
 });
 
+test('Lebanon benchmark item names and units are translated', () => {
+  assert.equal(marketBenchmarkLabel('Portland cement CEM I 42.5N', 'ar'), 'إسمنت بورتلاندي CEM I 42.5N');
+  assert.equal(marketBenchmarkLabel('porcelain floor tile 60x60', 'fr'), 'Carrelage de sol en grès cérame 60×60');
+  assert.equal(marketBenchmarkLabel('100 pieces', 'ar'), '100 قطعة');
+  assert.match(marketBenchmarkLabel('Beirut retailer online listing; stock could not be independently reconfirmed on 11 November 2026. Supply-only; confirm current stock, delivery and checkout price.', 'ar'), /تأكيد المخزون/);
+  assert.match(marketBenchmarkLabel('Beirut retailer online listing; stock could not be independently reconfirmed on 11 November 2026. Supply-only; confirm current stock, delivery and checkout price.', 'fr'), /confirmer le stock/i);
+});
+
 test('all translated labels fall back safely when no translation exists', () => {
   assert.equal(marketBenchmarkLabel('unmapped source label', 'ar'), 'unmapped source label');
   assert.equal(marketBenchmarkLabel('unmapped source label', 'fr'), 'unmapped source label');

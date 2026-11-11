@@ -28,9 +28,19 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
 > = {
   LB: {
     currency: 'USD',
-    // Lebanon planning allowances remain in the detailed BOQ. No separate
-    // published benchmark series is shown until local sources are documented.
-    benchmarks: [],
+    // Lebanon market observations. Keep factory-gate, retail and shortage-market
+    // prices distinct; they are not interchangeable or a national average.
+    benchmarks: [
+      { item: 'black cement factory-gate ceiling', value: 96, unit: 'tonne', status: 'published', source: 'https://www.mtv.com.lb/news/محليات/1712965/عيسى-الخوري-يحدّد-سعر-طن-الاسمنت-الأسود', checkedAt: '2026-11-11', note: 'Ministry of Industry Decision 52/1, 1 July 2026; factory-gate maximum, excluding VAT. Not a delivered retail price.' },
+      { item: 'Portland cement CEM I 42.5N', value: 8.5, unit: '50 kg bag', status: 'published', source: 'https://ayass-boutique.store/en/product/portland-cement-50kg', checkedAt: '2026-11-11', note: 'Beirut retailer online listing; stock could not be independently reconfirmed on 11 November 2026. Supply-only; confirm current stock, delivery and checkout price.' },
+      { item: '12 mm reinforcement steel', value: 970, unit: 'tonne', status: 'market-survey', source: 'https://lebanoneconomy.net/الترميم-يواجه-تحدّي-ضبط-الأسعار/', checkedAt: '2026-11-11', note: 'Lebanon market report, 2026; reported market level around USD 970/tonne. Verify grade, delivery and current supplier quotation.' },
+      { item: 'general construction worker wage', value: 50, unit: 'day', status: 'market-survey', source: 'https://lebanoneconomy.net/الترميم-يواجه-تحدّي-ضبط-الأسعار/', checkedAt: '2026-11-11', note: 'Lebanon market report, 2026; reported daily labour cost from USD 50. Not a skilled-trade wage schedule or contractor charge-out rate.' },
+      { item: 'building stone', value: 65, unit: '100 pieces', status: 'market-survey', source: 'https://lebanoneconomy.net/الترميم-يواجه-تحدّي-ضبط-الأسعار/', checkedAt: '2026-11-11', note: 'Midpoint of reported USD 60–70 per 100 stones; size, quarry and delivery affect price.' },
+      { item: 'porcelain floor tile 60x60', value: 18.5, unit: 'm²', status: 'published', source: 'https://ayass-boutique.store/en/product/porcelain-floor-tile-60x60', checkedAt: '2026-11-11', note: 'Beirut retailer online listing; 600×600 mm, 9 mm, R10 matt porcelain; material only, installation excluded. Stock could not be independently reconfirmed on 11 November 2026; confirm stock, delivery and checkout price.' },
+      { item: 'ceramic wall tile 30x60', value: 11, unit: 'm²', status: 'published', source: 'https://ayass-boutique.store/en/product/ceramic-wall-tile-30x60', checkedAt: '2026-11-11', note: 'Beirut retailer online listing; 300×600 mm glazed wall tile; material only, installation excluded. Stock could not be independently reconfirmed on 11 November 2026; confirm stock, delivery and checkout price.' },
+      { item: 'tile adhesive C2TE 25kg', value: 13, unit: '25 kg bag', status: 'published', source: 'https://ayass-boutique.store/en', checkedAt: '2026-11-11', note: 'Beirut retailer online listing; one 25 kg bag; coverage depends on trowel size and substrate. Stock could not be independently reconfirmed on 11 November 2026; confirm stock, delivery and checkout price.' },
+      { item: 'white cement', value: 16, unit: '50 kg bag', status: 'published', source: 'https://ayass-boutique.store/en/product/white-cement-50kg', checkedAt: '2026-11-11', note: 'Beirut retailer online listing; white cement for decorative/rendering use, not interchangeable with black structural cement. Stock could not be independently reconfirmed on 11 November 2026; confirm stock, delivery and checkout price.' },
+    ],
   },
   AE: {
     currency: 'AED',
