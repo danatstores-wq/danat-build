@@ -346,7 +346,7 @@ export default function App() {
                   <Text style={styles.welcomeArabic}>
                     {tr(
                       'Welcome to Danat Build',
-                      'مرحباً بك في دانات بيلد',
+                      'مرحباً بك في دانات للبناء',
                       'Bienvenue chez Danat Build'
                     )}
                   </Text>
@@ -540,7 +540,7 @@ export default function App() {
               {screen === 'about' && (
                 <>
                   <Text style={styles.h1}>
-                    {tr('About Danat Build', 'عن دانات بيلد', 'À propos de Danat Build')}
+                    {tr('About Danat Build', 'عن دانات للبناء', 'À propos de Danat Build')}
                   </Text>
 
                   <View style={styles.emptyCard}>
@@ -558,7 +558,7 @@ export default function App() {
                     <Text style={styles.emptyText}>
                       {tr(
                         'Danat Build is a construction planning application designed to help professionals and homeowners calculate building materials, estimate quantities and plan projects more efficiently.',
-                        'دانات بيلد هو تطبيق لتخطيط أعمال البناء، يساعد المهندسين والمحترفين وأصحاب المنازل على حساب مواد البناء وتقدير الكميات وتخطيط المشاريع بكفاءة.',
+                        'دانات للبناء هو تطبيق لتخطيط أعمال البناء، يساعد المهندسين والمحترفين وأصحاب المنازل على حساب مواد البناء وتقدير الكميات وتخطيط المشاريع بكفاءة.',
                         'Danat Build est une application de planification de construction qui aide les professionnels et les propriétaires à calculer les matériaux, estimer les quantités et organiser leurs projets.'
                       )}
                     </Text>
@@ -766,7 +766,7 @@ export default function App() {
                   </Text>
 
                   {[
-                    tr('About Danat Build', 'عن دانات بيلد', 'À propos'),
+                    tr('About Danat Build', 'عن دانات للبناء', 'À propos'),
                     tr('Tips & Guide', 'النصائح والإرشادات', 'Conseils'),
                     tr('Contact Us', 'اتصل بنا', 'Contact'),
                     tr('Settings', 'الإعدادات', 'Paramètres'),
