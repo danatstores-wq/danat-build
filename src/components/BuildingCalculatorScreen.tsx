@@ -3,6 +3,7 @@ import { estimateBuildingQuantities } from './buildingQuantityEstimator';
 import {
   CONSTRUCTION_MARKET_BENCHMARKS,
   COUNTRY_ITEM_RATE_DEFAULTS,
+  MARKET_RATE_LABELS,
 } from '../data/constructionMarketBenchmarks';
 import {
   View,
@@ -44,6 +45,20 @@ type CostItem = {
 type DetailedValues = Record<string, string>;
 
 const GOLD = '#E9B85D';
+
+// Material defaults backed by official/statistical price publications.
+// Other non-zero GCC material defaults are labelled as market-survey or
+// regional reference anchors; calculated labour allowances remain provisional.
+const PUBLISHED_MATERIAL_RATE_IDS: Partial<Record<Exclude<CountryCode, 'LB'>, string[]>> = {
+  AE: ['cementMasonry'],
+  SA: [
+    'footingConcrete', 'columnConcrete', 'stairConcrete', 'beamConcrete', 'slabConcrete',
+    'foundationSteel', 'structuralSteel', 'externalBlocks', 'cementMasonry', 'sandMasonry', 'floorTiles',
+  ],
+  QA: ['foundationSteel', 'structuralSteel'],
+};
+
+
 
 const COUNTRY_OPTIONS: {
   id: CountryCode;
@@ -1139,10 +1154,27 @@ export default function BuildingCalculatorScreen({
     return unit;
   };
 
+  const rateProvenanceNote = (itemId: string, rateType: 'Material' | 'Labor', value: string) => {
+    if (selectedCountry === 'LB') return undefined;
+    if (Number(value) <= 0) {
+      return language === 'ar'
+        ? 'لا يوجد سعر محلي معبأ — أدخل عرض سعر'
+        : language === 'fr'
+        ? 'Aucun tarif local prérempli — saisir un devis'
+        : 'No local rate mapped — enter a quotation';
+    }
+    if (rateType === 'Labor') return MARKET_RATE_LABELS.provisional[language];
+    const published = PUBLISHED_MATERIAL_RATE_IDS[selectedCountry]?.includes(itemId);
+    return published
+      ? MARKET_RATE_LABELS.published[language]
+      : MARKET_RATE_LABELS['market-survey'][language];
+  };
+
   const detailedField = (
     key: string,
     label: string,
-    value: string
+    value: string,
+    provenanceNote?: string
   ) => (
     <View style={styles.detailedInputColumn} key={key}>
       <Text style={styles.detailedInputLabel}>{label}</Text>
@@ -1155,6 +1187,9 @@ export default function BuildingCalculatorScreen({
         style={styles.detailedInput}
         selectTextOnFocus
       />
+      {!!provenanceNote && (
+        <Text style={styles.rateProvenanceNote}>{provenanceNote}</Text>
+      )}
     </View>
   );
 
@@ -1405,12 +1440,14 @@ export default function BuildingCalculatorScreen({
                         {detailedField(
                           `${item.id}Material`,
                           t.materialUnit.replace(String.fromCharCode(36), selectedCurrency),
-                          detailedValues[`${item.id}Material`]
+                          detailedValues[`${item.id}Material`],
+                          rateProvenanceNote(item.id, 'Material', detailedValues[`${item.id}Material`])
                         )}
                         {detailedField(
                           `${item.id}Labor`,
                           t.laborUnit.replace(String.fromCharCode(36), selectedCurrency),
-                          detailedValues[`${item.id}Labor`]
+                          detailedValues[`${item.id}Labor`],
+                          rateProvenanceNote(item.id, 'Labor', detailedValues[`${item.id}Labor`])
                         )}
                       </View>
 
@@ -1897,6 +1934,13 @@ const styles = StyleSheet.create({
     fontSize: 9,
     marginBottom: 5,
     minHeight: 23,
+  },
+  rateProvenanceNote: {
+    color: '#b7a27f',
+    fontSize: 8,
+    lineHeight: 11,
+    marginTop: 4,
+    minHeight: 22,
   },
   detailedInput: {
     backgroundColor: '#292f36',
