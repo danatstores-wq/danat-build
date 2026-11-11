@@ -161,17 +161,17 @@ export const COUNTRY_ITEM_RATE_DEFAULTS: Partial<
     internetPoints: { material: 0, labor: 31.2 },
     switchPoints: { material: 0, labor: 31.2 },
     coldWaterPoints: { material: 0, labor: 39 }, // 1.5 plumber hours/point × AED208/8h
-    hotWaterPoints: { material: 0, labor: 35.63 },
-    toiletConnections: { material: 0, labor: 35.63 },
-    showerConnections: { material: 0, labor: 35.63 },
-    basinConnections: { material: 0, labor: 35.63 },
-    kitchenConnections: { material: 0, labor: 35.63 },
+    hotWaterPoints: { material: 0, labor: 39 },
+    toiletConnections: { material: 0, labor: 39 },
+    showerConnections: { material: 0, labor: 39 },
+    basinConnections: { material: 0, labor: 39 },
+    kitchenConnections: { material: 0, labor: 39 },
     floorTiles: { material: 0, labor: 7.88 }, // 0.45 skilled-trade hours/m² × AED17.50/hr
     falseCeiling: { material: 20, labor: 7.88 }, // T&T plasterboard material; frame excluded
     wallPrimer: { material: 0, labor: 2.85 }, // 0.12 painter hours/m² × AED190/8h
-    wallPutty: { material: 0, labor: 2.25 },
-    interiorPaint: { material: 0, labor: 2.25 },
-    exteriorPaint: { material: 0, labor: 2.25 },
+    wallPutty: { material: 0, labor: 2.85 },
+    interiorPaint: { material: 0, labor: 2.85 },
+    exteriorPaint: { material: 0, labor: 2.85 },
   },
   SA: {
     excavation: { material: 21.5, labor: 0 }, // QS Mind machine excavation, SAR/m³ installed
