@@ -92,6 +92,9 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
     benchmarks: [
       { item: 'deformed rebar Y8-Y32', value: 245, unit: 'tonne', status: 'market-survey', source: 'https://www.gccpricing.com/kuwait-construction-prices', checkedAt: '2026-11-11', note: 'Indicative GCCPricing benchmark; verify grade, delivery and supplier quote.' },
       { item: 'cement', value: 3, unit: '50 kg bag', status: 'market-survey', source: 'https://www.gccpricing.com/kuwait-construction-prices', checkedAt: '2026-11-11', note: 'Indicative GCCPricing benchmark.' },
+      { item: 'electrician basic wage', value: 185, unit: 'month', status: 'market-survey', source: 'https://tajhrservices.com/salary-guide/kuwait', checkedAt: '2026-11-11', note: 'KWD 150-250 range; KWD 185 overseas-intake basic median. Housing/transport and employer costs are separate.' },
+      { item: 'formwork carpenter basic wage', value: 180, unit: 'month', status: 'market-survey', source: 'https://tajhrservices.com/salary-guide/kuwait', checkedAt: '2026-11-11', note: 'KWD 150-260 range; KWD 180 overseas-intake basic median. Not a contractor charge-out rate.' },
+      { item: 'plumber basic wage', value: 170, unit: 'month', status: 'market-survey', source: 'https://tajhrservices.com/salary-guide/kuwait', checkedAt: '2026-11-11', note: 'KWD 140-230 range; KWD 170 overseas-intake basic median. Not a contractor charge-out rate.' },
     ],
   },
   OM: {
@@ -104,6 +107,9 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
       { item: 'hollow block', value: 0.22, unit: 'piece', status: 'market-survey', source: 'https://binaasouq.com/', checkedAt: '2026-11-11', note: 'Lower end of listed OMR 0.22-0.38 per block range.' },
       { item: 'regular 20 cm hollow block', value: 0.17, unit: 'piece', status: 'published', source: 'https://www.mcp.om/en/cement-blocks', checkedAt: '2026-11-11', note: 'Omani manufacturer published OMR 0.165-0.175 per piece; delivery area changes price.' },
       { item: '20 cm solid block', value: 0.215, unit: 'piece', status: 'published', source: 'https://www.mcp.om/en/cement-blocks', checkedAt: '2026-11-11', note: 'Omani manufacturer published OMR 0.210-0.220 per piece; delivery area changes price.' },
+      { item: 'electrician basic wage', value: 210, unit: 'month', status: 'market-survey', source: 'https://tajhrservices.com/salary-guide/oman', checkedAt: '2026-11-11', note: 'OMR 180-280 range; OMR 210 overseas-intake basic median. Housing/transport and employer costs are separate.' },
+      { item: 'plumber basic wage', value: 190, unit: 'month', status: 'market-survey', source: 'https://tajhrservices.com/salary-guide/oman', checkedAt: '2026-11-11', note: 'OMR 160-260 range; OMR 190 overseas-intake basic median. Not a contractor charge-out rate.' },
+      { item: 'formwork carpenter basic wage', value: 190, unit: 'month', status: 'market-survey', source: 'https://tajhrservices.com/salary-guide/oman', checkedAt: '2026-11-11', note: 'OMR 160-270 range; OMR 190 overseas-intake basic median. Not a contractor charge-out rate.' },
     ],
   },
 };
