@@ -154,7 +154,7 @@ const translations = {
     pricedSubtotal: 'Priced items subtotal (missing rates excluded)',
     reserve: 'Contingency',
     pricedReserve: 'Contingency on priced items only',
-    incompleteTotal: 'INCOMPLETE — ADD MISSING RATES',
+    incompleteTotal: 'PARTIAL ESTIMATED TOTAL — MISSING RATES',
     incompleteValue: '—',
     total: 'TOTAL ESTIMATED COST',
     note: 'IMPORTANT ENGINEERING NOTE',
@@ -246,7 +246,7 @@ const translations = {
     pricedSubtotal: 'مجموع البنود المسعّرة فقط (لا يشمل الأسعار الناقصة)',
     reserve: 'الاحتياطي',
     pricedReserve: 'احتياطي البنود المسعّرة فقط',
-    incompleteTotal: 'غير مكتمل — أدخل الأسعار الناقصة',
+    incompleteTotal: 'الإجمالي التقديري الجزئي — توجد أسعار ناقصة',
     incompleteValue: '—',
     total: 'التكلفة الإجمالية التقديرية',
     note: 'ملاحظة هندسية مهمة',
@@ -338,7 +338,7 @@ const translations = {
     pricedSubtotal: 'Sous-total des postes chiffrés uniquement',
     reserve: 'Imprévus',
     pricedReserve: 'Imprévus sur les postes chiffrés uniquement',
-    incompleteTotal: 'INCOMPLET — AJOUTEZ LES TARIFS MANQUANTS',
+    incompleteTotal: 'TOTAL ESTIMÉ PARTIEL — TARIFS MANQUANTS',
     incompleteValue: '—',
     total: 'COÛT TOTAL ESTIMÉ',
     note: 'NOTE TECHNIQUE IMPORTANTE',
@@ -1601,7 +1601,7 @@ export default function BuildingCalculatorScreen({
               {result.unpricedItemCount > 0 ? t.incompleteTotal : t.total}
             </Text>
             <Text style={styles.totalValue}>
-              {result.unpricedItemCount > 0 ? t.incompleteValue : money(result.total, selectedCurrency)}
+              {money(result.total, selectedCurrency)}
             </Text>
           </View>
         </View>
