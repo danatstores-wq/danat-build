@@ -550,6 +550,18 @@ function createDetailedCostValues(): DetailedValues {
   return values;
 }
 
+// GCC markets start with blank editable rates until a country-specific rate card
+// is approved. This prevents Lebanon USD values from being shown as local prices.
+function createEmptyCountryCostValues(): DetailedValues {
+  const values: DetailedValues = {};
+  COST_ITEMS.forEach(item => {
+    values[`${item.id}Qty`] = '0';
+    values[`${item.id}Material`] = '0';
+    values[`${item.id}Labor`] = '0';
+  });
+  return values;
+}
+
 const initialFloor = (id: number): FloorData => ({
   id,
   length: '15',
@@ -705,9 +717,21 @@ export default function BuildingCalculatorScreen({
   ]);
 
   const [values, setValues] = useState(initialValues);
-  const [detailedValues, setDetailedValues] = useState<DetailedValues>(
-    createDetailedCostValues
-  );
+  const [detailedValuesByCountry, setDetailedValuesByCountry] = useState<Record<CountryCode, DetailedValues>>({
+    LB: createDetailedCostValues(),
+    AE: createEmptyCountryCostValues(),
+    SA: createEmptyCountryCostValues(),
+    QA: createEmptyCountryCostValues(),
+    KW: createEmptyCountryCostValues(),
+    OM: createEmptyCountryCostValues(),
+  });
+  const detailedValues = detailedValuesByCountry[selectedCountry];
+  const setDetailedValues = (updater: (old: DetailedValues) => DetailedValues) => {
+    setDetailedValuesByCountry(old => ({
+      ...old,
+      [selectedCountry]: updater(old[selectedCountry]),
+    }));
+  };
   const manuallyEditedQuantities = useRef<Set<string>>(new Set());
   const [result, setResult] = useState<Record<string, any> | null>(null);
   const [error, setError] = useState('');
@@ -1316,10 +1340,10 @@ export default function BuildingCalculatorScreen({
       )}
 
       {/* COMPLETE ITEMIZED COST CATALOG */}
-      {selectedCountry === 'LB' && section(
+      {section(
         t.detailedCosts,
         <>
-          <Text style={styles.detailedHint}>{t.detailedHint}</Text>
+          <Text style={styles.detailedHint}>{selectedCountry === 'LB' ? t.detailedHint : (language === 'ar' ? 'أدخل أسعار المواد والعمالة المحلية لكل بند. لا تُستخدم أسعار لبنان في هذا السوق.' : language === 'fr' ? 'Saisissez les prix locaux des matériaux et de la main-d’œuvre. Les prix libanais ne sont pas réutilisés pour ce marché.' : 'Enter local material and labor rates for each item. Lebanon prices are not reused for this market.')}</Text>
 
           {COST_CATEGORIES.map(category => {
             const items = COST_ITEMS.filter(
