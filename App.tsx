@@ -236,7 +236,7 @@ export default function App() {
       <SafeAreaView style={ui.safe}>
         <StatusBar
           barStyle={isLight ? 'dark-content' : 'light-content'}
-          backgroundColor={isLight ? '#f5f7fa' : BG}
+          backgroundColor={isLight ? '#F1ECE2' : BG}
         />
 
         {screen === 'welcome' ? (
@@ -734,7 +734,7 @@ export default function App() {
                         <Text style={[ui.langText, theme === option && ui.langTextOn]}>
                           {option === 'dark'
                             ? tr('Dark Gold', 'الأسود والذهبي', 'Sombre & or')
-                            : tr('Bright Light', 'الفاتح المشرق', 'Clair lumineux')}
+                            : tr('Warm Ivory & Gold', 'العاجي الدافئ والذهبي', 'Ivoire chaud et or')}
                         </Text>
                       </Pressable>
                     ))}
