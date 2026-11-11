@@ -586,8 +586,8 @@ const initialValues: Record<string, string> = {
 const number = (values: Record<string, string>, key: string) =>
   Number(values[key] ?? 0);
 
-const money = (value: number) =>
-  `$${value.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+const money = (value: number, currency = 'USD') =>
+  new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(value);
 
 const quantity = (value: number) =>
   value.toLocaleString(undefined, { maximumFractionDigits: 2 });
@@ -696,6 +696,7 @@ export default function BuildingCalculatorScreen({
   const t = translations[language];
   const isArabic = language === 'ar';
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>('LB');
+  const selectedCurrency = COUNTRY_OPTIONS.find(country => country.id === selectedCountry)?.currency ?? 'USD';
 
   const [floors, setFloors] = useState<FloorData[]>([
     initialFloor(1),
@@ -1307,7 +1308,7 @@ export default function BuildingCalculatorScreen({
                     {category.names[language === 'ar' ? 1 : language === 'fr' ? 2 : 0]}
                   </Text>
                   <Text style={styles.detailedCategoryTotal}>
-                    {money(categoryTotal)}
+                    {money(categoryTotal, selectedCurrency)}
                   </Text>
                 </View>
 
@@ -1351,7 +1352,7 @@ export default function BuildingCalculatorScreen({
                           {t.itemTotal}
                         </Text>
                         <Text style={styles.detailedItemTotalValue}>
-                          {money(itemTotal)}
+                          {money(itemTotal, selectedCurrency)}
                         </Text>
                       </View>
                     </View>
@@ -1363,7 +1364,7 @@ export default function BuildingCalculatorScreen({
                     {t.categoryTotal}
                   </Text>
                   <Text style={styles.detailedCategoryFooterValue}>
-                    {money(categoryTotal)}
+                    {money(categoryTotal, selectedCurrency)}
                   </Text>
                 </View>
               </View>
@@ -1418,20 +1419,20 @@ export default function BuildingCalculatorScreen({
           <View style={styles.resultDivider} />
           {resultRow(t.electricalPoints, quantity(result.electricalPoints))}
           {resultRow(t.plumbingPoints, quantity(result.plumbingPoints))}
-          {resultRow(t.materialTotal, money(result.materialTotal))}
-          {resultRow(t.laborResult, money(result.labor))}
-          {resultRow(t.equipmentResult, money(result.equipment))}
-          {resultRow(t.extraResult, money(result.extra))}
+          {resultRow(t.materialTotal, money(result.materialTotal, selectedCurrency))}
+          {resultRow(t.laborResult, money(result.labor, selectedCurrency))}
+          {resultRow(t.equipmentResult, money(result.equipment, selectedCurrency))}
+          {resultRow(t.extraResult, money(result.extra, selectedCurrency))}
 
           {COST_CATEGORIES.map(category =>
             resultRow(
               category.names[language === 'ar' ? 1 : language === 'fr' ? 2 : 0],
-              money(result.categoryTotals[category.id] || 0)
+              money(result.categoryTotals[category.id] || 0, selectedCurrency)
             )
           )}
 
-          {resultRow(result.unpricedItemCount > 0 ? t.pricedSubtotal : t.subtotal, money(result.subtotal))}
-          {resultRow(result.unpricedItemCount > 0 ? t.pricedReserve : t.reserve, money(result.reserve))}
+          {resultRow(result.unpricedItemCount > 0 ? t.pricedSubtotal : t.subtotal, money(result.subtotal, selectedCurrency))}
+          {resultRow(result.unpricedItemCount > 0 ? t.pricedReserve : t.reserve, money(result.reserve, selectedCurrency))}
           {result.unpricedItemCount > 0 && (
             <View style={styles.warningBox}>
               <Text style={styles.warningTitle}>
@@ -1455,7 +1456,7 @@ export default function BuildingCalculatorScreen({
               {result.unpricedItemCount > 0 ? t.incompleteTotal : t.total}
             </Text>
             <Text style={styles.totalValue}>
-              {result.unpricedItemCount > 0 ? t.incompleteValue : money(result.total)}
+              {result.unpricedItemCount > 0 ? t.incompleteValue : money(result.total, selectedCurrency)}
             </Text>
           </View>
         </View>
