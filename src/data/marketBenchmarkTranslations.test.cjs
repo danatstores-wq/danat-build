@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { marketBenchmarkLabel } = require('../../.test-build/data/marketBenchmarkTranslations.js');
+const { marketBenchmarkLabel, marketBenchmarkSourceLabel } = require('../../.test-build/data/marketBenchmarkTranslations.js');
 
 test('Saudi market benchmark item names are translated into Arabic and French', () => {
   assert.equal(marketBenchmarkLabel('black cement', 'ar'), 'أسمنت أسود');
@@ -21,4 +21,12 @@ test('market benchmark notes and units are translated without changing English',
 test('all translated labels fall back safely when no translation exists', () => {
   assert.equal(marketBenchmarkLabel('unmapped source label', 'ar'), 'unmapped source label');
   assert.equal(marketBenchmarkLabel('unmapped source label', 'fr'), 'unmapped source label');
+});
+
+
+test('benchmark source labels are human-readable and localized', () => {
+  const source = 'https://prices.qsmind.app/en/uae/labour';
+  assert.equal(marketBenchmarkSourceLabel(source, 'en'), 'QSMind – labour market survey');
+  assert.match(marketBenchmarkSourceLabel(source, 'ar'), /QSMind/);
+  assert.match(marketBenchmarkSourceLabel(source, 'fr'), /QSMind/);
 });
