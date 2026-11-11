@@ -246,4 +246,18 @@ Sources:
 - The rates are reference anchors, not a complete installed price book. In particular, the same published concrete benchmark is currently used as a planning material anchor across the structural concrete lines; actual grade, mix design, pump, delivery distance and project volume must be confirmed before quotation.
 - Published market benchmarks remain displayed separately from editable itemized rates. They are not silently treated as installed rates.
 
+## Representative calculator coverage audit (11 November 2026)
+
+A representative coverage check was run against the calculator's current default two-floor example: two 15 m × 12 m floors, 3 m storey height, 12 m² openings and 30 m² internal partitions per floor (360 m² total floor area). The calculator's automatic quantity rules produce 66 non-zero cost catalogue lines for this scenario. A line is counted as fully rated only when every rate type required by its catalogue definition is greater than zero; a material-only or labour-only line is still incomplete when the other rate type is required.
+
+| GCC market | Fully rated active lines | Active lines missing at least one required rate |
+|---|---:|---:|
+| UAE | 9 / 66 | 57 |
+| Saudi Arabia | 12 / 66 | 54 |
+| Qatar | 8 / 66 | 58 |
+| Kuwait | 1 / 66 | 65 |
+| Oman | 1 / 66 | 65 |
+
+This is a rate-coverage audit, not a contractor estimate or runtime end-to-end test. It confirms that the GCC starter profiles remain partial and that their displayed totals must remain explicitly labelled partial. The build pipeline validates TypeScript, Firebase Functions and web export; it does not prove the accuracy of the market rates or execute a scenario-level estimate test.
+
 **Remaining work:** extend the country rate cards to more catalogue materials and independently sourced labor rates, particularly Kuwait and Oman; add per-rate provenance and confidence labels beside each editable itemized rate; review composite/installed work items so material and labor are not double-counted; and perform runtime calculation checks for representative projects in all six markets. The current branch passes TypeScript, Firebase Functions build and web export checks, but those checks do not prove rate accuracy or complete BOQ coverage. Keep totals incomplete wherever an active line lacks a required rate.
