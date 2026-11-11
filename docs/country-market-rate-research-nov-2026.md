@@ -5,9 +5,9 @@
 
 ## Executive decision
 
-The country selector can be completed, but a complete and defensible six-country price book for every Danat Build bill-of-quantities line is **not yet available from public evidence**. Do not enable automatic GCC totals by copying Lebanon rates, applying exchange rates, or applying one country-wide multiplier.
+The country selector and editable local-market rate catalog are implemented. A complete and defensible six-country price book for every Danat Build bill-of-quantities line is **not yet available from public evidence**. Do not prefill GCC prices by copying Lebanon rates, applying exchange rates, or applying one country-wide multiplier.
 
-Keep Lebanon as the only active priced profile for now. Keep GCC totals disabled until each active catalogue item has a local material/service rate and labor rate (or is explicitly marked material-only, labor-only, or not applicable). The selector should continue to show the local currency for each market.
+Lebanon retains its existing USD defaults. GCC markets have separate saved rate inputs that start blank rather than inheriting Lebanon prices. The calculator can show a partial total for manually priced active items and flags missing required rates; a complete GCC estimate still requires country-specific item-level defaults, review and validation.
 
 ## Comparable published benchmarks
 
@@ -137,6 +137,7 @@ Sources:
 **Material index (GCCPricing, refreshed on a 14-day cycle):**
 - Average deformed rebar Y8–Y32: KWD 245/t.
 - Average OPC/SRC cement: KWD 3 per 50 kg bag.
+- The Kuwait hub displays 40+ monitored construction-material categories, including sanitaryware, pumps, plumbing, electrical, waterproofing, flooring, doors/windows and landscaping. Individual item specifications and delivery terms still need checking before use as a residential rate.
 
 Etimadco also describes a Kuwait rolling 30-day median for rebar, cement, ready-mix concrete, blocks and sand based on actual supplier-platform prices and RFQs, with a minimum sample threshold. The accessible public page does not expose a full item-by-item rate table in the retrieved view.
 
@@ -158,6 +159,13 @@ Sources:
 **Material index (GCCPricing, refreshed on a 14-day cycle):**
 - Average deformed rebar Y8–Y32: OMR 307/t.
 - Average OPC/SRC cement: OMR 3 per 50 kg bag.
+- The Oman hub displays 40+ monitored material categories, including MEP, sanitaryware, waterproofing, finishes, doors/windows and landscaping.
+
+**Local block manufacturer (Al Madina Cement Products):**
+- Regular 20 cm hollow block: OMR 0.165–0.175/piece, depending on delivery area.
+- 20 cm solid block: OMR 0.210–0.220/piece, depending on delivery area.
+
+**Oman labor planning lead (EngiCore, 25 April 2026):** daily ranges listed are OMR 4–6 for general labor, OMR 8–12 for masons/carpenters/steel fixers, and OMR 10–15 for electricians/plumbers. This is a commercial estimating guide, not an official wage schedule; treat as provisional and verify against local subcontractor quotations.
 
 Oman's Consumer Protection Authority reported in May 2026 that iron prices had increased 12% and cement 18% over February–May 2026, and advised checking current supplier prices. This reinforces the need to date-stamp and refresh rates.
 
@@ -165,6 +173,8 @@ Golden Muscat lists local material price-list categories by governorate and date
 
 Sources:
 - GCCPricing Oman: https://www.gccpricing.com/oman-construction-prices
+- Al Madina Cement Products block prices: https://www.mcp.om/en/cement-blocks
+- EngiCore Oman construction cost guide: https://engicore-9478b.web.app/blog-construction-cost-oman.html
 - Golden Muscat price lists: https://www.goldenmuscat.com/price-lists/building-materials/
 - Oman Consumer Protection Authority (May 2026 statement): https://cpa.gov.om/
 
@@ -176,8 +186,8 @@ Sources:
 | UAE | Recent Dubai manpower rates; 2025 T&T material benchmarks | Dubai vs Abu Dhabi variation; large-project procurement quantities; incomplete trades | Do not activate a complete total yet |
 | Saudi Arabia | Official GASTAT national material averages; recent Riyadh QS labor and installed rates | National materials and Riyadh installed rates have different geographic coverage | Build a separate Saudi profile after mapping all BOQ lines |
 | Qatar | Ashghal dated material schedule; current commercial material and labor listings; 2025 T&T benchmarks | Current installed labor/finishes coverage incomplete; mixed source quality | Build a separate Qatar profile after validation |
-| Kuwait | Rebar/cement index; whole-house cost-per-m² study; rolling material index description | Missing sufficiently detailed public labor and installed-trade rates | Keep totals disabled |
-| Oman | Rebar/cement index; governorate supplier price-list leads | Missing sufficiently detailed public labor and installed-trade rates | Keep totals disabled |
+| Kuwait | 40+ category material index; whole-house cost-per-m² study; rolling material index description | Missing sufficiently detailed public labor and installed-trade rates | Keep totals incomplete until labor/installed coverage is built |
+| Oman | 40+ category material index; local block manufacturer rates; provisional trade wage guide | Wage guide is not official and installed-trade coverage remains incomplete | Keep totals incomplete until labor/installed coverage is validated |
 
 ## Requirements before enabling a country profile
 
@@ -189,6 +199,12 @@ Sources:
 6. Confirm whether VAT, transport, equipment, contractor overhead/profit, permits and site preliminaries are included.
 7. Revalidate all rates before release and refresh volatile materials at least monthly.
 
-## Recommended next implementation step
+## Current implementation state
 
-Create one independent local-currency rate profile per country, keyed to the existing `COST_ITEMS` IDs. Keep the current Lebanon profile separate. Do not enable UAE, Saudi, Qatar, Kuwait or Oman totals until each active item has complete required rate coverage and the calculation tests pass. This is safer than presenting an attractive but misleading automatic total.
+- Country selector supports Lebanon (USD), UAE (AED), Saudi Arabia (SAR), Qatar (QAR), Kuwait (KWD) and Oman (OMR).
+- Lebanon defaults are unchanged.
+- Each GCC market has an independent itemized rate-input state. GCC rate fields start at zero/blank rather than inheriting Lebanon USD values; switching countries preserves each market's edits.
+- The detailed catalogue is visible in every market. The calculator can produce a partial total and explicitly flags active items with missing required material/service or labor rates.
+- Published market benchmarks remain displayed separately from the editable itemized rate inputs. They are not silently treated as installed rates.
+
+**Remaining work:** build the complete GCC item-level defaults with per-rate provenance/confidence, distinguish material-only, labor-only and installed references, then validate calculation behavior and UI on all six markets. Keep totals clearly partial until that coverage is complete.
