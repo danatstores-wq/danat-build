@@ -209,41 +209,41 @@ export const COUNTRY_ITEM_RATE_DEFAULTS: Partial<
 > = {
   AE: {
     excavation: { material: 25, labor: 0 }, // T&T 2025 Dubai measured excavation service, AED/m³
-    footingConcrete: { material: 300, labor: 0 }, // T&T 2025 Dubai 30 MPa ready-mix material, AED/m³
-    columnConcrete: { material: 300, labor: 0 },
-    stairConcrete: { material: 300, labor: 0 },
-    beamConcrete: { material: 300, labor: 0 },
-    slabConcrete: { material: 300, labor: 0 },
-    foundationSteel: { material: 2.9, labor: 0 }, // T&T 16 mm rebar AED 2,900/t converted to kg
-    structuralSteel: { material: 2.9, labor: 0 },
+    footingConcrete: { material: 300, labor: 13.13 }, // T&T 2025 Dubai 30 MPa ready-mix material, AED/m³
+    columnConcrete: { material: 300, labor: 13.13 },
+    stairConcrete: { material: 300, labor: 13.13 },
+    beamConcrete: { material: 300, labor: 13.13 },
+    slabConcrete: { material: 300, labor: 13.13 },
+    foundationSteel: { material: 2.9, labor: 1.4 }, // T&T 16 mm rebar AED 2,900/t converted to kg
+    structuralSteel: { material: 2.9, labor: 1.4 },
     internalBlocks: { material: 40.63, labor: 0 }, // T&T 100 mm solid block AED3.25/each × 12.5 blocks/m² (400×200 mm face module)
-    falseCeiling: { material: 20, labor: 0 }, // T&T 13 mm plasterboard sheet material, AED/m²; frame and installation excluded
+    falseCeiling: { material: 20, labor: 7.88 }, // T&T 13 mm plasterboard sheet material, AED/m²; frame and installation excluded
     cementMasonry: { material: 13.13, labor: 0 }, // Quanto UAE cement, AED/50 kg bag
   },
   SA: {
     excavation: { material: 21.5, labor: 0 }, // QS Mind Riyadh machine excavation service, SAR/m³
-    footingConcrete: { material: 212.52, labor: 0 }, // GASTAT 350K normal concrete, SAR/m³
-    columnConcrete: { material: 212.52, labor: 0 },
-    stairConcrete: { material: 212.52, labor: 0 },
-    beamConcrete: { material: 212.52, labor: 0 },
-    slabConcrete: { material: 212.52, labor: 0 },
-    foundationSteel: { material: 3.12285, labor: 0 }, // GASTAT 12 mm rebar SAR/t converted to kg
-    structuralSteel: { material: 3.12285, labor: 0 },
-    externalBlocks: { material: 20.97, labor: 0 }, // GASTAT 15 cm block SAR1.67778/each × 12.5 blocks/m² (400×200 mm face module)
-    floorTiles: { material: 23.16, labor: 0 }, // GASTAT marble tile national average, SAR/m²; installation and adhesive excluded
+    footingConcrete: { material: 212.52, labor: 25.52 }, // GASTAT 350K normal concrete, SAR/m³
+    columnConcrete: { material: 212.52, labor: 25.52 },
+    stairConcrete: { material: 212.52, labor: 25.52 },
+    beamConcrete: { material: 212.52, labor: 25.52 },
+    slabConcrete: { material: 212.52, labor: 25.52 },
+    foundationSteel: { material: 3.12285, labor: 1.28 }, // GASTAT 12 mm rebar SAR/t converted to kg
+    structuralSteel: { material: 3.12285, labor: 1.28 },
+    externalBlocks: { material: 20.97, labor: 10.4 }, // GASTAT 15 cm block SAR1.67778/each × 12.5 blocks/m² (400×200 mm face module)
+    floorTiles: { material: 23.16, labor: 8.1 }, // GASTAT marble tile national average, SAR/m²; installation and adhesive excluded
     cementMasonry: { material: 15.53, labor: 0 }, // GASTAT black cement, SAR/50 kg bag
     sandMasonry: { material: 77.61, labor: 0 }, // GASTAT white soft sand, SAR/m³
   },
   QA: {
     excavation: { material: 28, labor: 0 }, // Qatar sample BOQ excavation service, QAR/m³
-    footingConcrete: { material: 305, labor: 0 }, // BoqCalc C30/37 ready-mix, QAR/m³
-    columnConcrete: { material: 305, labor: 0 },
-    stairConcrete: { material: 305, labor: 0 },
-    beamConcrete: { material: 305, labor: 0 },
-    slabConcrete: { material: 305, labor: 0 },
+    footingConcrete: { material: 305, labor: 28.07 }, // BoqCalc C30/37 ready-mix, QAR/m³
+    columnConcrete: { material: 305, labor: 28.07 },
+    stairConcrete: { material: 305, labor: 28.07 },
+    beamConcrete: { material: 305, labor: 28.07 },
+    slabConcrete: { material: 305, labor: 28.07 },
     foundationSteel: { material: 2.99, labor: 0 }, // Ashghal 10–40 mm rebar QAR/t converted to kg
     structuralSteel: { material: 2.99, labor: 0 },
-    falseCeiling: { material: 23, labor: 0 }, // BoqCalc gypsum board sheet material, QAR/m²; metal frame and installation excluded
+    falseCeiling: { material: 23, labor: 17.89 }, // BoqCalc gypsum board sheet material, QAR/m²; metal frame and installation excluded
     cementMasonry: { material: 34, labor: 0 }, // BoqCalc QAR17/25 kg converted to 50 kg bag
     sandMasonry: { material: 72, labor: 0 }, // BoqCalc sand QAR/m³
   },
