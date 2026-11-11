@@ -145,6 +145,11 @@ Sources:
 - Average OPC/SRC cement: KWD 3 per 50 kg bag.
 - The Kuwait hub displays 40+ monitored construction-material categories, including sanitaryware, pumps, plumbing, electrical, waterproofing, flooring, doors/windows and landscaping. Individual item specifications and delivery terms still need checking before use as a residential rate.
 
+**Local manufacturer retail cross-check (National Industries Company / NIC online store, checked 11 November 2026):**
+- Limestone Block 17, 390×190×190 mm: KWD 431 per 1,000 pieces; the product page states 12 pieces/m².
+- Hollow cement block, 390×190×90 mm: KWD 0.202/piece; the product page states 25 pieces/m².
+- These are specific products, not generic installed wall rates. The stated coverage for the 9 cm hollow block should be reconciled with the actual laying pattern before conversion to a per-m² calculator default. The 17 cm product is a sandlime/limestone block marketed for garden walls and rooftop fences, so it is not assumed to represent standard structural masonry.
+
 Etimadco also describes a Kuwait rolling 30-day median for rebar, cement, ready-mix concrete, blocks and sand based on actual supplier-platform prices and RFQs, with a minimum sample threshold. The accessible public page does not expose a full item-by-item rate table in the retrieved view.
 
 **Whole-project cross-check (Al Qabas, 16 February 2026, quoting Al-Hisba annual report):**
@@ -159,6 +164,8 @@ These are whole-project benchmarks for a stated house configuration and finish l
 
 Sources:
 - GCCPricing Kuwait: https://www.gccpricing.com/kuwait-construction-prices
+- National Industries Company / NIC Kuwait online store, Block 17: https://online.nicbm.com/en/item/block-17
+- National Industries Company / NIC Kuwait online store, 9 cm hollow cement block: https://online.nicbm.com/en/item/hollow-blocks-39x19x09-cm-3-n-mm2
 - Taj HR Services Kuwait 2026 salary guide: https://tajhrservices.com/salary-guide/kuwait
 - AECOM Middle East Property & Construction Handbook 2024: https://publications.aecom.com/MEH/static/69a84a66cc94f48d41d456bfc959f519/4714f9cc02b32c869d15d7378fcb142e.pdf
 - Etimadco Kuwait index: https://etimadco.com/kw/services/material-prices
@@ -170,6 +177,11 @@ Sources:
 - Average deformed rebar Y8–Y32: OMR 307/t.
 - Average OPC/SRC cement: OMR 3 per 50 kg bag.
 - The Oman hub displays 40+ monitored material categories, including MEP, sanitaryware, waterproofing, finishes, doors/windows and landscaping.
+
+**Government field-survey reporting (Consumer Protection Authority observations published 8–10 October 2026):**
+- In Al Wusta, the 8 October report listed Raysut cement 50 kg bags between OMR 1.450 and OMR 1.750 across named outlets/brands; the starter calculator uses OMR 1.60 as a regional midpoint planning anchor, not a national average.
+- The same report listed 12–20 mm rebar at OMR 316/t at one named outlet. This is a local supplier observation, not a national mean; it is retained as a cross-check rather than replacing the broader portal benchmark.
+- A separate Al Dakhiliyah field survey dated 1 October 2026 also published comparative tables for 8–32 mm steel and 50 kg cement bags, confirming that regional price schedules are available and should be preferred over broad portal averages when the project's governorate is known.
 
 **Local block manufacturer (Al Madina Cement Products):**
 - Regular 20 cm hollow block: OMR 0.165–0.175/piece, depending on delivery area.
@@ -185,6 +197,8 @@ Golden Muscat lists local material price-list categories by governorate and date
 
 Sources:
 - GCCPricing Oman: https://www.gccpricing.com/oman-construction-prices
+- Oman Consumer Protection Authority field-survey reporting via Al Shabiba (Al Wusta, 8 October 2026): https://shabiba.com/article/212280-%D9%84%D9%84%D9%85%D9%82%D8%A8%D9%84%D9%8A%D9%86-%D8%A8%D8%A7%D9%84%D8%A8%D9%86%D8%A7-%D8%A8%D8%A7%D9%84%D9%88%D8%B3%D8%B7%D9%89-%D9%83%D9%85-%D8%A8%D9%84%D8%BA%D8%AA-%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1-%D8%A7%D9%84%D8%A3%D8%B3%D9%85%D9%86%D8%AA-%D9%88%D8%A7%D9%84%D8%AD%D8%AF%D9%8A%D8%AF-%D9%81%D9%8A-%D9%85%D9%86%D8%A7%D9%81%D8%B0-%D8%A7%D9%84%D8%A8%D9%8A%D8%B9
+- Oman Consumer Protection Authority field-survey reporting via Al Shabiba (Al Dakhiliyah, 1 October 2026): https://shabiba.com/a/212215
 - Taj HR Services Oman 2026 salary guide: https://tajhrservices.com/salary-guide/oman
 - AECOM Middle East Property & Construction Handbook 2024: https://publications.aecom.com/MEH/static/69a84a66cc94f48d41d456bfc959f519/4714f9cc02b32c869d15d7378fcb142e.pdf
 - Al Madina Cement Products block prices: https://www.mcp.om/en/cement-blocks
@@ -223,8 +237,8 @@ Sources:
   - UAE: machine excavation, 30 MPa ready-mix concrete, 16 mm reinforcement, 100 mm solid block material (converted to m²), 13 mm plasterboard sheet material and 50 kg cement.
   - Saudi Arabia: machine excavation, 350K normal concrete, 12 mm reinforcement, 15 cm block material (converted to m²), marble tile material, 50 kg cement and soft sand.
   - Qatar: ordinary soil excavation, C30/37 ready-mix concrete, reinforcement, gypsum-board sheet material, 50 kg cement and sand.
-  - Kuwait: reinforcement and 50 kg cement.
-  - Oman: C25–C40 ready-mix concrete, reinforcement, 20 cm hollow block material (converted to m²) and 50 kg cement.
+  - Kuwait: reinforcement and 50 kg cement. NIC block products are recorded as per-piece benchmarks only; their product-specific coverage/specification is not yet safe to normalize into the calculator's generic blockwork unit rate.
+  - Oman: C25–C40 ready-mix concrete, reinforcement, 20 cm hollow block material (converted to m²) and 50 kg cement. The cement starter value is now the OMR 1.60 midpoint of the Al Wusta October 2026 field-survey range; the separate OMR 3 GCCPricing listing remains visible as a conflicting cross-check.
 - Block material conversions assume a 400 × 200 mm face module (12.5 blocks/m²); mortar and installation labor are separate and are not included in those block rates.
 - Concrete, reinforcement, block, tile and plasterboard defaults are **material-only**. UAE and Qatar gypsum-board defaults exclude the ceiling frame; Saudi marble tile excludes adhesive, grout and installation. Their labor fields remain zero and active quantities therefore continue to be flagged until a local labor rate is entered. The excavation entries are measured machine/service rates where the source includes machine/operator; the app stores them in the service/material column because the catalogue line does not require a separate labor amount.
 - UAE, Saudi Arabia and Qatar now also have provisional **labor-only unit allowances** on selected concrete, steel, formwork, blockwork, plaster, electrical, plumbing, tile, paint and ceiling lines. These are calculated from the local hourly/day wage observations and explicit estimating productivity assumptions: concrete 0.75 worker-hour/m³; reinforcement fixing 0.08 worker-hour/kg; formwork 0.50 carpenter-hour/m²; blockwork 0.65 mason-hour/m²; plaster 0.30 plasterer-hour/m²; tiling 0.45 tiler-hour/m²; electrical 1.20 electrician-hours/point; plumbing 1.50 plumber-hours/point; painting 0.12 painter-hour/m²; and drywall ceiling installation 0.45 installer-hour/m². They are **provisional planning allowances**, not measured contractor quotations, and exclude employer burden, contractor overhead/profit, tools, small-work inefficiency and VAT where applicable. Confirm against local subcontractor quotes before tender use.
