@@ -9,12 +9,14 @@ import {
   ScrollView,
 } from 'react-native';
 import { calculateTool } from '../calculators';
+import { getThemedStyles } from '../theme';
 
 type Props = {
   calculatorId: string;
   language: 'en' | 'ar' | 'fr';
   units: 'metric' | 'imperial';
   onBack: () => void;
+  theme: 'dark' | 'light';
 };
 
 type Field = {
@@ -205,9 +207,11 @@ function formatLabel(key: string, language: Props['language'], units: Props['uni
 export default function CalculatorScreen({
   calculatorId,
   language,
+  theme,
   units,
   onBack,
 }: Props) {
+  const ui = getThemedStyles(styles, theme);
   const [values, setValues] = useState<Record<string, string>>(
     Object.fromEntries(
       (fields[calculatorId] || []).map(field => [
@@ -287,20 +291,20 @@ export default function CalculatorScreen({
 
   return (
     <ScrollView
-      contentContainerStyle={styles.container}
+      contentContainerStyle={ui.container}
       keyboardShouldPersistTaps="handled"
     >
       <Pressable onPress={onBack}>
-        <Text style={styles.back}>
+        <Text style={ui.back}>
           {isArabic ? '‹ العودة' : language === 'fr' ? '‹ Retour' : '‹ Back'}
         </Text>
       </Pressable>
 
-      <Text style={[styles.title, isArabic && styles.rtl]}>
+      <Text style={[ui.title, isArabic && ui.rtl]}>
         {title}
       </Text>
 
-      <Text style={[styles.subtitle, isArabic && styles.rtl]}>
+      <Text style={[ui.subtitle, isArabic && ui.rtl]}>
         {isArabic
           ? 'أدخل القياسات للحصول على تقدير'
           : language === 'fr'
@@ -308,10 +312,10 @@ export default function CalculatorScreen({
           : 'Enter your measurements to get an estimate'}
       </Text>
 
-      <View style={styles.card}>
+      <View style={ui.card}>
         {(fields[calculatorId] || []).map(field => (
-          <View key={field.key} style={styles.field}>
-            <Text style={[styles.label, isArabic && styles.rtl]}>
+          <View key={field.key} style={ui.field}>
+            <Text style={[ui.label, isArabic && ui.rtl]}>
               {unitLabel(field.label[language], units)}
             </Text>
 
@@ -328,13 +332,13 @@ export default function CalculatorScreen({
               keyboardType="decimal-pad"
               placeholder="0"
               placeholderTextColor="#888"
-              style={[styles.input, isArabic && styles.rtl]}
+              style={[ui.input, isArabic && ui.rtl]}
             />
           </View>
         ))}
 
-        <Pressable style={styles.button} onPress={calculate}>
-          <Text style={styles.buttonText}>
+        <Pressable style={ui.button} onPress={calculate}>
+          <Text style={ui.buttonText}>
             {isArabic
               ? 'احسب النتيجة'
               : language === 'fr'
@@ -345,12 +349,12 @@ export default function CalculatorScreen({
       </View>
 
       {!!error && (
-        <Text style={styles.error}>{error}</Text>
+        <Text style={ui.error}>{error}</Text>
       )}
 
       {result !== null && (
-        <View style={styles.resultCard}>
-          <Text style={styles.resultHeading}>
+        <View style={ui.resultCard}>
+          <Text style={ui.resultHeading}>
             {isArabic
               ? 'النتائج'
               : language === 'fr'
@@ -359,17 +363,17 @@ export default function CalculatorScreen({
           </Text>
 
           {resultEntries.map(([key, value]) => (
-            <View key={key} style={styles.resultRow}>
+            <View key={key} style={ui.resultRow}>
               <Text
                 style={[
-                  styles.resultLabel,
-                  isArabic && styles.rtl,
+                  ui.resultLabel,
+                  isArabic && ui.rtl,
                 ]}
               >
                 {formatLabel(key, language, units)}
               </Text>
 
-              <Text style={styles.resultValue}>
+              <Text style={ui.resultValue}>
                 {resultFromMetric(key, Number(value), units).toLocaleString(undefined, {
                   maximumFractionDigits: 2,
                 })}
