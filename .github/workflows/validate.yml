@@ -27,6 +27,9 @@ jobs:
       - name: Install Firebase Functions dependencies
         run: npm ci --prefix functions
 
+      - name: Quantity estimator regression tests
+        run: npm run test:quantities
+
       - name: TypeScript check
         run: npx tsc --noEmit
 
