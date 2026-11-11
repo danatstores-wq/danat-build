@@ -871,8 +871,6 @@ export default function BuildingCalculatorScreen({
         ? (paintArea * v('paintCoats')) / v('paintCoverage')
         : 0;
 
-    const lastFloor = floorData[floorData.length - 1];
-
     const waterproofArea = v('waterproof');
 
     let detailedMaterialTotal = 0;
