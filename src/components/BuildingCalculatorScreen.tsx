@@ -6,6 +6,7 @@ import {
   MARKET_RATE_LABELS,
 } from '../data/constructionMarketBenchmarks';
 import { marketBenchmarkLabel, marketBenchmarkSourceLabel } from '../data/marketBenchmarkTranslations';
+import { getThemedStyles } from '../theme';
 import {
   View,
   Text,
@@ -33,6 +34,7 @@ type Props = {
   mode: 'professional' | 'homeowner';
   units: 'metric' | 'imperial';
   onBack: () => void;
+  theme: 'dark' | 'light';
 };
 
 type CostItem = {
@@ -737,10 +739,12 @@ function displayPaint(value: number, units: 'metric' | 'imperial') {
 
 export default function BuildingCalculatorScreen({
   language,
+  theme,
   mode,
   units,
   onBack,
 }: Props) {
+  const ui = getThemedStyles(styles, theme);
   const t = translations[language];
   const isArabic = language === 'ar';
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>('LB');
@@ -1126,8 +1130,8 @@ export default function BuildingCalculatorScreen({
     value: string,
     onChange: (value: string) => void
   ) => (
-    <View key={key} style={styles.field}>
-      <Text style={[styles.label, isArabic && styles.rtl]}>
+    <View key={key} style={ui.field}>
+      <Text style={[ui.label, isArabic && ui.rtl]}>
         {labelForUnits(label, units)}
       </Text>
       <TextInput
@@ -1136,14 +1140,14 @@ export default function BuildingCalculatorScreen({
         keyboardType="decimal-pad"
         placeholder="0"
         placeholderTextColor="#888"
-        style={[styles.input, isArabic && styles.rtl]}
+        style={[ui.input, isArabic && ui.rtl]}
       />
     </View>
   );
 
   const section = (heading: string, children: React.ReactNode) => (
-    <View style={styles.sectionCard}>
-      <Text style={[styles.sectionTitle, isArabic && styles.rtl]}>
+    <View style={ui.sectionCard}>
+      <Text style={[ui.sectionTitle, isArabic && ui.rtl]}>
         {heading}
       </Text>
       {children}
@@ -1155,11 +1159,11 @@ export default function BuildingCalculatorScreen({
     value: string,
     bold = false
   ) => (
-    <View style={styles.resultRow} key={label}>
-      <Text style={[styles.resultLabel, bold && styles.boldResult]}>
+    <View style={ui.resultRow} key={label}>
+      <Text style={[ui.resultLabel, bold && ui.boldResult]}>
         {label}
       </Text>
-      <Text style={[styles.resultValue, bold && styles.boldResult]}>
+      <Text style={[ui.resultValue, bold && ui.boldResult]}>
         {value}
       </Text>
     </View>
@@ -1218,52 +1222,52 @@ export default function BuildingCalculatorScreen({
     value: string,
     provenanceNote?: string
   ) => (
-    <View style={styles.detailedInputColumn} key={key}>
-      <Text style={styles.detailedInputLabel}>{label}</Text>
+    <View style={ui.detailedInputColumn} key={key}>
+      <Text style={ui.detailedInputLabel}>{label}</Text>
       <TextInput
         value={value}
         onChangeText={text => updateDetailedValue(key, text)}
         keyboardType="decimal-pad"
         placeholder="0"
         placeholderTextColor="#888"
-        style={styles.detailedInput}
+        style={ui.detailedInput}
         selectTextOnFocus
       />
       {!!provenanceNote && (
-        <Text style={styles.rateProvenanceNote}>{provenanceNote}</Text>
+        <Text style={ui.rateProvenanceNote}>{provenanceNote}</Text>
       )}
     </View>
   );
 
   return (
     <ScrollView
-      contentContainerStyle={styles.container}
+      contentContainerStyle={ui.container}
       keyboardShouldPersistTaps="handled"
     >
       <Pressable onPress={onBack}>
-        <Text style={styles.back}>
+        <Text style={ui.back}>
           {isArabic ? '‹ العودة' : language === 'fr' ? '‹ Retour' : '‹ Back'}
         </Text>
       </Pressable>
 
-      <Text style={[styles.title, isArabic && styles.rtl]}>
+      <Text style={[ui.title, isArabic && ui.rtl]}>
         {t.title}
       </Text>
-      <Text style={[styles.subtitle, isArabic && styles.rtl]}>
+      <Text style={[ui.subtitle, isArabic && ui.rtl]}>
         {t.subtitle}
       </Text>
 
-      <View style={styles.infoBox}>
-        <Text style={styles.infoText}>
+      <View style={ui.infoBox}>
+        <Text style={ui.infoText}>
           {mode === 'professional' ? t.professional : t.homeowner}
         </Text>
       </View>
 
-      <View style={styles.sectionCard}>
-        <Text style={[styles.sectionTitle, isArabic && styles.rtl]}>
+      <View style={ui.sectionCard}>
+        <Text style={[ui.sectionTitle, isArabic && ui.rtl]}>
           {t.country}
         </Text>
-        <View style={styles.countryOptions}>
+        <View style={ui.countryOptions}>
           {COUNTRY_OPTIONS.map(country => (
             <Pressable
               key={country.id}
@@ -1273,22 +1277,22 @@ export default function BuildingCalculatorScreen({
                 setError('');
               }}
               style={[
-                styles.countryOption,
-                selectedCountry === country.id && styles.countryOptionSelected,
+                ui.countryOption,
+                selectedCountry === country.id && ui.countryOptionSelected,
               ]}
             >
               <Text
                 style={[
-                  styles.countryOptionText,
-                  selectedCountry === country.id && styles.countryOptionTextSelected,
+                  ui.countryOptionText,
+                  selectedCountry === country.id && ui.countryOptionTextSelected,
                 ]}
               >
                 {country.names[language === 'ar' ? 1 : language === 'fr' ? 2 : 0]}
               </Text>
               <Text
                 style={[
-                  styles.countryCurrency,
-                  selectedCountry === country.id && styles.countryOptionTextSelected,
+                  ui.countryCurrency,
+                  selectedCountry === country.id && ui.countryOptionTextSelected,
                 ]}
               >
                 {country.currency}
@@ -1298,16 +1302,16 @@ export default function BuildingCalculatorScreen({
         </View>
         <>
           {selectedCountry !== 'LB' && (
-            <View style={styles.warningBox}>
-              <Text style={styles.warningText}>{t.ratesPending}</Text>
+            <View style={ui.warningBox}>
+              <Text style={ui.warningText}>{t.ratesPending}</Text>
             </View>
           )}
-          <View style={styles.marketBenchmarks}>
-            <Text style={styles.marketBenchmarksTitle}>
+          <View style={ui.marketBenchmarks}>
+            <Text style={ui.marketBenchmarksTitle}>
               {language === 'ar' ? 'مؤشرات أسعار السوق' : language === 'fr' ? 'Repères de prix du marché' : 'Market price benchmarks'}
             </Text>
             {CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].benchmarks.length === 0 ? (
-              <Text style={styles.marketBenchmarkNote}>
+              <Text style={ui.marketBenchmarkNote}>
                 {language === 'ar'
                   ? 'تُعرض أسعار لبنان الافتراضية بالدولار ضمن جدول التكاليف التفصيلي كتقديرات تخطيطية محلية. لم تُضف بعد قائمة منفصلة من مؤشرات السوق المنشورة الموثقة؛ لذلك لا نعرض أسعاراً غير متحقق منها.'
                   : language === 'fr'
@@ -1315,24 +1319,24 @@ export default function BuildingCalculatorScreen({
                   : 'Lebanon default USD rates remain in the detailed cost table as local planning allowances. A separate verified published-market benchmark series has not yet been added, so no unverified prices are displayed.'}
               </Text>
             ) : CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].benchmarks.map((benchmark, index) => (
-              <View key={`${benchmark.item}-${index}`} style={styles.marketBenchmarkRow}>
-                <View style={styles.marketBenchmarkText}>
-                  <Text style={styles.marketBenchmarkItem}>{marketBenchmarkLabel(benchmark.item, language)}</Text>
+              <View key={`${benchmark.item}-${index}`} style={ui.marketBenchmarkRow}>
+                <View style={ui.marketBenchmarkText}>
+                  <Text style={ui.marketBenchmarkItem}>{marketBenchmarkLabel(benchmark.item, language)}</Text>
                   {!!benchmark.note && (
-                    <Text style={styles.marketBenchmarkNote}>{marketBenchmarkLabel(benchmark.note, language)}</Text>
+                    <Text style={ui.marketBenchmarkNote}>{marketBenchmarkLabel(benchmark.note, language)}</Text>
                   )}
                   <Pressable onPress={() => Linking.openURL(benchmark.source)}>
-                    <Text style={styles.marketBenchmarkSource}>
+                    <Text style={ui.marketBenchmarkSource}>
                       {language === 'ar' ? 'المصدر: ' : language === 'fr' ? 'Source : ' : 'Source: '}{marketBenchmarkSourceLabel(benchmark.source, language)}
                     </Text>
                   </Pressable>
                 </View>
-                <View style={styles.marketBenchmarkValueWrap}>
-                  <Text style={styles.marketBenchmarkValue}>
+                <View style={ui.marketBenchmarkValueWrap}>
+                  <Text style={ui.marketBenchmarkValue}>
                     {new Intl.NumberFormat(undefined, { style: 'currency', currency: CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].currency }).format(benchmark.value)}
                   </Text>
-                  <Text style={styles.marketBenchmarkUnit}>{marketBenchmarkLabel(benchmark.unit, language)}</Text>
-                  <Text style={styles.marketBenchmarkStatus}>
+                  <Text style={ui.marketBenchmarkUnit}>{marketBenchmarkLabel(benchmark.unit, language)}</Text>
+                  <Text style={ui.marketBenchmarkStatus}>
                     {benchmark.status === 'published'
                       ? (language === 'ar' ? 'منشور' : language === 'fr' ? 'Publié' : 'Published')
                       : (language === 'ar' ? 'مسح سوق' : language === 'fr' ? 'Enquête marché' : 'Market survey')}
@@ -1348,9 +1352,9 @@ export default function BuildingCalculatorScreen({
         t.floors,
         <>
           {floors.map((floor, index) => (
-            <View key={floor.id} style={styles.floorCard}>
-              <View style={styles.floorHeader}>
-                <Text style={styles.floorTitle}>
+            <View key={floor.id} style={ui.floorCard}>
+              <View style={ui.floorHeader}>
+                <Text style={ui.floorTitle}>
                   {language === 'ar'
                     ? `الطابق ${index + 1}`
                     : language === 'fr'
@@ -1359,7 +1363,7 @@ export default function BuildingCalculatorScreen({
                 </Text>
                 {floors.length > 1 && (
                   <Pressable onPress={() => removeFloor(floor.id)}>
-                    <Text style={styles.removeText}>{t.remove}</Text>
+                    <Text style={ui.removeText}>{t.remove}</Text>
                   </Pressable>
                 )}
               </View>
@@ -1382,8 +1386,8 @@ export default function BuildingCalculatorScreen({
               )}
             </View>
           ))}
-          <Pressable style={styles.secondaryButton} onPress={addFloor}>
-            <Text style={styles.secondaryButtonText}>{t.addFloor}</Text>
+          <Pressable style={ui.secondaryButton} onPress={addFloor}>
+            <Text style={ui.secondaryButtonText}>{t.addFloor}</Text>
           </Pressable>
         </>
       )}
@@ -1451,7 +1455,7 @@ export default function BuildingCalculatorScreen({
       {section(
         t.detailedCosts,
         <>
-          <Text style={styles.detailedHint}>{selectedCountry === 'LB' ? t.detailedHint : (language === 'ar' ? 'أدخل أسعار المواد والعمالة المحلية لكل بند. لا تُستخدم أسعار لبنان في هذا السوق.' : language === 'fr' ? 'Saisissez les prix locaux des matériaux et de la main-d’œuvre. Les prix libanais ne sont pas réutilisés pour ce marché.' : 'Enter local material and labor rates for each item. Lebanon prices are not reused for this market.')}</Text>
+          <Text style={ui.detailedHint}>{selectedCountry === 'LB' ? t.detailedHint : (language === 'ar' ? 'أدخل أسعار المواد والعمالة المحلية لكل بند. لا تُستخدم أسعار لبنان في هذا السوق.' : language === 'fr' ? 'Saisissez les prix locaux des matériaux et de la main-d’œuvre. Les prix libanais ne sont pas réutilisés pour ce marché.' : 'Enter local material and labor rates for each item. Lebanon prices are not reused for this market.')}</Text>
 
           {COST_CATEGORIES.map(category => {
             const items = COST_ITEMS.filter(
@@ -1461,12 +1465,12 @@ export default function BuildingCalculatorScreen({
               calculations?.categoryTotals?.[category.id] || 0;
 
             return (
-              <View key={category.id} style={styles.detailedCategory}>
-                <View style={styles.detailedCategoryHeader}>
-                  <Text style={styles.detailedCategoryTitle}>
+              <View key={category.id} style={ui.detailedCategory}>
+                <View style={ui.detailedCategoryHeader}>
+                  <Text style={ui.detailedCategoryTitle}>
                     {category.names[language === 'ar' ? 1 : language === 'fr' ? 2 : 0]}
                   </Text>
-                  <Text style={styles.detailedCategoryTotal}>
+                  <Text style={ui.detailedCategoryTotal}>
                     {money(categoryTotal, selectedCurrency)}
                   </Text>
                 </View>
@@ -1478,17 +1482,17 @@ export default function BuildingCalculatorScreen({
                   const itemTotal = qty * (material + labor);
 
                   return (
-                    <View key={item.id} style={styles.detailedItem}>
-                      <View style={styles.detailedItemHeading}>
-                        <Text style={styles.detailedItemName}>
+                    <View key={item.id} style={ui.detailedItem}>
+                      <View style={ui.detailedItemHeading}>
+                        <Text style={ui.detailedItemName}>
                           {item.names[language === 'ar' ? 1 : language === 'fr' ? 2 : 0]}
                         </Text>
-                        <Text style={styles.detailedUnit}>
+                        <Text style={ui.detailedUnit}>
                           {unitForItem(item.unit)}
                         </Text>
                       </View>
 
-                      <View style={styles.detailedInputsRow}>
+                      <View style={ui.detailedInputsRow}>
                         {detailedField(
                           `${item.id}Qty`,
                           t.quantity,
@@ -1508,11 +1512,11 @@ export default function BuildingCalculatorScreen({
                         )}
                       </View>
 
-                      <View style={styles.detailedItemTotalRow}>
-                        <Text style={styles.detailedItemTotalLabel}>
+                      <View style={ui.detailedItemTotalRow}>
+                        <Text style={ui.detailedItemTotalLabel}>
                           {t.itemTotal}
                         </Text>
-                        <Text style={styles.detailedItemTotalValue}>
+                        <Text style={ui.detailedItemTotalValue}>
                           {money(itemTotal, selectedCurrency)}
                         </Text>
                       </View>
@@ -1520,11 +1524,11 @@ export default function BuildingCalculatorScreen({
                   );
                 })}
 
-                <View style={styles.detailedCategoryFooter}>
-                  <Text style={styles.detailedCategoryFooterLabel}>
+                <View style={ui.detailedCategoryFooter}>
+                  <Text style={ui.detailedCategoryFooterLabel}>
                     {t.categoryTotal}
                   </Text>
-                  <Text style={styles.detailedCategoryFooterValue}>
+                  <Text style={ui.detailedCategoryFooterValue}>
                     {money(categoryTotal, selectedCurrency)}
                   </Text>
                 </View>
@@ -1534,15 +1538,15 @@ export default function BuildingCalculatorScreen({
         </>
       )}
 
-      <Pressable style={styles.calculateButton} onPress={calculate}>
-        <Text style={styles.calculateButtonText}>{t.calculate}</Text>
+      <Pressable style={ui.calculateButton} onPress={calculate}>
+        <Text style={ui.calculateButtonText}>{t.calculate}</Text>
       </Pressable>
 
-      {!!error && <Text style={styles.error}>{error}</Text>}
+      {!!error && <Text style={ui.error}>{error}</Text>}
 
       {result && (
-        <View style={styles.resultsCard}>
-          <Text style={styles.resultHeading}>{t.results}</Text>
+        <View style={ui.resultsCard}>
+          <Text style={ui.resultHeading}>{t.results}</Text>
           {resultRow(
             labelForUnits(t.floorArea, units),
             `${quantity(displayArea(result.floorArea, units))} ${units === 'imperial' ? 'ft²' : 'm²'}`
@@ -1577,7 +1581,7 @@ export default function BuildingCalculatorScreen({
             `${quantity(displayArea(result.waterproofArea, units))} ${units === 'imperial' ? 'ft²' : 'm²'}`
           )}
 
-          <View style={styles.resultDivider} />
+          <View style={ui.resultDivider} />
           {resultRow(t.electricalPoints, quantity(result.electricalPoints))}
           {resultRow(t.plumbingPoints, quantity(result.plumbingPoints))}
           {resultRow(t.materialTotal, money(result.materialTotal, selectedCurrency))}
@@ -1595,15 +1599,15 @@ export default function BuildingCalculatorScreen({
           {resultRow(result.unpricedItemCount > 0 ? t.pricedSubtotal : t.subtotal, money(result.subtotal, selectedCurrency))}
           {resultRow(result.unpricedItemCount > 0 ? t.pricedReserve : t.reserve, money(result.reserve, selectedCurrency))}
           {result.unpricedItemCount > 0 && (
-            <View style={styles.warningBox}>
-              <Text style={styles.warningTitle}>
+            <View style={ui.warningBox}>
+              <Text style={ui.warningTitle}>
                 {language === 'ar'
                   ? 'تنبيه: أسعار غير مكتملة'
                   : language === 'fr'
                   ? 'Attention : tarifs incomplets'
                   : 'Warning: incomplete rates'}
               </Text>
-              <Text style={styles.warningText}>
+              <Text style={ui.warningText}>
                 {language === 'ar'
                   ? `يوجد ${result.unpricedItemCount} بنداً مستخدماً ينقصه سعر مواد أو أجرة عمل. الإجمالي الحالي جزئي ولا يشمل هذه التكاليف الناقصة.`
                   : language === 'fr'
@@ -1612,20 +1616,20 @@ export default function BuildingCalculatorScreen({
               </Text>
             </View>
           )}
-          <View style={styles.totalBox}>
-            <Text style={styles.totalLabel}>
+          <View style={ui.totalBox}>
+            <Text style={ui.totalLabel}>
               {result.unpricedItemCount > 0 ? t.incompleteTotal : t.total}
             </Text>
-            <Text style={styles.totalValue}>
+            <Text style={ui.totalValue}>
               {money(result.total, selectedCurrency)}
             </Text>
           </View>
         </View>
       )}
 
-      <View style={styles.warningBox}>
-        <Text style={styles.warningTitle}>{t.note}</Text>
-        <Text style={styles.warningText}>{t.warning}</Text>
+      <View style={ui.warningBox}>
+        <Text style={ui.warningTitle}>{t.note}</Text>
+        <Text style={ui.warningText}>{t.warning}</Text>
       </View>
     </ScrollView>
   );
