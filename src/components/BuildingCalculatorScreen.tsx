@@ -918,7 +918,13 @@ export default function BuildingCalculatorScreen({
       const laborCost = qty * labor;
       const itemTotal = materialCost + laborCost;
 
-      if (qty > 0 && (material <= 0 || labor <= 0)) {
+      // A legacy allowance already covers material for mapped items. The
+      // project-wide labor allowance can also cover labor when no per-item
+      // labor rate has been entered; only flag a missing cost when neither
+      // pricing path supplies it.
+      const materialMissing = !legacyCoveredMaterialIds.has(item.id) && material <= 0;
+      const laborMissing = labor <= 0 && v('labor') <= 0;
+      if (qty > 0 && (materialMissing || laborMissing)) {
         unpricedItemCount += 1;
       }
 
