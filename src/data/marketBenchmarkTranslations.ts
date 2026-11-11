@@ -2,6 +2,15 @@ export type MarketBenchmarkLanguage = 'en' | 'ar' | 'fr';
 
 const ITEM_LABELS: Record<string, [string, string]> = {
   'cement': ['الأسمنت', 'Ciment'],
+  'black cement factory-gate ceiling': ['السعر الأقصى للإسمنت الأسود من أرض المصنع', 'Plafond du prix départ usine du ciment noir'],
+  'Portland cement CEM I 42.5N': ['إسمنت بورتلاندي CEM I 42.5N', 'Ciment Portland CEM I 42.5N'],
+  '12 mm reinforcement steel': ['حديد تسليح قطر 12 مم', 'Acier d’armature de 12 mm'],
+  'general construction worker wage': ['أجرة عامل بناء عام', 'Salaire journalier d’un ouvrier général du bâtiment'],
+  'building stone': ['حجر البناء', 'Pierre de construction'],
+  'porcelain floor tile 60x60': ['بلاط بورسلان للأرضيات 60×60', 'Carrelage de sol en grès cérame 60×60'],
+  'ceramic wall tile 30x60': ['بلاط سيراميك للجدران 30×60', 'Carrelage mural en céramique 30×60'],
+  'tile adhesive C2TE 25kg': ['لاصق بلاط C2TE وزن 25 كغ', 'Mortier-colle C2TE 25 kg'],
+  'white cement': ['إسمنت أبيض', 'Ciment blanc'],
   'rebar': ['حديد التسليح', 'Acier d’armature'],
   'C40 ready-mix concrete': ['خرسانة جاهزة C40', 'Béton prêt à l’emploi C40'],
   'formwork carpenter': ['نجار قوالب', 'Coffreur'],
@@ -61,6 +70,9 @@ const ITEM_LABELS: Record<string, [string, string]> = {
 const UNIT_LABELS: Record<string, [string, string]> = {
   '50 kg bag': ['كيس 50 كغ', 'Sac de 50 kg'],
   '25 kg bag': ['كيس 25 كغ', 'Sac de 25 kg'],
+  'day': ['يوم عمل', 'jour'],
+  '100 pieces': ['100 قطعة', '100 pièces'],
+  '25 kg bag': ['كيس 25 كغ', 'Sac de 25 kg'],
   'tonne': ['طن', 'tonne'],
   'm³': ['م³', 'm³'],
   'm² installed': ['م² شامل التوريد والتركيب', 'm² fourni et posé'],
@@ -76,6 +88,15 @@ const UNIT_LABELS: Record<string, [string, string]> = {
 };
 
 const NOTE_LABELS: Record<string, [string, string]> = {
+  'Ministry of Industry Decision 52/1, 1 July 2026; factory-gate maximum, excluding VAT. Not a delivered retail price.': ['قرار وزارة الصناعة رقم 52/1 بتاريخ 1 تموز 2026؛ سقف سعر من أرض المصنع غير شامل ضريبة القيمة المضافة، وليس سعر تجزئة مع التوصيل.', 'Décision 52/1 du ministère de l’Industrie, 1er juillet 2026 ; plafond départ usine hors TVA, et non prix de détail livré.'],
+  'Beirut retailer listing; supply-only retail price, stock and delivery to be reconfirmed.': ['سعر منشور لدى متجر في بيروت؛ توريد فقط، ويجب إعادة تأكيد المخزون والتوصيل.', 'Prix affiché par un détaillant de Beyrouth ; fourniture seule, stock et livraison à reconfirmer.'],
+  'Lebanon market report, 2026; reported market level around USD 970/tonne. Verify grade, delivery and current supplier quotation.': ['تقرير عن السوق اللبنانية لعام 2026؛ مستوى سوقي مُبلغ عنه يقارب 970 دولاراً/طن. يجب التحقق من الصنف والتوصيل وعرض المورد الحالي.', 'Rapport sur le marché libanais 2026 ; niveau rapporté d’environ 970 USD/tonne. Vérifier la nuance, la livraison et le devis actuel.'],
+  'Lebanon market report, 2026; reported daily labour cost from USD 50. Not a skilled-trade wage schedule or contractor charge-out rate.': ['تقرير عن السوق اللبنانية لعام 2026؛ أجرة يومية مُبلغ عنها تبدأ من 50 دولاراً. ليست جدول أجور للمهن المتخصصة ولا سعراً محمّلاً للمقاول.', 'Rapport sur le marché libanais 2026 ; coût journalier rapporté à partir de 50 USD. Ce n’est ni un barème de métiers qualifiés ni un tarif facturé par un entrepreneur.'],
+  'Midpoint of reported USD 60–70 per 100 stones; size, quarry and delivery affect price.': ['متوسط نطاق مُبلغ عنه بين 60 و70 دولاراً لكل 100 حجر؛ يتغير السعر حسب المقاس والمقلع والتوصيل.', 'Point médian de la fourchette rapportée de 60 à 70 USD pour 100 pierres ; le format, la carrière et la livraison influencent le prix.'],
+  'Beirut retailer listing; 600×600 mm, 9 mm, R10 matt porcelain; material only, installation excluded.': ['سعر منشور لدى متجر في بيروت؛ بورسلان مطفي R10 مقاس 600×600 مم وسماكة 9 مم؛ مواد فقط دون التركيب.', 'Prix affiché par un détaillant de Beyrouth ; grès cérame mat R10, 600×600 mm, épaisseur 9 mm ; matériau seul, pose exclue.'],
+  'Beirut retailer listing; 300×600 mm glazed wall tile; material only, installation excluded.': ['سعر منشور لدى متجر في بيروت؛ بلاط جدران مزجج 300×600 مم؛ مواد فقط دون التركيب.', 'Prix affiché par un détaillant de Beyrouth ; carreau mural émaillé 300×600 mm ; matériau seul, pose exclue.'],
+  'Beirut retailer listing; one 25 kg bag; coverage depends on trowel size and substrate.': ['سعر منشور لدى متجر في بيروت لكيس 25 كغ؛ تتوقف التغطية على مقاس المالج وحالة السطح.', 'Prix affiché par un détaillant de Beyrouth pour un sac de 25 kg ; la couverture dépend de la taloche et du support.'],
+  'Beirut retailer listing; white cement for decorative/rendering use, not interchangeable with black structural cement.': ['سعر منشور لدى متجر في بيروت؛ إسمنت أبيض للزخرفة والقصارة، ولا يُستبدل بالإسمنت الأسود الإنشائي.', 'Prix affiché par un détaillant de Beyrouth ; ciment blanc pour décoration et enduits, non interchangeable avec le ciment noir structurel.'],
   'Dubai indicative index, October 2026, excluding VAT.': ['مؤشر استرشادي لدبي، أكتوبر 2026، غير شامل ضريبة القيمة المضافة.', 'Indice indicatif de Dubaï, octobre 2026, hors TVA.'],
   'Emirates Steel delivered-to-Dubai indicative benchmark; ex-works and retail quotes differ.': ['سعر استرشادي من حديد الإمارات مع التوصيل إلى دبي؛ تختلف أسعار المصنع والتجزئة.', 'Référence indicative d’Emirates Steel livrée à Dubaï ; les prix départ usine et de détail diffèrent.'],
   'Dubai indicative index, excluding VAT.': ['مؤشر استرشادي لدبي، غير شامل ضريبة القيمة المضافة.', 'Indice indicatif de Dubaï, hors TVA.'],

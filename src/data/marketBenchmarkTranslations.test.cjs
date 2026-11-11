@@ -1,32 +1,185 @@
-const test = require('node:test');
-const assert = require('node:assert/strict');
-const { marketBenchmarkLabel, marketBenchmarkSourceLabel } = require('../../.test-build/data/marketBenchmarkTranslations.js');
+export type MarketBenchmarkLanguage = 'en' | 'ar' | 'fr';
 
-test('Saudi market benchmark item names are translated into Arabic and French', () => {
-  assert.equal(marketBenchmarkLabel('black cement', 'ar'), 'أسمنت أسود');
-  assert.equal(marketBenchmarkLabel('black cement', 'fr'), 'Ciment noir');
-  assert.equal(marketBenchmarkLabel('12 mm rebar', 'ar'), 'حديد تسليح قطر 12 مم');
-  assert.equal(marketBenchmarkLabel('12 mm rebar', 'fr'), 'Barre d’armature de 12 mm');
-});
+const ITEM_LABELS: Record<string, [string, string]> = {
+  'cement': ['الأسمنت', 'Ciment'],
+  'rebar': ['حديد التسليح', 'Acier d’armature'],
+  'C40 ready-mix concrete': ['خرسانة جاهزة C40', 'Béton prêt à l’emploi C40'],
+  'formwork carpenter': ['نجار قوالب', 'Coffreur'],
+  'plasterer': ['عامل قصارة', 'Plâtrier'],
+  'electrician': ['كهربائي', 'Électricien'],
+  'plumber': ['سبّاك', 'Plombier'],
+  'painter': ['دهّان', 'Peintre'],
+  'footing excavation': ['حفر القواعد', 'Excavation des semelles'],
+  'reinforcement': ['حديد التسليح', 'Armatures'],
+  'blockwork': ['بناء البلوك', 'Maçonnerie en blocs'],
+  'ceramic floor tiles': ['بلاط سيراميك للأرضيات', 'Carrelage de sol en céramique'],
+  'single solid-core door': ['باب مصمت مفرد', 'Porte pleine à âme pleine'],
+  'black cement': ['أسمنت أسود', 'Ciment noir'],
+  '12 mm rebar': ['حديد تسليح قطر 12 مم', 'Barre d’armature de 12 mm'],
+  '350K normal ready-mix concrete': ['خرسانة جاهزة عادية مقاومة 350K', 'Béton prêt à l’emploi courant 350K'],
+  '15 cm block': ['بلوك بسماكة 15 سم', 'Bloc de 15 cm'],
+  'white soft sand': ['رمل أبيض ناعم', 'Sable blanc fin'],
+  'mason': ['بنّاء', 'Maçon'],
+  'steel fixer': ['حدّاد تسليح', 'Ferrailleur'],
+  'tile mason': ['مبلّط', 'Carreleur'],
+  'plaster mason': ['عامل قصارة', 'Enduiseur'],
+  'machine excavation': ['حفر آلي', 'Terrassement mécanique'],
+  'internal cement plaster': ['قصارة إسمنتية داخلية', 'Enduit ciment intérieur'],
+  'porcelain floor tiling': ['تركيب بلاط بورسلان للأرضيات', 'Pose de carrelage de sol en grès cérame'],
+  'internal emulsion painting': ['دهان داخلي مستحلب', 'Peinture intérieure en émulsion'],
+  'roof waterproofing': ['عزل مائي للسطح', 'Étanchéité de toiture'],
+  'gypsum board ceiling': ['سقف ألواح جبس', 'Plafond en plaques de plâtre'],
+  'lighting point': ['نقطة إنارة', 'Point lumineux'],
+  'socket outlet point': ['نقطة مأخذ كهربائي', 'Point de prise électrique'],
+  'crushed stone 0-32 mm': ['حصى مكسر 0–32 مم', 'Gravier concassé 0–32 mm'],
+  'sand 0-4 mm': ['رمل 0–4 مم', 'Sable 0–4 mm'],
+  'C25/30 ready-mix concrete': ['خرسانة جاهزة C25/30', 'Béton prêt à l’emploi C25/30'],
+  '25 kg bag': ['كيس 25 كغ', 'Sac de 25 kg'],
+  'concrete worker': ['عامل خرسانة', 'Ouvrier béton'],
+  'tiler': ['مبلّط', 'Carreleur'],
+  'ordinary soil excavation': ['حفر تربة عادية', 'Excavation en sol ordinaire'],
+  'blinding concrete C15': ['خرسانة نظافة C15', 'Béton de propreté C15'],
+  'reinforced concrete C35 foundations': ['قواعد خرسانة مسلحة C35', 'Fondations en béton armé C35'],
+  'hollow blockwork 200 mm': ['بناء بلوك مجوف 200 مم', 'Maçonnerie en blocs creux de 200 mm'],
+  'two-coat emulsion paint': ['دهان مستحلب بطبقتين', 'Peinture en émulsion à deux couches'],
+  'deformed rebar Y8-Y32': ['حديد تسليح مضلع Y8–Y32', 'Armatures à haute adhérence Y8–Y32'],
+  'ready-mix concrete C30/37': ['خرسانة جاهزة C30/37', 'Béton prêt à l’emploi C30/37'],
+  'CMU hollow block 200 mm': ['بلوك إسمنتي مجوف 200 مم', 'Bloc creux en béton de 200 mm'],
+  '17 cm limestone block': ['بلوك حجر جيري 17 سم', 'Bloc calcaire de 17 cm'],
+  '9 cm hollow cement block': ['بلوك إسمنتي مجوف 9 سم', 'Bloc creux en ciment de 9 cm'],
+  'electrician basic wage': ['الأجر الأساسي للكهربائي', 'Salaire de base de l’électricien'],
+  'formwork carpenter basic wage': ['الأجر الأساسي لنجار القوالب', 'Salaire de base du coffreur'],
+  'plumber basic wage': ['الأجر الأساسي للسبّاك', 'Salaire de base du plombier'],
+  '16 mm rebar': ['حديد تسليح قطر 16 مم', 'Barre d’armature de 16 mm'],
+  'Raysut cement (Al Wusta field survey)': ['أسمنت ريسوت (مسح ميداني في الوسطى)', 'Ciment Raysut (enquête de terrain à Al Wusta)'],
+  'OPC/SRC cement (GCCPricing index)': ['أسمنت بورتلاندي عادي/مقاوم للكبريتات (مؤشر GCCPricing)', 'Ciment Portland ordinaire/résistant aux sulfates (indice GCCPricing)'],
+  'hollow block': ['بلوك مجوف', 'Bloc creux'],
+  'regular 20 cm hollow block': ['بلوك مجوف عادي 20 سم', 'Bloc creux standard de 20 cm'],
+  '20 cm solid block': ['بلوك مصمت 20 سم', 'Bloc plein de 20 cm'],
+};
 
-test('market benchmark notes and units are translated without changing English', () => {
-  const note = 'GASTAT September 2026 national average; VAT included.';
-  assert.match(marketBenchmarkLabel(note, 'ar'), /الهيئة العامة للإحصاء/);
-  assert.match(marketBenchmarkLabel(note, 'fr'), /TVA comprise/);
-  assert.equal(marketBenchmarkLabel('m³', 'ar'), 'م³');
-  assert.equal(marketBenchmarkLabel('m³', 'fr'), 'm³');
-  assert.equal(marketBenchmarkLabel('black cement', 'en'), 'black cement');
-});
+const UNIT_LABELS: Record<string, [string, string]> = {
+  '50 kg bag': ['كيس 50 كغ', 'Sac de 50 kg'],
+  '25 kg bag': ['كيس 25 كغ', 'Sac de 25 kg'],
+  'tonne': ['طن', 'tonne'],
+  'm³': ['م³', 'm³'],
+  'm² installed': ['م² شامل التوريد والتركيب', 'm² fourni et posé'],
+  'm³ installed': ['م³ شامل التوريد والتنفيذ', 'm³ fourni et exécuté'],
+  'tonne installed': ['طن شامل التركيب', 'tonne posée'],
+  'piece': ['قطعة', 'pièce'],
+  'piece installed': ['قطعة مركّبة', 'pièce posée'],
+  'hour': ['ساعة', 'heure'],
+  'month': ['شهر', 'mois'],
+  '9-hour day': ['يوم عمل 9 ساعات', 'journée de 9 heures'],
+  '8-hour day': ['يوم عمل 8 ساعات', 'journée de 8 heures'],
+  'point installed': ['نقطة منفّذة', 'point installé'],
+};
 
-test('all translated labels fall back safely when no translation exists', () => {
-  assert.equal(marketBenchmarkLabel('unmapped source label', 'ar'), 'unmapped source label');
-  assert.equal(marketBenchmarkLabel('unmapped source label', 'fr'), 'unmapped source label');
-});
+const NOTE_LABELS: Record<string, [string, string]> = {
+  'Dubai indicative index, October 2026, excluding VAT.': ['مؤشر استرشادي لدبي، أكتوبر 2026، غير شامل ضريبة القيمة المضافة.', 'Indice indicatif de Dubaï, octobre 2026, hors TVA.'],
+  'Emirates Steel delivered-to-Dubai indicative benchmark; ex-works and retail quotes differ.': ['سعر استرشادي من حديد الإمارات مع التوصيل إلى دبي؛ تختلف أسعار المصنع والتجزئة.', 'Référence indicative d’Emirates Steel livrée à Dubaï ; les prix départ usine et de détail diffèrent.'],
+  'Dubai indicative index, excluding VAT.': ['مؤشر استرشادي لدبي، غير شامل ضريبة القيمة المضافة.', 'Indice indicatif de Dubaï, hors TVA.'],
+  'Dubai labour survey; AED 208 per 8-hour working day.': ['مسح أجور في دبي؛ 208 دراهم عن يوم عمل مدته 8 ساعات.', 'Enquête salariale à Dubaï ; 208 AED pour une journée de 8 heures.'],
+  'Dubai labour survey; AED 190 per 8-hour working day.': ['مسح أجور في دبي؛ 190 درهماً عن يوم عمل مدته 8 ساعات.', 'Enquête salariale à Dubaï ; 190 AED pour une journée de 8 heures.'],
+  'Dubai labor survey; do not treat as a per-m² installed rate.': ['مسح أجور في دبي؛ لا يُعتمد كسعر تنفيذ للمتر المربع.', 'Enquête salariale à Dubaï ; ne pas considérer comme un prix posé au m².'],
+  'Dubai labor survey; supplier-provided accommodation/transport assumptions apply.': ['مسح أجور في دبي؛ يفترض توفير السكن والنقل من جهة صاحب العمل.', 'Enquête salariale à Dubaï ; suppose que le logement et le transport sont fournis par l’employeur.'],
+  'Dubai 2025 measured rate; large-project reference, excludes unrelated earthworks.': ['سعر مقاس في دبي لعام 2025؛ مرجع للمشاريع الكبيرة ولا يشمل أعمالاً ترابية أخرى.', 'Prix mesuré à Dubaï en 2025 ; référence pour grands projets, hors autres travaux de terrassement.'],
+  'Dubai 2025 beam reinforcement measured rate; not steel supply price.': ['سعر مقاس لتسليح الجسور في دبي لعام 2025؛ لا يمثل سعر توريد الحديد.', 'Prix mesuré des armatures de poutres à Dubaï en 2025 ; ne représente pas le prix de fourniture de l’acier.'],
+  'Dubai 2025, 200 mm solid concrete block wall, bulk project.': ['دبي 2025، جدار بلوك خرساني مصمت بسماكة 200 مم، مشروع بكميات كبيرة.', 'Dubaï 2025, mur en blocs pleins de béton de 200 mm, projet en grande quantité.'],
+  'Dubai 2025 standard ceramic tile, 1,000 m² project.': ['دبي 2025، بلاط سيراميك قياسي لمشروع بمساحة 1,000 م².', 'Dubaï 2025, carrelage céramique standard pour un projet de 1 000 m².'],
+  'Dubai 2025 including frame and hardware; 50-door project.': ['دبي 2025، يشمل الإطار والإكسسوارات؛ مشروع من 50 باباً.', 'Dubaï 2025, cadre et quincaillerie compris ; projet de 50 portes.'],
+  'GASTAT September 2026 national average; VAT included.': ['متوسط وطني صادر عن الهيئة العامة للإحصاء لشهر سبتمبر 2026؛ شامل ضريبة القيمة المضافة.', 'Moyenne nationale de l’autorité statistique GASTAT, septembre 2026 ; TVA comprise.'],
+  'GASTAT September 2026 national average.': ['متوسط وطني صادر عن الهيئة العامة للإحصاء لشهر سبتمبر 2026.', 'Moyenne nationale de l’autorité statistique GASTAT, septembre 2026.'],
+  'Converted from SAR 1,677.78 per 1,000 pieces.': ['تم تحويل السعر من 1,677.78 ريالاً لكل 1,000 قطعة.', 'Converti à partir de 1 677,78 SAR pour 1 000 pièces.'],
+  'Riyadh labor benchmark; unit productivity is not implied.': ['مرجع أجور في الرياض؛ لا يفترض إنتاجية محددة للوحدة.', 'Référence salariale à Riyad ; aucune productivité unitaire n’est présumée.'],
+  'Riyadh normal soil, machine/operator/fuel included; rock and off-site disposal excluded.': ['الرياض، تربة عادية؛ يشمل الآلة والمشغّل والوقود، ولا يشمل الصخور أو نقل النواتج خارج الموقع.', 'Riyad, sol ordinaire ; machine, opérateur et carburant inclus, roches et évacuation hors site exclues.'],
+  'Riyadh supply and apply, approx. 2 cm, June 2026 observation.': ['الرياض، توريد وتنفيذ بسماكة تقارب 2 سم؛ رصد يونيو 2026.', 'Riyad, fourniture et application sur environ 2 cm ; observation de juin 2026.'],
+  'Riyadh mid-range 60x60 cm including adhesive, grout and skirting.': ['الرياض، فئة متوسطة، مقاس 60×60 سم، يشمل اللاصق والترويبة والوزرات.', 'Riyad, gamme moyenne, format 60×60 cm, colle, joint et plinthes compris.'],
+  'Riyadh mid-range putty, sealer and two coats.': ['الرياض، فئة متوسطة؛ يشمل المعجون والأساس وطبقتين من الدهان.', 'Riyad, gamme moyenne ; enduit de lissage, primaire et deux couches compris.'],
+  'Riyadh 4 mm torch-applied membrane system.': ['الرياض، نظام غشاء عزل بسماكة 4 مم ملحوم باللهب.', 'Riyad, système de membrane de 4 mm appliquée au chalumeau.'],
+  'Riyadh 12.5 mm board and galvanized frame, ready for paint.': ['الرياض، ألواح بسماكة 12.5 مم وهيكل مجلفن، جاهز للدهان.', 'Riyad, plaques de 12,5 mm et ossature galvanisée, prêtes à peindre.'],
+  'Riyadh conduit and wiring, light fitting excluded.': ['الرياض، يشمل المواسير والأسلاك ولا يشمل وحدة الإنارة.', 'Riyad, conduits et câblage compris, luminaire exclu.'],
+  'Riyadh conduit, wiring and mid-range 13A outlet.': ['الرياض، يشمل المواسير والأسلاك ومأخذ 13 أمبير من الفئة المتوسطة.', 'Riyad, conduits, câblage et prise 13 A de gamme moyenne compris.'],
+  'Commercial market estimate, not an official schedule.': ['تقدير تجاري للسوق، وليس تسعيرة رسمية.', 'Estimation commerciale du marché, et non barème officiel.'],
+  'Commercial market estimate; delivery/pumping must be checked separately.': ['تقدير تجاري للسوق؛ يجب التحقق من كلفة التوصيل والضخ بشكل منفصل.', 'Estimation commerciale ; vérifier séparément la livraison et le pompage.'],
+  'Commercial market estimate.': ['تقدير تجاري للسوق.', 'Estimation commerciale du marché.'],
+  'Hourly labor benchmark; do not treat as a per-unit installed rate.': ['مرجع أجرة بالساعة؛ لا يُعامل كسعر تنفيذ للوحدة.', 'Référence de main-d’œuvre horaire ; ne pas la considérer comme un tarif posé par unité.'],
+  'Hourly labor benchmark; do not treat as a per-point installed rate.': ['مرجع أجرة بالساعة؛ لا يُعامل كسعر تنفيذ لكل نقطة.', 'Référence de main-d’œuvre horaire ; ne pas la considérer comme un tarif posé par point.'],
+  'Hourly labor benchmark; do not treat as a per-m² installed rate.': ['مرجع أجرة بالساعة؛ لا يُعامل كسعر تنفيذ للمتر المربع.', 'Référence de main-d’œuvre horaire ; ne pas la considérer comme un tarif posé au m².'],
+  'Illustrative Qatar BOQ sample rate; large measured quantity.': ['سعر توضيحي من نموذج جدول كميات في قطر؛ لكمية مقاسة كبيرة.', 'Prix indicatif tiré d’un exemple de bordereau quantitatif au Qatar ; grande quantité mesurée.'],
+  'Illustrative Qatar BOQ sample rate; specification-specific.': ['سعر توضيحي من نموذج جدول كميات في قطر؛ يعتمد على المواصفات.', 'Prix indicatif tiré d’un exemple de bordereau au Qatar ; dépend des spécifications.'],
+  'Illustrative Qatar BOQ sample rate; includes supply and installation.': ['سعر توضيحي من نموذج جدول كميات في قطر؛ يشمل التوريد والتركيب.', 'Prix indicatif tiré d’un exemple de bordereau au Qatar ; fourniture et pose comprises.'],
+  'Illustrative Qatar BOQ sample rate.': ['سعر توضيحي من نموذج جدول كميات في قطر.', 'Prix indicatif tiré d’un exemple de bordereau quantitatif au Qatar.'],
+  'Illustrative Qatar BOQ sample rate, 15 mm internal.': ['سعر توضيحي من نموذج جدول كميات في قطر، لقصارة داخلية بسماكة 15 مم.', 'Prix indicatif tiré d’un exemple de bordereau au Qatar, enduit intérieur de 15 mm.'],
+  'Indicative GCCPricing benchmark; verify grade, delivery and supplier quote.': ['مرجع استرشادي من GCCPricing؛ يجب التحقق من الدرجة والتوصيل وعرض المورد.', 'Référence indicative GCCPricing ; vérifier la nuance, la livraison et le devis du fournisseur.'],
+  'Indicative GCCPricing benchmark.': ['مرجع استرشادي من GCCPricing.', 'Référence indicative GCCPricing.'],
+  'Delivered KWD 24.85/m³ reference-parity benchmark updated 26 Oct 2026; GCCPricing labels Kuwait as calibrated parity rather than a direct local merchant submission.': ['مرجع مقارنة بعد التوصيل بقيمة 24.85 ديناراً كويتياً/م³، محدّث في 26 أكتوبر 2026؛ تصنّف GCCPricing الكويت كسعر تكافؤ مُعاير وليس عرضاً مباشراً من تاجر محلي.', 'Référence de parité livrée de 24,85 KWD/m³, mise à jour le 26 octobre 2026 ; GCCPricing classe le Koweït comme une parité calibrée, et non comme une offre directe d’un commerçant local.'],
+  'Local-origin 400×200×200 mm hollow CMU, supply-only; updated 5 days ago. 12.5 pieces/m² before waste; verify local supplier quote.': ['بلوك إسمنتي مجوف محلي المنشأ 400×200×200 مم، توريد فقط؛ محدّث قبل 5 أيام. 12.5 قطعة/م² قبل الهدر؛ يجب التحقق من عرض مورد محلي.', 'Bloc creux en béton d’origine locale, 400×200×200 mm, fourniture seule ; mis à jour il y a 5 jours. 12,5 pièces/m² avant pertes ; vérifier un devis local.'],
+  'NIC Kuwait online retail listing, 390×190×190 mm; page states 12 pieces/m². Sandlime block, not a generic concrete-block rate.': ['قائمة بيع بالتجزئة عبر الإنترنت من NIC الكويت، 390×190×190 مم؛ تذكر الصفحة 12 قطعة/م². بلوك رملي جيري وليس سعراً عاماً للبلوك الخرساني.', 'Annonce de vente au détail en ligne de NIC Kuwait, 390×190×190 mm ; la page indique 12 pièces/m². Bloc silico-calcaire, et non tarif générique de bloc en béton.'],
+  'NIC Kuwait online retail listing, 390×190×90 mm; page states 25 pieces/m². Check stated coverage against actual laying pattern before BOQ conversion.': ['قائمة بيع بالتجزئة عبر الإنترنت من NIC الكويت، 390×190×90 مم؛ تذكر الصفحة 25 قطعة/م². تحقّق من التغطية وفق نمط التركيب الفعلي قبل تحويلها إلى جدول كميات.', 'Annonce de vente au détail en ligne de NIC Kuwait, 390×190×90 mm ; la page indique 25 pièces/m². Vérifier la couverture selon le calepinage réel avant conversion en bordereau.'],
+  'KWD 150-250 range; KWD 185 overseas-intake basic median. Housing/transport and employer costs are separate.': ['نطاق 150–250 ديناراً كويتياً؛ الوسيط الأساسي 185 ديناراً للعمالة المستقدمة من الخارج. السكن والنقل وتكاليف صاحب العمل منفصلة.', 'Fourchette de 150 à 250 KWD ; médiane de base de 185 KWD pour le recrutement à l’étranger. Logement, transport et charges employeur séparés.'],
+  'KWD 150-260 range; KWD 180 overseas-intake basic median. Not a contractor charge-out rate.': ['نطاق 150–260 ديناراً كويتياً؛ الوسيط الأساسي 180 ديناراً للعمالة المستقدمة من الخارج. ليس سعر بيع أو تكلفة مقاول.', 'Fourchette de 150 à 260 KWD ; médiane de base de 180 KWD pour le recrutement à l’étranger. Ce n’est pas un tarif facturé par un entrepreneur.'],
+  'KWD 140-230 range; KWD 170 overseas-intake basic median. Housing/transport and employer costs are separate.': ['نطاق 140–230 ديناراً كويتياً؛ الوسيط الأساسي 170 ديناراً للعمالة المستقدمة من الخارج. السكن والنقل وتكاليف صاحب العمل منفصلة.', 'Fourchette de 140 à 230 KWD ; médiane de base de 170 KWD pour le recrutement à l’étranger. Logement, transport et charges employeur séparés.'],
+  'KWD 140-230 range; KWD 170 overseas-intake basic median. Not a contractor charge-out rate.': ['نطاق 140–230 ديناراً كويتياً؛ الوسيط الأساسي 170 ديناراً للعمالة المستقدمة من الخارج. ليس سعراً مفروضاً من مقاول.', 'Fourchette de 140 à 230 KWD ; médiane de base de 170 KWD pour le recrutement à l’étranger. Ce n’est pas un tarif facturé par un entrepreneur.'],
+  'Indicative supplier gateway price; confirm stock and delivery.': ['سعر استرشادي عبر بوابة المورد؛ يجب تأكيد التوفر والتوصيل.', 'Prix indicatif via une plateforme fournisseur ; confirmer le stock et la livraison.'],
+  'Indicative midpoint of OMR 1.45–1.75 observed across named brands in Al Wusta on 8 Oct 2026; regional supplier survey, not a national average.': ['متوسط استرشادي لنطاق 1.45–1.75 ريال عُماني رُصد لعلامات تجارية محددة في الوسطى بتاريخ 8 أكتوبر 2026؛ مسح إقليمي للموردين وليس متوسطاً وطنياً.', 'Point médian indicatif de la fourchette 1,45–1,75 OMR observée pour des marques nommées à Al Wusta le 8 octobre 2026 ; enquête régionale de fournisseurs, pas une moyenne nationale.'],
+  'Separate portal benchmark; differs materially from the October Al Wusta field observations and needs supplier verification.': ['مرجع منفصل من بوابة إلكترونية؛ يختلف بشكل ملحوظ عن الرصد الميداني في الوسطى خلال أكتوبر ويحتاج إلى تأكيد من المورد.', 'Référence distincte d’un portail ; elle diffère sensiblement des observations de terrain d’octobre à Al Wusta et doit être vérifiée auprès d’un fournisseur.'],
+  'Delivered OMR 31.15/m³ GCCPricing reference-parity benchmark updated 26 Oct 2026; not a direct local merchant submission. Retains BinaaSouq OMR 24–38/m³ range as an independent local supplier cross-check.': ['مرجع مقارنة من GCCPricing بعد التوصيل بقيمة 31.15 ريالاً عُمانياً/م³، محدّث في 26 أكتوبر 2026؛ ليس عرضاً مباشراً من تاجر محلي. ويُحتفظ بنطاق BinaaSouq البالغ 24–38 ريالاً/م³ كتحقق مستقل من مورد محلي.', 'Référence de parité GCCPricing livrée de 31,15 OMR/m³, mise à jour le 26 octobre 2026 ; il ne s’agit pas d’une offre directe d’un commerçant local. La fourchette BinaaSouq de 24 à 38 OMR/m³ est conservée comme vérification indépendante auprès d’un fournisseur local.'],
+  'Local-origin 400×200×200 mm hollow CMU, supply-only; updated 5 days ago. Materially higher than Al Madina manufacturer OMR 0.165–0.175 listing, so not used as the starter block rate pending supplier reconciliation.': ['بلوك إسمنتي مجوف محلي المنشأ 400×200×200 مم، توريد فقط؛ محدّث قبل 5 أيام. سعره أعلى بكثير من قائمة مصنع المدينة البالغة 0.165–0.175 ريال عُماني، لذلك لم يُعتمد كسعر ابتدائي بانتظار مطابقة عروض الموردين.', 'Bloc creux en béton d’origine locale, 400×200×200 mm, fourniture seule ; mis à jour il y a 5 jours. Son prix dépasse nettement la liste du fabricant Al Madina (0,165–0,175 OMR) ; il n’est donc pas retenu comme tarif initial en attendant la réconciliation des devis fournisseurs.'],
+  'Lower end of listed OMR 0.22-0.38 per block range.': ['الحد الأدنى من النطاق المنشور البالغ 0.22–0.38 ريال عُماني للبلوك.', 'Limite basse de la fourchette publiée de 0,22 à 0,38 OMR par bloc.'],
+  'Omani manufacturer published OMR 0.165-0.175 per piece; delivery area changes price.': ['سعر منشور من مصنع عُماني يتراوح بين 0.165 و0.175 ريال عُماني للقطعة؛ تختلف الأسعار حسب منطقة التوصيل.', 'Prix publié par un fabricant omanais : 0,165 à 0,175 OMR par pièce ; le prix varie selon la zone de livraison.'],
+  'Omani manufacturer published OMR 0.210-0.220 per piece; delivery area changes price.': ['سعر منشور من مصنع عُماني يتراوح بين 0.210 و0.220 ريال عُماني للقطعة؛ تختلف الأسعار حسب منطقة التوصيل.', 'Prix publié par un fabricant omanais : 0,210 à 0,220 OMR par pièce ; le prix varie selon la zone de livraison.'],
+  'OMR 180-280 range; OMR 210 overseas-intake basic median. Housing/transport and employer costs are separate.': ['نطاق 180–280 ريالاً عُمانياً؛ الوسيط الأساسي 210 ريالات للعمالة المستقدمة من الخارج. السكن والنقل وتكاليف صاحب العمل منفصلة.', 'Fourchette de 180 à 280 OMR ; médiane de base de 210 OMR pour le recrutement à l’étranger. Logement, transport et charges employeur séparés.'],
+  'OMR 160-260 range; OMR 190 overseas-intake basic median. Not a contractor charge-out rate.': ['نطاق 160–260 ريالاً عُمانياً؛ الوسيط الأساسي 190 ريالاً للعمالة المستقدمة من الخارج. ليس سعراً مفروضاً من مقاول.', 'Fourchette de 160 à 260 OMR ; médiane de base de 190 OMR pour le recrutement à l’étranger. Ce n’est pas un tarif facturé par un entrepreneur.'],
+  'OMR 160-270 range; OMR 190 overseas-intake basic median. Not a contractor charge-out rate.': ['نطاق 160–270 ريالاً عُمانياً؛ الوسيط الأساسي 190 ريالاً للعمالة المستقدمة من الخارج. ليس سعراً مفروضاً من مقاول.', 'Fourchette de 160 à 270 OMR ; médiane de base de 190 OMR pour le recrutement à l’étranger. Ce n’est pas un tarif facturé par un entrepreneur.'],
+  'OMR 160-270 range; OMR 190 overseas-intake basic median. Housing/transport and employer costs are separate.': ['نطاق 160–270 ريالاً عُمانياً؛ الوسيط الأساسي 190 ريالاً للعمالة المستقدمة من الخارج. السكن والنقل وتكاليف صاحب العمل منفصلة.', 'Fourchette de 160 à 270 OMR ; médiane de base de 190 OMR pour le recrutement à l’étranger. Logement, transport et charges employeur séparés.'],
+};
+
+export function marketBenchmarkLabel(value: string, language: MarketBenchmarkLanguage): string {
+  if (language === 'en') return value;
+  const translated = ITEM_LABELS[value] || UNIT_LABELS[value] || NOTE_LABELS[value];
+  return translated ? translated[language === 'ar' ? 0 : 1] : value;
+}
 
 
-test('benchmark source labels are human-readable and localized', () => {
-  const source = 'https://prices.qsmind.app/en/uae/labour';
-  assert.equal(marketBenchmarkSourceLabel(source, 'en'), 'QSMind – labour market survey');
-  assert.match(marketBenchmarkSourceLabel(source, 'ar'), /QSMind/);
-  assert.match(marketBenchmarkSourceLabel(source, 'fr'), /QSMind/);
-});
+const SOURCE_LABELS: Record<string, [string, string]> = {
+  'prices.qsmind.app': ['QSMind – مسح أجور السوق', 'QSMind – enquête salariale'],
+  'quantohq.com': ['QuantoHQ – مؤشر أسعار الإمارات', 'QuantoHQ – indice des prix des Émirats'],
+  'marketintelligence.turnerandtownsend.com': ['Turner & Townsend – بيانات تكاليف البناء', 'Turner & Townsend – données de coûts de construction'],
+  'ibuild.sa': ['iBuild / GASTAT – أسعار المواد', 'iBuild / GASTAT – prix des matériaux'],
+  'boqcalc.com': ['BOQCalc – تقديرات سوق قطر', 'BOQCalc – estimations du marché qatari'],
+  'carbonblueglobal.com': ['CarbonBlue – نموذج جدول كميات', 'CarbonBlue – exemple de bordereau'],
+  'gccpricing.com': ['GCCPricing – مؤشر أسعار إقليمي', 'GCCPricing – indice régional des prix'],
+  'online.nicbm.com': ['NIC Kuwait – قائمة أسعار المصنع', 'NIC Kuwait – catalogue tarifaire du fabricant'],
+  'tajhrservices.com': ['Taj HR Services – دليل الأجور', 'Taj HR Services – guide des salaires'],
+  'madaar.om': ['Madaar – بوابة الموردين', 'Madaar – portail fournisseurs'],
+  'shabiba.com': ['الشبيبة – تقرير أسعار محلي', 'Shabiba – article sur les prix locaux'],
+  'binaasouq.com': ['BinaaSouq – أسعار موردين محليين', 'BinaaSouq – prix de fournisseurs locaux'],
+  'mcp.om': ['MCP Oman – أسعار المصنع المنشورة', 'MCP Oman – prix publiés du fabricant'],
+};
+
+export function marketBenchmarkSourceLabel(source: string, language: MarketBenchmarkLanguage): string {
+  let host = source.split('://').pop()?.split('/')[0] ?? source;
+  if (host.startsWith('www.')) host = host.slice(4);
+  const key = Object.keys(SOURCE_LABELS).find(domain => host === domain || host.endsWith('.' + domain));
+  if (!key) return language === 'ar' ? 'عرض المصدر' : language === 'fr' ? 'Consulter la source' : 'Open source';
+  if (language === 'en') {
+    const labels: Record<string, string> = {
+      'prices.qsmind.app': 'QSMind – labour market survey',
+      'quantohq.com': 'QuantoHQ – UAE price index',
+      'marketintelligence.turnerandtownsend.com': 'Turner & Townsend – construction cost data',
+      'ibuild.sa': 'iBuild / GASTAT – material prices',
+      'boqcalc.com': 'BOQCalc – Qatar market estimates',
+      'carbonblueglobal.com': 'CarbonBlue – sample bill of quantities',
+      'gccpricing.com': 'GCCPricing – regional price index',
+      'online.nicbm.com': 'NIC Kuwait – manufacturer price list',
+      'tajhrservices.com': 'Taj HR Services – salary guide',
+      'madaar.om': 'Madaar – supplier gateway',
+      'shabiba.com': 'Shabiba – local price report',
+      'binaasouq.com': 'BinaaSouq – local supplier prices',
+      'mcp.om': 'MCP Oman – published manufacturer prices',
+    };
+    return labels[key];
+  }
+  return SOURCE_LABELS[key][language === 'ar' ? 0 : 1];
+}
