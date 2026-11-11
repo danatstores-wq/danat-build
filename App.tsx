@@ -1231,15 +1231,15 @@ const styles = StyleSheet.create({
   },
   buildingCard: {
     marginTop: 22,
+    height: 150,
     borderWidth: 1,
     borderColor: GOLD,
     borderRadius: 16,
     overflow: 'hidden',
-    minHeight: 126,
   },
   buildingBackground: {
-    flex: 1,
-    minHeight: 126,
+    width: '100%',
+    height: '100%',
     justifyContent: 'center',
   },
   buildingBackgroundImage: {
@@ -1247,7 +1247,8 @@ const styles = StyleSheet.create({
   },
   buildingOverlay: {
     flex: 1,
-    minHeight: 126,
+    width: '100%',
+    height: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
