@@ -1721,6 +1721,12 @@ const styles = StyleSheet.create({
     lineHeight: 14,
     marginTop: 3,
   },
+  marketBenchmarkSource: {
+    color: GOLD,
+    fontSize: 9,
+    textDecorationLine: 'underline',
+    marginTop: 4,
+  },
   marketBenchmarkValueWrap: {
     alignItems: 'flex-end',
     maxWidth: 125,
