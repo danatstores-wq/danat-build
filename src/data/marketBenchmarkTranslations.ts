@@ -159,8 +159,8 @@ const SOURCE_LABELS: Record<string, [string, string]> = {
 };
 
 export function marketBenchmarkSourceLabel(source: string, language: MarketBenchmarkLanguage): string {
-  let host = source;
-  try { host = new URL(source).hostname.replace(/^www\\./, ''); } catch { /* keep safe fallback */ }
+  let host = source.split('://').pop()?.split('/')[0] ?? source;
+  if (host.startsWith('www.')) host = host.slice(4);
   const key = Object.keys(SOURCE_LABELS).find(domain => host === domain || host.endsWith('.' + domain));
   if (!key) return language === 'ar' ? 'عرض المصدر' : language === 'fr' ? 'Consulter la source' : 'Open source';
   if (language === 'en') {
