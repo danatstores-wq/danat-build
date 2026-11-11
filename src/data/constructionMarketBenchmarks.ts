@@ -122,32 +122,53 @@ export const COUNTRY_ITEM_RATE_DEFAULTS: Partial<
   Record<'AE' | 'SA' | 'QA' | 'KW' | 'OM', Record<string, { material: number; labor: number }>>
 > = {
   AE: {
-    excavation: { material: 25, labor: 0 }, // T&T 2025 measured excavation service, AED/m³
-    footingConcrete: { material: 300, labor: 0 }, // T&T Dubai 30 MPa concrete, AED/m³; material only
-    structuralSteel: { material: 2.94, labor: 0 }, // T&T 16 mm rebar AED 2,940/t, converted to kg
-    cementMasonry: { material: 13.13, labor: 0 }, // Quanto cement AED/50 kg bag
+    excavation: { material: 25, labor: 0 }, // T&T 2025 Dubai measured excavation service, AED/m³
+    footingConcrete: { material: 300, labor: 0 }, // T&T 2025 Dubai 30 MPa ready-mix material, AED/m³
+    columnConcrete: { material: 300, labor: 0 },
+    stairConcrete: { material: 300, labor: 0 },
+    beamConcrete: { material: 300, labor: 0 },
+    slabConcrete: { material: 300, labor: 0 },
+    foundationSteel: { material: 2.9, labor: 0 }, // T&T 16 mm rebar AED 2,900/t converted to kg
+    structuralSteel: { material: 2.9, labor: 0 },
+    cementMasonry: { material: 13.13, labor: 0 }, // Quanto UAE cement, AED/50 kg bag
   },
   SA: {
     excavation: { material: 21.5, labor: 0 }, // QS Mind Riyadh machine excavation service, SAR/m³
     footingConcrete: { material: 212.52, labor: 0 }, // GASTAT 350K normal concrete, SAR/m³
-    structuralSteel: { material: 3.12285, labor: 0 }, // GASTAT 12 mm rebar SAR/t converted to kg
+    columnConcrete: { material: 212.52, labor: 0 },
+    stairConcrete: { material: 212.52, labor: 0 },
+    beamConcrete: { material: 212.52, labor: 0 },
+    slabConcrete: { material: 212.52, labor: 0 },
+    foundationSteel: { material: 3.12285, labor: 0 }, // GASTAT 12 mm rebar SAR/t converted to kg
+    structuralSteel: { material: 3.12285, labor: 0 },
     cementMasonry: { material: 15.53, labor: 0 }, // GASTAT black cement, SAR/50 kg bag
     sandMasonry: { material: 77.61, labor: 0 }, // GASTAT white soft sand, SAR/m³
   },
   QA: {
     excavation: { material: 28, labor: 0 }, // Qatar sample BOQ excavation service, QAR/m³
     footingConcrete: { material: 305, labor: 0 }, // BoqCalc C30/37 ready-mix, QAR/m³
-    structuralSteel: { material: 2.99, labor: 0 }, // Ashghal 10-40 mm rebar QAR/t converted to kg
+    columnConcrete: { material: 305, labor: 0 },
+    stairConcrete: { material: 305, labor: 0 },
+    beamConcrete: { material: 305, labor: 0 },
+    slabConcrete: { material: 305, labor: 0 },
+    foundationSteel: { material: 2.99, labor: 0 }, // Ashghal 10–40 mm rebar QAR/t converted to kg
+    structuralSteel: { material: 2.99, labor: 0 },
     cementMasonry: { material: 34, labor: 0 }, // BoqCalc QAR17/25 kg converted to 50 kg bag
     sandMasonry: { material: 72, labor: 0 }, // BoqCalc sand QAR/m³
   },
   KW: {
-    structuralSteel: { material: 0.245, labor: 0 }, // GCCPricing KWD245/t converted to kg
+    foundationSteel: { material: 0.245, labor: 0 }, // GCCPricing KWD245/t converted to kg
+    structuralSteel: { material: 0.245, labor: 0 },
     cementMasonry: { material: 3, labor: 0 }, // GCCPricing KWD/50 kg bag
   },
   OM: {
-    footingConcrete: { material: 24, labor: 0 }, // BinaaSouq lower bound C25-C40 ready-mix, OMR/m³
-    structuralSteel: { material: 0.307, labor: 0 }, // GCCPricing OMR307/t converted to kg
+    footingConcrete: { material: 24, labor: 0 }, // BinaaSouq lower bound C25–C40 ready-mix, OMR/m³
+    columnConcrete: { material: 24, labor: 0 },
+    stairConcrete: { material: 24, labor: 0 },
+    beamConcrete: { material: 24, labor: 0 },
+    slabConcrete: { material: 24, labor: 0 },
+    foundationSteel: { material: 0.307, labor: 0 }, // GCCPricing OMR307/t converted to kg
+    structuralSteel: { material: 0.307, labor: 0 },
     cementMasonry: { material: 3, labor: 0 }, // GCCPricing OMR/50 kg bag
   },
 };
