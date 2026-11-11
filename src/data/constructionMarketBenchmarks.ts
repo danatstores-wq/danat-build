@@ -43,41 +43,6 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
       { item: 'ceramic floor tiles', value: 150, unit: 'm² installed', status: 'market-survey', source: 'https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance', checkedAt: '2026-11-11', note: 'Dubai 2025 standard ceramic tile, 1,000 m² project.' },
       { item: 'single solid-core door', value: 4000, unit: 'piece installed', status: 'market-survey', source: 'https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance', checkedAt: '2026-11-11', note: 'Dubai 2025 including frame and hardware; 50-door project.' },
     ],
-    footingConcrete: { material: 300, labor: 13.13 }, // labor allowance: 0.75 skilled-trade hours/m³ × AED17.50/hr
-    columnConcrete: { material: 300, labor: 13.13 },
-    stairConcrete: { material: 300, labor: 13.13 },
-    beamConcrete: { material: 300, labor: 13.13 },
-    slabConcrete: { material: 300, labor: 13.13 },
-    foundationSteel: { material: 2.9, labor: 1.4 }, // 0.08 skilled-trade hours/kg × AED17.50/hr
-    structuralSteel: { material: 2.9, labor: 1.4 },
-    foundationFormwork: { material: 0, labor: 11.44 }, // 0.5 carpenter hours/m² × AED206/9h
-    columnFormwork: { material: 0, labor: 11.44 },
-    beamFormwork: { material: 0, labor: 11.44 },
-    slabFormwork: { material: 0, labor: 11.44 },
-    externalBlocks: { material: 0, labor: 11.38 }, // 0.65 skilled-trade hours/m² × AED17.50/hr
-    internalPlaster: { material: 0, labor: 6.15 }, // 0.3 plasterer hours/m² × AED164/8h
-    externalPlaster: { material: 0, labor: 6.15 },
-    ceilingPlaster: { material: 0, labor: 6.15 },
-    lightingPoints: { material: 0, labor: 31.2 }, // 1.2 electrician hours/point × AED208/8h
-    singleSockets: { material: 0, labor: 31.2 },
-    doubleSockets: { material: 0, labor: 31.2 },
-    acPoints: { material: 0, labor: 31.2 },
-    waterHeaterPoints: { material: 0, labor: 31.2 },
-    tvPoints: { material: 0, labor: 31.2 },
-    internetPoints: { material: 0, labor: 31.2 },
-    switchPoints: { material: 0, labor: 31.2 },
-    coldWaterPoints: { material: 0, labor: 35.63 }, // 1.5 plumber hours/point × AED190/8h
-    hotWaterPoints: { material: 0, labor: 35.63 },
-    toiletConnections: { material: 0, labor: 35.63 },
-    showerConnections: { material: 0, labor: 35.63 },
-    basinConnections: { material: 0, labor: 35.63 },
-    kitchenConnections: { material: 0, labor: 35.63 },
-    floorTiles: { material: 0, labor: 7.88 }, // 0.45 skilled-trade hours/m² × AED17.50/hr
-    falseCeiling: { material: 20, labor: 7.88 },
-    wallPrimer: { material: 0, labor: 2.25 }, // 0.12 painter hours/m² × AED150/8h
-    wallPutty: { material: 0, labor: 2.25 },
-    interiorPaint: { material: 0, labor: 2.25 },
-    exteriorPaint: { material: 0, labor: 2.25 },
   },
   SA: {
     currency: 'SAR',
@@ -101,24 +66,6 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
       { item: 'lighting point', value: 85, unit: 'point installed', status: 'market-survey', source: 'https://prices.qsmind.app/en/saudi/works', checkedAt: '2026-11-11', note: 'Riyadh conduit and wiring, light fitting excluded.' },
       { item: 'socket outlet point', value: 97.5, unit: 'point installed', status: 'market-survey', source: 'https://prices.qsmind.app/en/saudi/works', checkedAt: '2026-11-11', note: 'Riyadh conduit, wiring and mid-range 13A outlet.' },
     ],
-    footingConcrete: { material: 212.52, labor: 25.52 }, // 0.75 concrete-worker hours/m³ × SAR34.03/hr
-    columnConcrete: { material: 212.52, labor: 25.52 },
-    stairConcrete: { material: 212.52, labor: 25.52 },
-    beamConcrete: { material: 212.52, labor: 25.52 },
-    slabConcrete: { material: 212.52, labor: 25.52 },
-    foundationSteel: { material: 3.12285, labor: 1.28 }, // 0.08 steel-fixer hours/kg × SAR16/hr
-    structuralSteel: { material: 3.12285, labor: 1.28 },
-    externalBlocks: { material: 20.97, labor: 10.4 }, // 0.65 mason hours/m² × SAR16/hr
-    internalPlaster: { material: 0, labor: 4.5 }, // 0.3 plaster-mason hours/m² × SAR15/hr
-    externalPlaster: { material: 0, labor: 4.5 },
-    ceilingPlaster: { material: 0, labor: 4.5 },
-    floorTiles: { material: 23.16, labor: 8.1 }, // 0.45 tile-mason hours/m² × SAR18/hr
-    coldWaterPoints: { material: 0, labor: 22.5 }, // 1.5 plumber hours/point × SAR15/hr
-    hotWaterPoints: { material: 0, labor: 22.5 },
-    toiletConnections: { material: 0, labor: 22.5 },
-    showerConnections: { material: 0, labor: 22.5 },
-    basinConnections: { material: 0, labor: 22.5 },
-    kitchenConnections: { material: 0, labor: 22.5 },
   },
   QA: {
     currency: 'QAR',
@@ -139,39 +86,6 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
       { item: 'porcelain floor tiling', value: 145, unit: 'm² installed', status: 'market-survey', source: 'https://www.carbonblueglobal.com/services/quantity-surveying', checkedAt: '2026-11-11', note: 'Illustrative Qatar BOQ sample rate.' },
       { item: 'two-coat emulsion paint', value: 16, unit: 'm² installed', status: 'market-survey', source: 'https://www.carbonblueglobal.com/services/quantity-surveying', checkedAt: '2026-11-11', note: 'Illustrative Qatar BOQ sample rate.' },
     ],
-    footingConcrete: { material: 305, labor: 28.07 }, // 0.75 concrete-worker hours/m³ × QAR37.42/hr
-    columnConcrete: { material: 305, labor: 28.07 },
-    stairConcrete: { material: 305, labor: 28.07 },
-    beamConcrete: { material: 305, labor: 28.07 },
-    slabConcrete: { material: 305, labor: 28.07 },
-    foundationFormwork: { material: 0, labor: 22.22 }, // 0.5 carpenter hours/m² × QAR44.43/hr
-    columnFormwork: { material: 0, labor: 22.22 },
-    beamFormwork: { material: 0, labor: 22.22 },
-    slabFormwork: { material: 0, labor: 22.22 },
-    externalBlocks: { material: 0, labor: 27.36 }, // 0.65 mason hours/m² × QAR42.09/hr
-    internalPlaster: { material: 0, labor: 12.63 }, // 0.3 skilled mason hours/m² × QAR42.09/hr
-    externalPlaster: { material: 0, labor: 12.63 },
-    ceilingPlaster: { material: 0, labor: 12.63 },
-    lightingPoints: { material: 0, labor: 56.12 }, // 1.2 electrician hours/point × QAR46.77/hr
-    singleSockets: { material: 0, labor: 56.12 },
-    doubleSockets: { material: 0, labor: 56.12 },
-    acPoints: { material: 0, labor: 56.12 },
-    waterHeaterPoints: { material: 0, labor: 56.12 },
-    tvPoints: { material: 0, labor: 56.12 },
-    internetPoints: { material: 0, labor: 56.12 },
-    switchPoints: { material: 0, labor: 56.12 },
-    coldWaterPoints: { material: 0, labor: 70.16 }, // 1.5 plumber hours/point × QAR46.77/hr
-    hotWaterPoints: { material: 0, labor: 70.16 },
-    toiletConnections: { material: 0, labor: 70.16 },
-    showerConnections: { material: 0, labor: 70.16 },
-    basinConnections: { material: 0, labor: 70.16 },
-    kitchenConnections: { material: 0, labor: 70.16 },
-    floorTiles: { material: 0, labor: 18.94 }, // 0.45 tiler hours/m² × QAR42.09/hr
-    falseCeiling: { material: 23, labor: 17.89 }, // 0.45 drywall-installer hours/m² × QAR39.76/hr
-    wallPrimer: { material: 0, labor: 4.21 }, // 0.12 painter hours/m² × QAR35.08/hr
-    wallPutty: { material: 0, labor: 4.21 },
-    interiorPaint: { material: 0, labor: 4.21 },
-    exteriorPaint: { material: 0, labor: 4.21 },
   },
   KW: {
     currency: 'KWD',
