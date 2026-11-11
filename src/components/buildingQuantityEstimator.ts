@@ -77,7 +77,7 @@ export function estimateBuildingQuantities(
     'excavation', 'soilRemoval', 'backfilling', 'soilCompaction',
     'sitePreparation', 'leanConcrete', 'footingConcrete',
     'foundationSteel', 'foundationFormwork',
-    'foundationWaterproofing', 'columnConcrete', 'beamConcrete',
+    'foundationWaterproofing', 'columnConcrete', 'beamConcrete', 'stairConcrete',
     'slabConcrete', 'structuralSteel', 'columnFormwork',
     'beamFormwork', 'slabFormwork', 'scaffolding',
     'externalBlocks', 'internalBlocks', 'cementMasonry',
@@ -166,8 +166,7 @@ export function estimateBuildingQuantities(
     v('beamLength') * (2 * v('beamDepth') + v('beamWidth'));
 
   const blockArea = wallArea;
-  const plasterMultiplier = safe(values.plaster, 2);
-  const plasterArea = wallArea * plasterMultiplier;
+  const plasterArea = wallArea * 2;
   const ceilingArea = totalArea;
 
   const tileWaste = safe(values.tileWaste, 10) / 100;
@@ -175,14 +174,18 @@ export function estimateBuildingQuantities(
 
   const paintCoverage = safe(values.paintCoverage, 10);
   const paintCoats = safe(values.paintCoats, 2);
-  const paintSurface = wallArea + ceilingArea;
+  // Interior paint covers the inside face of external walls, both partition
+  // faces, and ceilings. Exterior paint is measured separately.
+  const interiorPaintSurface =
+    externalWallArea + partitionArea * 2 + ceilingArea;
+  const totalPaintSurface = interiorPaintSurface + externalWallArea;
   const paintLitres =
     paintCoverage > 0
-      ? (paintSurface * paintCoats) / paintCoverage
+      ? (totalPaintSurface * paintCoats) / paintCoverage
       : 0;
 
   const waterproofInput = v('waterproof');
-  const waterproofArea = waterproofInput > 0 ? waterproofInput : roof;
+  const waterproofArea = waterproofInput;
 
   const set = (id: string, value: number) => {
     result[`${id}Qty`] = String(
@@ -193,20 +196,24 @@ export function estimateBuildingQuantities(
   // Earthworks
   set('excavation', excavation);
   set('soilRemoval', excavation);
-  set('backfilling', Math.max(0, excavation - footingConcrete));
+  set('backfilling', Math.max(0, excavation - footingConcrete - footingCount * footingLength * footingWidth * 0.1));
   set('soilCompaction', excavation > 0 ? footingCount * footingLength * footingWidth : 0);
-  set('sitePreparation', totalArea);
+  // Plot area is not known from floor area; require a measured site quantity.
+  set('sitePreparation', 0);
 
   // Foundations and structure
   set('leanConcrete', footingCount * footingLength * footingWidth * 0.1);
   set('footingConcrete', footingConcrete);
   set('foundationSteel', footingConcrete * 80);
   set('foundationFormwork', foundationFormwork);
-  set('foundationWaterproofing', foundationFormwork);
+  // Do not invent foundation waterproofing quantity from formwork area.
+  // Leave at zero until a measured waterproofing area is entered manually.
+  set('foundationWaterproofing', 0);
   set('columnConcrete', columnConcrete);
   set('beamConcrete', beamConcrete);
   set('slabConcrete', slabConcrete);
-  set('structuralSteel', structuralConcrete * 110);
+  set('stairConcrete', v('stairVolume'));
+  set('structuralSteel', (structuralConcrete + v('stairVolume')) * 110);
   set('columnFormwork', columnFormwork);
   set('beamFormwork', beamFormwork);
   set('slabFormwork', totalArea);
@@ -227,7 +234,8 @@ export function estimateBuildingQuantities(
   set('roofDrainage', Math.max(1, ceil(roof / 100)));
 
   // Plaster and finishing
-  set('internalPlaster', externalWallArea + partitionArea);
+  // Interior face of external walls plus both faces of internal partitions.
+  set('internalPlaster', externalWallArea + partitionArea * 2);
   set('externalPlaster', externalWallArea);
   set('ceilingPlaster', ceilingArea);
   set('plasterMesh', wallArea * 0.1);
@@ -309,18 +317,20 @@ export function estimateBuildingQuantities(
   set('tileAdhesive', ceil(tileArea / 4));
   set('tileGrout', ceil(tileArea / 20));
   set('skirting', perimeterTotal);
-  set('wallPrimer', paintSurface);
-  set('wallPutty', paintSurface);
-  set('interiorPaint', paintSurface);
+  set('wallPrimer', interiorPaintSurface);
+  set('wallPutty', interiorPaintSurface);
+  set('interiorPaint', interiorPaintSurface);
   set('exteriorPaint', externalWallArea);
   set('metalWoodPaint', 0);
 
   // Ceiling allowances
-  set('falseCeiling', ceilingArea);
-  set('ceilingFrame', ceilingArea);
+  // A suspended ceiling is optional; do not assume it is installed
+  // throughout the building. Enter measured areas/items manually.
+  set('falseCeiling', 0);
+  set('ceilingFrame', 0);
   set('ceilingInsulation', 0);
   set('ceilingAccessPanels', 0);
-  set('ceilingFinishing', ceilingArea);
+  set('ceilingFinishing', 0);
 
   // Facade allowance
   set('facadeFinish', externalWallArea);
@@ -343,8 +353,8 @@ export function estimateBuildingQuantities(
 
     const volumeIds = [
       'excavation', 'soilRemoval', 'backfilling', 'leanConcrete',
-      'footingConcrete', 'columnConcrete', 'beamConcrete',
-      'slabConcrete', 'plasterMaterials',
+      'footingConcrete', 'columnConcrete', 'beamConcrete', 'sandMasonry',
+      'slabConcrete', 'stairConcrete', 'plasterMaterials',
     ];
 
     const lengthIds = [

@@ -32,6 +32,8 @@ type CostItem = {
   category: string;
   names: [string, string, string];
   unit: string;
+  requiresMaterial?: boolean;
+  requiresLabor?: boolean;
 };
 
 type DetailedValues = Record<string, string>;
@@ -95,7 +97,7 @@ const translations = {
     concrete: 'Structural concrete',
     blocks: 'Blocks required',
     wallArea: 'Net wall area',
-    plasterArea: 'Plaster area',
+    plasterArea: 'Wall plaster area',
     tileArea: 'Floor tile area including wastage',
     paintLitres: 'Paint required',
     waterproofArea: 'Waterproofing area',
@@ -106,18 +108,22 @@ const translations = {
     equipmentResult: 'Equipment',
     extraResult: 'Other costs',
     subtotal: 'Subtotal',
+    pricedSubtotal: 'Priced items subtotal (missing rates excluded)',
     reserve: 'Contingency',
+    pricedReserve: 'Contingency on priced items only',
+    incompleteTotal: 'INCOMPLETE — ADD MISSING RATES',
+    incompleteValue: '—',
     total: 'TOTAL ESTIMATED COST',
     note: 'IMPORTANT ENGINEERING NOTE',
-    warning: 'This is a preliminary quantity and cost estimate, not a structural design. Footing, column, beam, slab and reinforcement specifications must be supplied or approved by a qualified structural engineer. Electrical and plumbing quantities are allowances based on the entered point counts.',
+    warning: 'This is a preliminary quantity and cost estimate, not a structural design. Footing, column, beam, slab and reinforcement specifications must be supplied or approved by a qualified structural engineer. Electrical and plumbing quantities are preliminary floor-area allowances and must be checked against the project layouts.',
     invalid: 'Please enter valid positive dimensions and quantities.',
     professional: 'Professional mode: enter engineering specifications and actual unit prices.',
     homeowner: 'Homeowner mode: enter building dimensions and use contractor-supplied specifications and prices.',
     noFloors: 'At least one floor is required.',
     detailedCosts: 'DETAILED ITEMIZED COSTS',
-    detailedHint: 'Enter the quantity, material price per unit and labor price per unit for each item. Leave unused items at zero.',
+    detailedHint: 'Default Lebanon USD rates are November 2026 planning allowances based on published local listings where available; unquoted trades are provisional estimates. Review and edit them against local contractor quotes. Leave unused items at zero.',
     quantity: 'Quantity',
-    materialUnit: 'Material / unit ($)',
+    materialUnit: 'Material or service / unit ($)',
     laborUnit: 'Labor / unit ($)',
     itemTotal: 'Item total',
     categoryTotal: 'Category subtotal',
@@ -181,7 +187,7 @@ const translations = {
     concrete: 'باطون الهيكل الإنشائي',
     blocks: 'عدد البلوك المطلوب',
     wallArea: 'مساحة الجدران الصافية',
-    plasterArea: 'مساحة القصارة',
+    plasterArea: 'مساحة قصارة الجدران',
     tileArea: 'مساحة البلاط مع الهدر',
     paintLitres: 'كمية الدهان المطلوبة',
     waterproofArea: 'مساحة العزل',
@@ -192,18 +198,22 @@ const translations = {
     equipmentResult: 'المعدات',
     extraResult: 'تكاليف أخرى',
     subtotal: 'المجموع الفرعي',
+    pricedSubtotal: 'مجموع البنود المسعّرة فقط (لا يشمل الأسعار الناقصة)',
     reserve: 'الاحتياطي',
+    pricedReserve: 'احتياطي البنود المسعّرة فقط',
+    incompleteTotal: 'غير مكتمل — أدخل الأسعار الناقصة',
+    incompleteValue: '—',
     total: 'التكلفة الإجمالية التقديرية',
     note: 'ملاحظة هندسية مهمة',
-    warning: 'هذا تقدير أولي للكميات والتكاليف وليس تصميماً إنشائياً. يجب أن يحدد أو يعتمد مهندس إنشائي مؤهل أبعاد القواعد والأعمدة والجسور والبلاطات وحديد التسليح. كميات الكهرباء والسباكة تقديرية وفق عدد النقاط المدخل.',
+    warning: 'هذا تقدير أولي للكميات والتكاليف وليس تصميماً إنشائياً. يجب أن يحدد أو يعتمد مهندس إنشائي مؤهل أبعاد القواعد والأعمدة والجسور والبلاطات وحديد التسليح. كميات الكهرباء والسباكة تقديرية حسب مساحة الطوابق ويجب مراجعتها وفق مخططات المشروع.',
     invalid: 'يرجى إدخال أبعاد وكميات صحيحة وموجبة.',
     professional: 'الوضع المهني: أدخل المواصفات الهندسية وأسعار الوحدات الفعلية.',
     homeowner: 'وضع صاحب المنزل: أدخل أبعاد المبنى واستخدم المواصفات والأسعار المقدمة من المقاول.',
     noFloors: 'يجب إضافة طابق واحد على الأقل.',
     detailedCosts: 'تفصيل تكاليف جميع البنود',
-    detailedHint: 'أدخل الكمية وسعر المواد للوحدة وأجرة العمل للوحدة لكل بند. اترك البنود غير المستخدمة صفراً.',
+    detailedHint: 'الأسعار الافتراضية بالدولار للبنان هي تقديرات تخطيطية لشهر تشرين الثاني 2026، مبنية على الأسعار المحلية المنشورة حيث توفرت؛ أما البنود غير المنشورة فهي تقديرات أولية. راجعها وعدّلها وفق عروض المقاولين المحليين. اترك البنود غير المستخدمة صفراً.',
     quantity: 'الكمية',
-    materialUnit: 'المواد / الوحدة ($)',
+    materialUnit: 'المواد أو الخدمة / الوحدة ($)',
     laborUnit: 'العمل / الوحدة ($)',
     itemTotal: 'مجموع البند',
     categoryTotal: 'مجموع القسم',
@@ -267,7 +277,7 @@ const translations = {
     concrete: 'Béton structurel',
     blocks: 'Blocs nécessaires',
     wallArea: 'Surface nette des murs',
-    plasterArea: 'Surface à enduire',
+    plasterArea: 'Surface des murs à enduire',
     tileArea: 'Carrelage avec pertes',
     paintLitres: 'Peinture nécessaire',
     waterproofArea: 'Surface d’étanchéité',
@@ -278,18 +288,22 @@ const translations = {
     equipmentResult: 'Équipement',
     extraResult: 'Autres coûts',
     subtotal: 'Sous-total',
+    pricedSubtotal: 'Sous-total des postes chiffrés uniquement',
     reserve: 'Imprévus',
+    pricedReserve: 'Imprévus sur les postes chiffrés uniquement',
+    incompleteTotal: 'INCOMPLET — AJOUTEZ LES TARIFS MANQUANTS',
+    incompleteValue: '—',
     total: 'COÛT TOTAL ESTIMÉ',
     note: 'NOTE TECHNIQUE IMPORTANTE',
-    warning: 'Cette estimation préliminaire ne constitue pas une conception structurelle. Les dimensions des semelles, poteaux, poutres, dalles et armatures doivent être fournies ou validées par un ingénieur qualifié. Les quantités électriques et de plomberie sont indicatives.',
+    warning: 'Cette estimation préliminaire ne constitue pas une conception structurelle. Les dimensions des semelles, poteaux, poutres, dalles et armatures doivent être fournies ou validées par un ingénieur qualifié. Les quantités électriques et de plomberie sont estimées selon la surface des étages et doivent être vérifiées sur les plans du projet.',
     invalid: 'Veuillez saisir des dimensions et quantités positives valides.',
     professional: 'Mode professionnel : saisissez les spécifications techniques et les prix réels.',
     homeowner: 'Mode propriétaire : saisissez les dimensions et utilisez les spécifications et prix du constructeur.',
     noFloors: 'Au moins un étage est requis.',
     detailedCosts: 'COÛTS DÉTAILLÉS PAR POSTE',
-    detailedHint: 'Saisissez la quantité, le prix des matériaux par unité et le coût de main-d’œuvre par unité. Laissez les postes inutilisés à zéro.',
+    detailedHint: 'Les tarifs par défaut au Liban en USD sont des estimations de planification pour novembre 2026, fondées sur les prix locaux publiés lorsqu’ils sont disponibles; les autres postes sont provisoires. Vérifiez-les avec des devis locaux. Laissez les postes inutilisés à zéro.',
     quantity: 'Quantité',
-    materialUnit: 'Matériaux / unité ($)',
+    materialUnit: 'Matériaux ou service / unité ($)',
     laborUnit: 'Main-d’œuvre / unité ($)',
     itemTotal: 'Total du poste',
     categoryTotal: 'Total de catégorie',
@@ -320,11 +334,11 @@ const COST_CATEGORIES = [
 
 const COST_ITEMS: CostItem[] = [
   // 1. EARTHWORKS
-  { id: 'excavation', category: 'earthworks', names: ['Excavation', 'حفر التربة', 'Excavation'], unit: 'm³' },
-  { id: 'soilRemoval', category: 'earthworks', names: ['Soil removal and disposal', 'نقل وترحيل الأتربة', 'Évacuation des terres'], unit: 'm³' },
-  { id: 'backfilling', category: 'earthworks', names: ['Backfilling', 'ردم التربة', 'Remblayage'], unit: 'm³' },
-  { id: 'soilCompaction', category: 'earthworks', names: ['Soil compaction', 'دك التربة', 'Compactage du sol'], unit: 'm²' },
-  { id: 'sitePreparation', category: 'earthworks', names: ['Site preparation', 'تجهيز الموقع', 'Préparation du chantier'], unit: 'm²' },
+  { id: 'excavation', category: 'earthworks', names: ['Excavation', 'حفر التربة', 'Excavation'], unit: 'm³', requiresLabor: false },
+  { id: 'soilRemoval', category: 'earthworks', names: ['Soil removal and disposal', 'نقل وترحيل الأتربة', 'Évacuation des terres'], unit: 'm³', requiresLabor: false },
+  { id: 'backfilling', category: 'earthworks', names: ['Backfilling', 'ردم التربة', 'Remblayage'], unit: 'm³', requiresLabor: false },
+  { id: 'soilCompaction', category: 'earthworks', names: ['Soil compaction', 'دك التربة', 'Compactage du sol'], unit: 'm²', requiresLabor: false },
+  { id: 'sitePreparation', category: 'earthworks', names: ['Site preparation', 'تجهيز الموقع', 'Préparation du chantier'], unit: 'm²', requiresLabor: false },
 
   // 2. FOUNDATION
   { id: 'leanConcrete', category: 'foundation', names: ['Blinding concrete', 'خرسانة النظافة', 'Béton de propreté'], unit: 'm³' },
@@ -335,19 +349,20 @@ const COST_ITEMS: CostItem[] = [
 
   // 3. STRUCTURE
   { id: 'columnConcrete', category: 'structure', names: ['Column concrete', 'خرسانة الأعمدة', 'Béton des poteaux'], unit: 'm³' },
+  { id: 'stairConcrete', category: 'structure', names: ['Staircase concrete', 'خرسانة الدرج', 'Béton des escaliers'], unit: 'm³' },
   { id: 'beamConcrete', category: 'structure', names: ['Beam concrete', 'خرسانة الجسور', 'Béton des poutres'], unit: 'm³' },
   { id: 'slabConcrete', category: 'structure', names: ['Slab concrete', 'خرسانة الأسقف', 'Béton des dalles'], unit: 'm³' },
   { id: 'structuralSteel', category: 'structure', names: ['Structural reinforcement steel', 'حديد التسليح الإنشائي', 'Acier de structure'], unit: 'kg' },
   { id: 'columnFormwork', category: 'structure', names: ['Column formwork', 'قوالب الأعمدة', 'Coffrage des poteaux'], unit: 'm²' },
   { id: 'beamFormwork', category: 'structure', names: ['Beam formwork', 'قوالب الجسور', 'Coffrage des poutres'], unit: 'm²' },
   { id: 'slabFormwork', category: 'structure', names: ['Slab formwork', 'قوالب الأسقف', 'Coffrage des dalles'], unit: 'm²' },
-  { id: 'scaffolding', category: 'structure', names: ['Scaffolding and supports', 'السقالات والدعائم', 'Échafaudages et étais'], unit: 'm²' },
+  { id: 'scaffolding', category: 'structure', names: ['Scaffolding and supports', 'السقالات والدعائم', 'Échafaudages et étais'], unit: 'm²', requiresLabor: false },
 
   // 4. MASONRY
   { id: 'externalBlocks', category: 'masonry', names: ['External wall blocks', 'بلوك الجدران الخارجية', 'Blocs des murs extérieurs'], unit: 'm²' },
   { id: 'internalBlocks', category: 'masonry', names: ['Internal wall blocks', 'بلوك القواطع الداخلية', 'Blocs des cloisons intérieures'], unit: 'm²' },
-  { id: 'cementMasonry', category: 'masonry', names: ['Cement for masonry', 'إسمنت البناء', 'Ciment de maçonnerie'], unit: 'bag' },
-  { id: 'sandMasonry', category: 'masonry', names: ['Sand for masonry', 'رمل البناء', 'Sable de maçonnerie'], unit: 'm³' },
+  { id: 'cementMasonry', category: 'masonry', names: ['Cement for masonry', 'إسمنت البناء', 'Ciment de maçonnerie'], unit: 'bag', requiresLabor: false },
+  { id: 'sandMasonry', category: 'masonry', names: ['Sand for masonry', 'رمل البناء', 'Sable de maçonnerie'], unit: 'm³', requiresLabor: false },
   { id: 'lintels', category: 'masonry', names: ['Door and window lintels', 'عتبات الأبواب والنوافذ', 'Linteaux des portes et fenêtres'], unit: 'm' },
 
   // 5. ROOFING
@@ -362,7 +377,7 @@ const COST_ITEMS: CostItem[] = [
   { id: 'externalPlaster', category: 'plaster', names: ['External plaster', 'قصارة خارجية', 'Enduit extérieur'], unit: 'm²' },
   { id: 'ceilingPlaster', category: 'plaster', names: ['Ceiling plaster', 'قصارة الأسقف', 'Enduit de plafond'], unit: 'm²' },
   { id: 'plasterMesh', category: 'plaster', names: ['Plaster reinforcement mesh', 'شبك القصارة', 'Treillis pour enduit'], unit: 'm²' },
-  { id: 'plasterMaterials', category: 'plaster', names: ['Plaster cement and sand', 'إسمنت ورمل القصارة', 'Ciment et sable pour enduit'], unit: 'm³' },
+  { id: 'plasterMaterials', category: 'plaster', names: ['Plaster cement and sand', 'إسمنت ورمل القصارة', 'Ciment et sable pour enduit'], unit: 'm³', requiresLabor: false },
 
   // 7. ELECTRICAL
   { id: 'lightingPoints', category: 'electrical', names: ['Lighting points', 'نقاط إنارة', 'Points lumineux'], unit: 'pcs' },
@@ -405,13 +420,13 @@ const COST_ITEMS: CostItem[] = [
   { id: 'elevatorLandingDoors', category: 'elevator', names: ['Landing doors (per floor)', 'أبواب الطوابق', 'Portes palières (par étage)'], unit: 'pcs' },
   { id: 'elevatorCables', category: 'elevator', names: ['Elevator cables and ropes', 'كوابل وحبال المصعد', 'Câbles et cordes'], unit: 'set' },
   { id: 'elevatorSafety', category: 'elevator', names: ['Safety and emergency system', 'نظام السلامة والطوارئ', 'Système de sécurité et urgence'], unit: 'set' },
-  { id: 'elevatorInstallation', category: 'elevator', names: ['Elevator installation and testing', 'تركيب وفحص المصعد', 'Installation et essais'], unit: 'job' },
+  { id: 'elevatorInstallation', category: 'elevator', names: ['Elevator installation and testing', 'تركيب وفحص المصعد', 'Installation et essais'], unit: 'job', requiresMaterial: false },
 
   // 11. TILING
   { id: 'floorTiles', category: 'tiling', names: ['Floor tiles', 'بلاط الأرضيات', 'Carrelage de sol'], unit: 'm²' },
   { id: 'wallTiles', category: 'tiling', names: ['Wall tiles', 'بلاط الجدران', 'Carrelage mural'], unit: 'm²' },
-  { id: 'tileAdhesive', category: 'tiling', names: ['Tile adhesive', 'لاصق البلاط', 'Colle à carrelage'], unit: 'bag' },
-  { id: 'tileGrout', category: 'tiling', names: ['Tile grout', 'روبة البلاط', 'Joint de carrelage'], unit: 'bag' },
+  { id: 'tileAdhesive', category: 'tiling', names: ['Tile adhesive', 'لاصق البلاط', 'Colle à carrelage'], unit: 'bag', requiresLabor: false },
+  { id: 'tileGrout', category: 'tiling', names: ['Tile grout', 'روبة البلاط', 'Joint de carrelage'], unit: 'bag', requiresLabor: false },
   { id: 'skirting', category: 'tiling', names: ['Skirting tiles', 'وزرات البلاط', 'Plinthes carrelées'], unit: 'm' },
 
   // 12. OPENINGS
@@ -443,17 +458,65 @@ const COST_ITEMS: CostItem[] = [
   { id: 'landscaping', category: 'facade', names: ['Landscaping and external works', 'تنسيق الموقع والأعمال الخارجية', 'Aménagement paysager'], unit: 'm²' },
 
   // 16. OTHER
-  { id: 'transport', category: 'other', names: ['Material transportation', 'نقل المواد', 'Transport des matériaux'], unit: 'job' },
-  { id: 'wasteDisposal', category: 'other', names: ['Construction waste disposal', 'ترحيل مخلفات البناء', 'Évacuation des déchets'], unit: 'job' },
-  { id: 'permits', category: 'other', names: ['Permits and inspections', 'رخص وفحوصات', 'Permis et inspections'], unit: 'job' },
-  { id: 'siteManagement', category: 'other', names: ['Site management', 'إدارة الموقع', 'Gestion du chantier'], unit: 'job' },
-  { id: 'miscellaneous', category: 'other', names: ['Miscellaneous expenses', 'مصاريف متنوعة', 'Dépenses diverses'], unit: 'job' },
+  { id: 'transport', category: 'other', names: ['Material transportation', 'نقل المواد', 'Transport des matériaux'], unit: 'job', requiresLabor: false },
+  { id: 'wasteDisposal', category: 'other', names: ['Construction waste disposal', 'ترحيل مخلفات البناء', 'Évacuation des déchets'], unit: 'job', requiresLabor: false },
+  { id: 'permits', category: 'other', names: ['Permits and inspections', 'رخص وفحوصات', 'Permis et inspections'], unit: 'job', requiresLabor: false },
+  { id: 'siteManagement', category: 'other', names: ['Site management', 'إدارة الموقع', 'Gestion du chantier'], unit: 'job', requiresMaterial: false },
+  { id: 'miscellaneous', category: 'other', names: ['Miscellaneous expenses', 'مصاريف متنوعة', 'Dépenses diverses'], unit: 'job', requiresLabor: false },
 ];
 
+// Lebanon USD planning benchmarks (November 2026). These are editable
+// starting allowances, not binding supplier quotations. Publicly listed local
+// prices anchor cement, tiles, waterproofing products, paint and aluminium;
+// unquoted trades use conservative local estimating allowances and require
+// project-specific contractor confirmation.
 const DEFAULT_MATERIAL_RATES: Record<string, string> = {
-  cementMasonry: '8.50',
-  tileAdhesive: '13.00',
-  floorTiles: '8.00',
+  excavation: '8', soilRemoval: '7', backfilling: '5', soilCompaction: '1.5', sitePreparation: '2',
+  leanConcrete: '125', footingConcrete: '135', foundationSteel: '0.68', foundationFormwork: '5', foundationWaterproofing: '12',
+  columnConcrete: '135', stairConcrete: '135', beamConcrete: '135', slabConcrete: '135', structuralSteel: '0.68',
+  columnFormwork: '5', beamFormwork: '5', slabFormwork: '5', scaffolding: '4',
+  externalBlocks: '14.7', internalBlocks: '9', cementMasonry: '8.5', sandMasonry: '25', lintels: '18',
+  roofThermalInsulation: '12', roofWaterproofing: '12', roofScreed: '5', roofProtection: '4', roofDrainage: '15',
+  internalPlaster: '3.5', externalPlaster: '4', ceilingPlaster: '3.5', plasterMesh: '1.5', plasterMaterials: '75',
+  lightingPoints: '18', singleSockets: '8', doubleSockets: '12', acPoints: '20', waterHeaterPoints: '15',
+  tvPoints: '8', internetPoints: '8', switchPoints: '5', distributionBoard: '80', electricalCables: '1.2',
+  electricalConduits: '0.35', grounding: '100',
+  coldWaterPoints: '15', hotWaterPoints: '18', toiletConnections: '20', showerConnections: '20',
+  basinConnections: '15', kitchenConnections: '20', drainagePipes: '4', waterPipes: '3',
+  waterTank: '250', waterPump: '180',
+  toilets: '180', washBasins: '80', showers: '150', faucets: '45', sanitaryAccessories: '50',
+  elevatorCabin: '4000', elevatorMotor: '2500', elevatorController: '1800', elevatorRails: '1000',
+  elevatorLandingDoors: '500', elevatorCables: '700', elevatorSafety: '900',
+  floorTiles: '8', wallTiles: '5', tileAdhesive: '20', tileGrout: '12', skirting: '4',
+  internalDoors: '150', externalDoors: '500', aluminumWindows: '65', glassWork: '20', doorHardware: '30',
+  wallPrimer: '1.2', wallPutty: '1.5', interiorPaint: '2.5', exteriorPaint: '3.5', metalWoodPaint: '3',
+  falseCeiling: '15', ceilingFrame: '6', ceilingInsulation: '4', ceilingAccessPanels: '25', ceilingFinishing: '5',
+  facadeFinish: '25', externalPaving: '12', balustrades: '60', externalStairs: '35', landscaping: '15',
+  transport: '250', wasteDisposal: '300', permits: '1000', miscellaneous: '500',
+};
+
+const DEFAULT_LABOR_RATES: Record<string, string> = {
+  leanConcrete: '25', footingConcrete: '28', foundationSteel: '0.18', foundationFormwork: '8', foundationWaterproofing: '5',
+  columnConcrete: '28', stairConcrete: '32', beamConcrete: '28', slabConcrete: '25', structuralSteel: '0.18',
+  columnFormwork: '8', beamFormwork: '8', slabFormwork: '7',
+  externalBlocks: '8', internalBlocks: '7', lintels: '6',
+  roofThermalInsulation: '4', roofWaterproofing: '6', roofScreed: '6', roofProtection: '3', roofDrainage: '10',
+  internalPlaster: '4.5', externalPlaster: '5.5', ceilingPlaster: '5', plasterMesh: '0.5',
+  lightingPoints: '15', singleSockets: '8', doubleSockets: '10', acPoints: '15', waterHeaterPoints: '12',
+  tvPoints: '8', internetPoints: '8', switchPoints: '5', distributionBoard: '40', electricalCables: '0.35',
+  electricalConduits: '0.25', grounding: '40',
+  coldWaterPoints: '12', hotWaterPoints: '14', toiletConnections: '15', showerConnections: '15',
+  basinConnections: '12', kitchenConnections: '15', drainagePipes: '1.5', waterPipes: '1.25',
+  waterTank: '50', waterPump: '50',
+  toilets: '35', washBasins: '25', showers: '40', faucets: '15', sanitaryAccessories: '20',
+  elevatorCabin: '500', elevatorMotor: '300', elevatorController: '250', elevatorRails: '250',
+  elevatorLandingDoors: '100', elevatorCables: '100', elevatorSafety: '150', elevatorInstallation: '2500',
+  floorTiles: '10', wallTiles: '12', skirting: '3',
+  internalDoors: '50', externalDoors: '100', aluminumWindows: '10', glassWork: '3', doorHardware: '20',
+  wallPrimer: '0.5', wallPutty: '2', interiorPaint: '2.5', exteriorPaint: '3', metalWoodPaint: '4',
+  falseCeiling: '8', ceilingFrame: '4', ceilingInsulation: '2', ceilingAccessPanels: '10', ceilingFinishing: '4',
+  facadeFinish: '15', externalPaving: '8', balustrades: '25', externalStairs: '25', landscaping: '8',
+  siteManagement: '2000',
 };
 
 function createDetailedCostValues(): DetailedValues {
@@ -461,7 +524,7 @@ function createDetailedCostValues(): DetailedValues {
   COST_ITEMS.forEach(item => {
     values[`${item.id}Qty`] = '0';
     values[`${item.id}Material`] = DEFAULT_MATERIAL_RATES[item.id] ?? '0';
-    values[`${item.id}Labor`] = '0';
+    values[`${item.id}Labor`] = DEFAULT_LABOR_RATES[item.id] ?? '0';
   });
   return values;
 }
@@ -491,22 +554,10 @@ const initialValues: Record<string, string> = {
   stairVolume: '2',
   blockLength: '40',
   blockHeight: '20',
-  plaster: '2',
   paintCoats: '2',
   paintCoverage: '10',
   tileWaste: '10',
   waterproof: '180',
-  electrical: '80',
-  plumbing: '20',
-  concretePrice: '110',
-  blockPrice: '1',
-  plasterPrice: '4',
-  tilePrice: '15',
-  paintPrice: '8',
-  waterproofPrice: '12',
-  electricalPrice: '25',
-  plumbingPrice: '35',
-  labor: '0',
   equipment: '0',
   extra: '0',
   contingency: '10',
@@ -539,8 +590,6 @@ const lengthKeys = [
 
 const areaKeys = ['openings', 'partitions', 'waterproof'];
 const blockDimensionKeys = ['blockLength', 'blockHeight'];
-const areaPriceKeys = ['plasterPrice', 'tilePrice', 'waterproofPrice'];
-
 function inputAsMetric(
   key: string,
   value: number,
@@ -553,9 +602,6 @@ function inputAsMetric(
   if (blockDimensionKeys.includes(key)) return value * IN_TO_CM;
   if (key === 'stairVolume') return value * CUFT_TO_CUM;
   if (key === 'paintCoverage') return value / SQFT_PER_GAL_TO_SQM_PER_L;
-  if (key === 'concretePrice') return value * CUFT_PER_CUM;
-  if (areaPriceKeys.includes(key)) return value * SQFT_PER_SQM;
-  if (key === 'paintPrice') return value * US_GAL_TO_L;
 
   return value;
 }
@@ -574,9 +620,6 @@ function convertStoredValue(
     if (blockDimensionKeys.includes(key)) return String(n / IN_TO_CM);
     if (key === 'stairVolume') return String(n / CUFT_TO_CUM);
     if (key === 'paintCoverage') return String(n * SQFT_PER_GAL_TO_SQM_PER_L);
-    if (key === 'concretePrice') return String(n / CUFT_PER_CUM);
-    if (areaPriceKeys.includes(key)) return String(n / SQFT_PER_SQM);
-    if (key === 'paintPrice') return String(n / US_GAL_TO_L);
     return value;
   }
 
@@ -585,9 +628,6 @@ function convertStoredValue(
   if (blockDimensionKeys.includes(key)) return String(n * IN_TO_CM);
   if (key === 'stairVolume') return String(n * CUFT_TO_CUM);
   if (key === 'paintCoverage') return String(n / SQFT_PER_GAL_TO_SQM_PER_L);
-  if (key === 'concretePrice') return String(n * CUFT_PER_CUM);
-  if (areaPriceKeys.includes(key)) return String(n * SQFT_TO_SQM);
-  if (key === 'paintPrice') return String(n * US_GAL_TO_L);
   return value;
 }
 
@@ -866,28 +906,25 @@ export default function BuildingCalculatorScreen({
         ? Math.ceil((netWallArea / blockFaceArea) * 1.05)
         : 0;
 
-    const plasterArea = netWallArea * v('plaster');
+    const plasterArea = netWallArea * 2;
 
     const tileArea =
       floorArea * (1 + v('tileWaste') / 100);
 
-    const paintArea =
-      netExternalWallArea + partitions + floorArea;
+    const interiorPaintArea =
+      netExternalWallArea + partitions * 2 + floorArea;
+    const paintArea = interiorPaintArea + netExternalWallArea;
 
     const paintLitres =
       v('paintCoverage') > 0
         ? (paintArea * v('paintCoats')) / v('paintCoverage')
         : 0;
 
-    const lastFloor = floorData[floorData.length - 1];
-
-    const waterproofArea =
-      v('waterproof') > 0
-        ? v('waterproof')
-        : lastFloor.length * lastFloor.width;
+    const waterproofArea = v('waterproof');
 
     let detailedMaterialTotal = 0;
     let detailedLaborTotal = 0;
+    let unpricedItemCount = 0;
     const categoryTotals: Record<string, number> = {};
 
     COST_ITEMS.forEach(item => {
@@ -899,6 +936,13 @@ export default function BuildingCalculatorScreen({
       const laborCost = qty * labor;
       const itemTotal = materialCost + laborCost;
 
+      // Check only the rate types required by each active line item.
+      const materialMissing = item.requiresMaterial !== false && material <= 0;
+      const laborMissing = item.requiresLabor !== false && labor <= 0;
+      if (qty > 0 && (materialMissing || laborMissing)) {
+        unpricedItemCount += 1;
+      }
+
       detailedMaterialTotal += materialCost;
       detailedLaborTotal += laborCost;
       categoryTotals[item.category] =
@@ -906,37 +950,30 @@ export default function BuildingCalculatorScreen({
     });
 
     const detailedTotal = detailedMaterialTotal + detailedLaborTotal;
+    const sumItemQuantities = (ids: string[]) =>
+      ids.reduce(
+        (sum, id) => sum + Number(detailedValues[`${id}Qty`] || 0),
+        0
+      );
+    const electricalPoints = sumItemQuantities([
+      'lightingPoints', 'singleSockets', 'doubleSockets', 'acPoints',
+      'waterHeaterPoints', 'tvPoints', 'internetPoints', 'switchPoints',
+    ]);
+    const plumbingPoints = sumItemQuantities([
+      'coldWaterPoints', 'hotWaterPoints', 'toiletConnections',
+      'showerConnections', 'basinConnections', 'kitchenConnections',
+    ]);
 
-    // Preserve the original full-construction estimate.
-    const concreteCost = concrete * v('concretePrice');
-    const blockCost = blocks * v('blockPrice');
-    const plasterCost = plasterArea * v('plasterPrice');
-    const tileCost = tileArea * v('tilePrice');
-    const paintCost = paintLitres * v('paintPrice');
-    const waterproofCost = waterproofArea * v('waterproofPrice');
-    const electricalCost = v('electrical') * v('electricalPrice');
-    const plumbingCost = v('plumbing') * v('plumbingPrice');
-
-    const basicMaterialTotal =
-      concreteCost +
-      blockCost +
-      plasterCost +
-      tileCost +
-      paintCost +
-      waterproofCost +
-      electricalCost +
-      plumbingCost;
-
-    // Floor tiles are already included in the original tile estimate.
-    const additionalDetailedMaterials =
-      detailedMaterialTotal -
-      Number(detailedValues.floorTilesQty || 0) *
-      Number(detailedValues.floorTilesMaterial || 0);
-
-    const materialTotal = basicMaterialTotal + additionalDetailedMaterials;
-    const labor = v('labor') + detailedLaborTotal;
+    // The detailed bill of quantities is the sole source for trade materials
+    // and labor. Project-wide equipment and other costs remain separate.
+    const materialTotal = detailedMaterialTotal;
+    const labor = detailedLaborTotal;
     const equipment = v('equipment');
     const extra = v('extra');
+
+    // Keep category subtotals reconcilable with the project subtotal.
+    categoryTotals.other =
+      (categoryTotals.other || 0) + equipment + extra;
 
     const subtotal = materialTotal + labor + equipment + extra;
     const reserve = subtotal * (v('contingency') / 100);
@@ -952,12 +989,13 @@ export default function BuildingCalculatorScreen({
       tileArea,
       paintLitres,
       waterproofArea,
-      electrical: v('electrical'),
-      plumbing: v('plumbing'),
       detailedMaterialTotal,
       detailedLaborTotal,
       detailedTotal,
+      electricalPoints,
+      plumbingPoints,
       categoryTotals,
+      unpricedItemCount,
       materialTotal,
       labor,
       equipment,
@@ -1152,7 +1190,6 @@ export default function BuildingCalculatorScreen({
             [
               ['blockLength', t.blockLength],
               ['blockHeight', t.blockHeight],
-              ['plaster', t.plaster],
               ['paintCoats', t.paintCoats],
               ['paintCoverage', t.paintCoverage],
               ['tileWaste', t.tileWaste],
@@ -1164,19 +1201,6 @@ export default function BuildingCalculatorScreen({
         </>
       )}
 
-      {section(
-        t.services,
-        <>
-          {(
-            [
-              ['electrical', t.electrical],
-              ['plumbing', t.plumbing],
-            ] as [string, string][]
-          ).map(([key, label]) =>
-            field(key, label, values[key], value => updateValue(key, value))
-          )}
-        </>
-      )}
 
       {section(
         t.prices,
@@ -1320,10 +1344,10 @@ export default function BuildingCalculatorScreen({
             labelForUnits(t.waterproofArea, units),
             `${quantity(displayArea(result.waterproofArea, units))} ${units === 'imperial' ? 'ft²' : 'm²'}`
           )}
-          {resultRow(t.electricalPoints, quantity(result.electrical))}
-          {resultRow(t.plumbingPoints, quantity(result.plumbing))}
 
           <View style={styles.resultDivider} />
+          {resultRow(t.electricalPoints, quantity(result.electricalPoints))}
+          {resultRow(t.plumbingPoints, quantity(result.plumbingPoints))}
           {resultRow(t.materialTotal, money(result.materialTotal))}
           {resultRow(t.laborResult, money(result.labor))}
           {resultRow(t.equipmentResult, money(result.equipment))}
@@ -1336,11 +1360,33 @@ export default function BuildingCalculatorScreen({
             )
           )}
 
-          {resultRow(t.subtotal, money(result.subtotal))}
-          {resultRow(t.reserve, money(result.reserve))}
+          {resultRow(result.unpricedItemCount > 0 ? t.pricedSubtotal : t.subtotal, money(result.subtotal))}
+          {resultRow(result.unpricedItemCount > 0 ? t.pricedReserve : t.reserve, money(result.reserve))}
+          {result.unpricedItemCount > 0 && (
+            <View style={styles.warningBox}>
+              <Text style={styles.warningTitle}>
+                {language === 'ar'
+                  ? 'تنبيه: أسعار غير مكتملة'
+                  : language === 'fr'
+                  ? 'Attention : tarifs incomplets'
+                  : 'Warning: incomplete rates'}
+              </Text>
+              <Text style={styles.warningText}>
+                {language === 'ar'
+                  ? `يوجد ${result.unpricedItemCount} بنداً مستخدماً ينقصه سعر مواد أو أجرة عمل. الإجمالي الحالي جزئي ولا يشمل هذه التكاليف الناقصة.`
+                  : language === 'fr'
+                  ? `${result.unpricedItemCount} postes utilisés n’ont pas de prix de matériaux ou de main-d’œuvre. Le total est partiel et exclut ces coûts manquants.`
+                  : `${result.unpricedItemCount} active line items are missing a material rate or labor rate. The displayed total is partial and excludes those missing costs.`}
+              </Text>
+            </View>
+          )}
           <View style={styles.totalBox}>
-            <Text style={styles.totalLabel}>{t.total}</Text>
-            <Text style={styles.totalValue}>{money(result.total)}</Text>
+            <Text style={styles.totalLabel}>
+              {result.unpricedItemCount > 0 ? t.incompleteTotal : t.total}
+            </Text>
+            <Text style={styles.totalValue}>
+              {result.unpricedItemCount > 0 ? t.incompleteValue : money(result.total)}
+            </Text>
           </View>
         </View>
       )}
