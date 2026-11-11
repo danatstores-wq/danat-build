@@ -175,10 +175,14 @@ export function estimateBuildingQuantities(
 
   const paintCoverage = safe(values.paintCoverage, 10);
   const paintCoats = safe(values.paintCoats, 2);
-  const paintSurface = wallArea + ceilingArea;
+  // Interior paint covers the inside face of external walls, both partition
+  // faces, and ceilings. Exterior paint is measured separately.
+  const interiorPaintSurface =
+    externalWallArea + partitionArea * 2 + ceilingArea;
+  const totalPaintSurface = interiorPaintSurface + externalWallArea;
   const paintLitres =
     paintCoverage > 0
-      ? (paintSurface * paintCoats) / paintCoverage
+      ? (totalPaintSurface * paintCoats) / paintCoverage
       : 0;
 
   const waterproofInput = v('waterproof');
@@ -313,18 +317,20 @@ export function estimateBuildingQuantities(
   set('tileAdhesive', ceil(tileArea / 4));
   set('tileGrout', ceil(tileArea / 20));
   set('skirting', perimeterTotal);
-  set('wallPrimer', paintSurface);
-  set('wallPutty', paintSurface);
-  set('interiorPaint', paintSurface);
+  set('wallPrimer', interiorPaintSurface);
+  set('wallPutty', interiorPaintSurface);
+  set('interiorPaint', interiorPaintSurface);
   set('exteriorPaint', externalWallArea);
   set('metalWoodPaint', 0);
 
   // Ceiling allowances
-  set('falseCeiling', ceilingArea);
-  set('ceilingFrame', ceilingArea);
+  // A suspended ceiling is optional; do not assume it is installed
+  // throughout the building. Enter measured areas/items manually.
+  set('falseCeiling', 0);
+  set('ceilingFrame', 0);
   set('ceilingInsulation', 0);
   set('ceilingAccessPanels', 0);
-  set('ceilingFinishing', ceilingArea);
+  set('ceilingFinishing', 0);
 
   // Facade allowance
   set('facadeFinish', externalWallArea);
