@@ -32,6 +32,8 @@ type CostItem = {
   category: string;
   names: [string, string, string];
   unit: string;
+  requiresMaterial?: boolean;
+  requiresLabor?: boolean;
 };
 
 type DetailedValues = Record<string, string>;
@@ -95,7 +97,7 @@ const translations = {
     concrete: 'Structural concrete',
     blocks: 'Blocks required',
     wallArea: 'Net wall area',
-    plasterArea: 'Plaster area',
+    plasterArea: 'Wall plaster area',
     tileArea: 'Floor tile area including wastage',
     paintLitres: 'Paint required',
     waterproofArea: 'Waterproofing area',
@@ -106,7 +108,11 @@ const translations = {
     equipmentResult: 'Equipment',
     extraResult: 'Other costs',
     subtotal: 'Subtotal',
+    pricedSubtotal: 'Priced items subtotal (missing rates excluded)',
     reserve: 'Contingency',
+    pricedReserve: 'Contingency on priced items only',
+    incompleteTotal: 'INCOMPLETE — ADD MISSING RATES',
+    incompleteValue: '—',
     total: 'TOTAL ESTIMATED COST',
     note: 'IMPORTANT ENGINEERING NOTE',
     warning: 'This is a preliminary quantity and cost estimate, not a structural design. Footing, column, beam, slab and reinforcement specifications must be supplied or approved by a qualified structural engineer. Electrical and plumbing quantities are allowances based on the entered point counts.',
@@ -181,7 +187,7 @@ const translations = {
     concrete: 'باطون الهيكل الإنشائي',
     blocks: 'عدد البلوك المطلوب',
     wallArea: 'مساحة الجدران الصافية',
-    plasterArea: 'مساحة القصارة',
+    plasterArea: 'مساحة قصارة الجدران',
     tileArea: 'مساحة البلاط مع الهدر',
     paintLitres: 'كمية الدهان المطلوبة',
     waterproofArea: 'مساحة العزل',
@@ -192,7 +198,11 @@ const translations = {
     equipmentResult: 'المعدات',
     extraResult: 'تكاليف أخرى',
     subtotal: 'المجموع الفرعي',
+    pricedSubtotal: 'مجموع البنود المسعّرة فقط (لا يشمل الأسعار الناقصة)',
     reserve: 'الاحتياطي',
+    pricedReserve: 'احتياطي البنود المسعّرة فقط',
+    incompleteTotal: 'غير مكتمل — أدخل الأسعار الناقصة',
+    incompleteValue: '—',
     total: 'التكلفة الإجمالية التقديرية',
     note: 'ملاحظة هندسية مهمة',
     warning: 'هذا تقدير أولي للكميات والتكاليف وليس تصميماً إنشائياً. يجب أن يحدد أو يعتمد مهندس إنشائي مؤهل أبعاد القواعد والأعمدة والجسور والبلاطات وحديد التسليح. كميات الكهرباء والسباكة تقديرية وفق عدد النقاط المدخل.',
@@ -267,7 +277,7 @@ const translations = {
     concrete: 'Béton structurel',
     blocks: 'Blocs nécessaires',
     wallArea: 'Surface nette des murs',
-    plasterArea: 'Surface à enduire',
+    plasterArea: 'Surface des murs à enduire',
     tileArea: 'Carrelage avec pertes',
     paintLitres: 'Peinture nécessaire',
     waterproofArea: 'Surface d’étanchéité',
@@ -278,7 +288,11 @@ const translations = {
     equipmentResult: 'Équipement',
     extraResult: 'Autres coûts',
     subtotal: 'Sous-total',
+    pricedSubtotal: 'Sous-total des postes chiffrés uniquement',
     reserve: 'Imprévus',
+    pricedReserve: 'Imprévus sur les postes chiffrés uniquement',
+    incompleteTotal: 'INCOMPLET — AJOUTEZ LES TARIFS MANQUANTS',
+    incompleteValue: '—',
     total: 'COÛT TOTAL ESTIMÉ',
     note: 'NOTE TECHNIQUE IMPORTANTE',
     warning: 'Cette estimation préliminaire ne constitue pas une conception structurelle. Les dimensions des semelles, poteaux, poutres, dalles et armatures doivent être fournies ou validées par un ingénieur qualifié. Les quantités électriques et de plomberie sont indicatives.',
@@ -347,8 +361,8 @@ const COST_ITEMS: CostItem[] = [
   // 4. MASONRY
   { id: 'externalBlocks', category: 'masonry', names: ['External wall blocks', 'بلوك الجدران الخارجية', 'Blocs des murs extérieurs'], unit: 'm²' },
   { id: 'internalBlocks', category: 'masonry', names: ['Internal wall blocks', 'بلوك القواطع الداخلية', 'Blocs des cloisons intérieures'], unit: 'm²' },
-  { id: 'cementMasonry', category: 'masonry', names: ['Cement for masonry', 'إسمنت البناء', 'Ciment de maçonnerie'], unit: 'bag' },
-  { id: 'sandMasonry', category: 'masonry', names: ['Sand for masonry', 'رمل البناء', 'Sable de maçonnerie'], unit: 'm³' },
+  { id: 'cementMasonry', category: 'masonry', names: ['Cement for masonry', 'إسمنت البناء', 'Ciment de maçonnerie'], unit: 'bag', requiresLabor: false },
+  { id: 'sandMasonry', category: 'masonry', names: ['Sand for masonry', 'رمل البناء', 'Sable de maçonnerie'], unit: 'm³', requiresLabor: false },
   { id: 'lintels', category: 'masonry', names: ['Door and window lintels', 'عتبات الأبواب والنوافذ', 'Linteaux des portes et fenêtres'], unit: 'm' },
 
   // 5. ROOFING
@@ -363,7 +377,7 @@ const COST_ITEMS: CostItem[] = [
   { id: 'externalPlaster', category: 'plaster', names: ['External plaster', 'قصارة خارجية', 'Enduit extérieur'], unit: 'm²' },
   { id: 'ceilingPlaster', category: 'plaster', names: ['Ceiling plaster', 'قصارة الأسقف', 'Enduit de plafond'], unit: 'm²' },
   { id: 'plasterMesh', category: 'plaster', names: ['Plaster reinforcement mesh', 'شبك القصارة', 'Treillis pour enduit'], unit: 'm²' },
-  { id: 'plasterMaterials', category: 'plaster', names: ['Plaster cement and sand', 'إسمنت ورمل القصارة', 'Ciment et sable pour enduit'], unit: 'm³' },
+  { id: 'plasterMaterials', category: 'plaster', names: ['Plaster cement and sand', 'إسمنت ورمل القصارة', 'Ciment et sable pour enduit'], unit: 'm³', requiresLabor: false },
 
   // 7. ELECTRICAL
   { id: 'lightingPoints', category: 'electrical', names: ['Lighting points', 'نقاط إنارة', 'Points lumineux'], unit: 'pcs' },
@@ -406,13 +420,13 @@ const COST_ITEMS: CostItem[] = [
   { id: 'elevatorLandingDoors', category: 'elevator', names: ['Landing doors (per floor)', 'أبواب الطوابق', 'Portes palières (par étage)'], unit: 'pcs' },
   { id: 'elevatorCables', category: 'elevator', names: ['Elevator cables and ropes', 'كوابل وحبال المصعد', 'Câbles et cordes'], unit: 'set' },
   { id: 'elevatorSafety', category: 'elevator', names: ['Safety and emergency system', 'نظام السلامة والطوارئ', 'Système de sécurité et urgence'], unit: 'set' },
-  { id: 'elevatorInstallation', category: 'elevator', names: ['Elevator installation and testing', 'تركيب وفحص المصعد', 'Installation et essais'], unit: 'job' },
+  { id: 'elevatorInstallation', category: 'elevator', names: ['Elevator installation and testing', 'تركيب وفحص المصعد', 'Installation et essais'], unit: 'job', requiresMaterial: false },
 
   // 11. TILING
   { id: 'floorTiles', category: 'tiling', names: ['Floor tiles', 'بلاط الأرضيات', 'Carrelage de sol'], unit: 'm²' },
   { id: 'wallTiles', category: 'tiling', names: ['Wall tiles', 'بلاط الجدران', 'Carrelage mural'], unit: 'm²' },
-  { id: 'tileAdhesive', category: 'tiling', names: ['Tile adhesive', 'لاصق البلاط', 'Colle à carrelage'], unit: 'bag' },
-  { id: 'tileGrout', category: 'tiling', names: ['Tile grout', 'روبة البلاط', 'Joint de carrelage'], unit: 'bag' },
+  { id: 'tileAdhesive', category: 'tiling', names: ['Tile adhesive', 'لاصق البلاط', 'Colle à carrelage'], unit: 'bag', requiresLabor: false },
+  { id: 'tileGrout', category: 'tiling', names: ['Tile grout', 'روبة البلاط', 'Joint de carrelage'], unit: 'bag', requiresLabor: false },
   { id: 'skirting', category: 'tiling', names: ['Skirting tiles', 'وزرات البلاط', 'Plinthes carrelées'], unit: 'm' },
 
   // 12. OPENINGS
@@ -444,17 +458,15 @@ const COST_ITEMS: CostItem[] = [
   { id: 'landscaping', category: 'facade', names: ['Landscaping and external works', 'تنسيق الموقع والأعمال الخارجية', 'Aménagement paysager'], unit: 'm²' },
 
   // 16. OTHER
-  { id: 'transport', category: 'other', names: ['Material transportation', 'نقل المواد', 'Transport des matériaux'], unit: 'job' },
-  { id: 'wasteDisposal', category: 'other', names: ['Construction waste disposal', 'ترحيل مخلفات البناء', 'Évacuation des déchets'], unit: 'job' },
-  { id: 'permits', category: 'other', names: ['Permits and inspections', 'رخص وفحوصات', 'Permis et inspections'], unit: 'job' },
-  { id: 'siteManagement', category: 'other', names: ['Site management', 'إدارة الموقع', 'Gestion du chantier'], unit: 'job' },
+  { id: 'transport', category: 'other', names: ['Material transportation', 'نقل المواد', 'Transport des matériaux'], unit: 'job', requiresLabor: false },
+  { id: 'wasteDisposal', category: 'other', names: ['Construction waste disposal', 'ترحيل مخلفات البناء', 'Évacuation des déchets'], unit: 'job', requiresLabor: false },
+  { id: 'permits', category: 'other', names: ['Permits and inspections', 'رخص وفحوصات', 'Permis et inspections'], unit: 'job', requiresLabor: false },
+  { id: 'siteManagement', category: 'other', names: ['Site management', 'إدارة الموقع', 'Gestion du chantier'], unit: 'job', requiresMaterial: false },
   { id: 'miscellaneous', category: 'other', names: ['Miscellaneous expenses', 'مصاريف متنوعة', 'Dépenses diverses'], unit: 'job' },
 ];
 
 const DEFAULT_MATERIAL_RATES: Record<string, string> = {
   cementMasonry: '8.50',
-  tileAdhesive: '13.00',
-  floorTiles: '8.00',
 };
 
 function createDetailedCostValues(): DetailedValues {
@@ -881,8 +893,8 @@ export default function BuildingCalculatorScreen({
       const itemTotal = materialCost + laborCost;
 
       // Every active line item must have both a material and labor rate.
-      const materialMissing = material <= 0;
-      const laborMissing = labor <= 0;
+      const materialMissing = item.requiresMaterial !== false && material <= 0;
+      const laborMissing = item.requiresLabor !== false && labor <= 0;
       if (qty > 0 && (materialMissing || laborMissing)) {
         unpricedItemCount += 1;
       }
@@ -894,6 +906,19 @@ export default function BuildingCalculatorScreen({
     });
 
     const detailedTotal = detailedMaterialTotal + detailedLaborTotal;
+    const sumItemQuantities = (ids: string[]) =>
+      ids.reduce(
+        (sum, id) => sum + Number(detailedValues[`${id}Qty`] || 0),
+        0
+      );
+    const electricalPoints = sumItemQuantities([
+      'lightingPoints', 'singleSockets', 'doubleSockets', 'acPoints',
+      'waterHeaterPoints', 'tvPoints', 'internetPoints', 'switchPoints',
+    ]);
+    const plumbingPoints = sumItemQuantities([
+      'coldWaterPoints', 'hotWaterPoints', 'toiletConnections',
+      'showerConnections', 'basinConnections', 'kitchenConnections',
+    ]);
 
     // The detailed bill of quantities is the sole source for trade materials
     // and labor. Project-wide equipment and other costs remain separate.
@@ -925,6 +950,8 @@ export default function BuildingCalculatorScreen({
       detailedMaterialTotal,
       detailedLaborTotal,
       detailedTotal,
+      electricalPoints,
+      plumbingPoints,
       categoryTotals,
       unpricedItemCount,
       materialTotal,
@@ -1278,6 +1305,8 @@ export default function BuildingCalculatorScreen({
           )}
 
           <View style={styles.resultDivider} />
+          {resultRow(t.electricalPoints, quantity(result.electricalPoints))}
+          {resultRow(t.plumbingPoints, quantity(result.plumbingPoints))}
           {resultRow(t.materialTotal, money(result.materialTotal))}
           {resultRow(t.laborResult, money(result.labor))}
           {resultRow(t.equipmentResult, money(result.equipment))}
@@ -1290,8 +1319,8 @@ export default function BuildingCalculatorScreen({
             )
           )}
 
-          {resultRow(t.subtotal, money(result.subtotal))}
-          {resultRow(t.reserve, money(result.reserve))}
+          {resultRow(result.unpricedItemCount > 0 ? t.pricedSubtotal : t.subtotal, money(result.subtotal))}
+          {resultRow(result.unpricedItemCount > 0 ? t.pricedReserve : t.reserve, money(result.reserve))}
           {result.unpricedItemCount > 0 && (
             <View style={styles.warningBox}>
               <Text style={styles.warningTitle}>
@@ -1312,15 +1341,11 @@ export default function BuildingCalculatorScreen({
           )}
           <View style={styles.totalBox}>
             <Text style={styles.totalLabel}>
-              {result.unpricedItemCount > 0
-                ? (language === 'ar'
-                    ? 'الإجمالي الجزئي التقديري'
-                    : language === 'fr'
-                    ? 'TOTAL PARTIEL ESTIMÉ'
-                    : 'PARTIAL ESTIMATED COST')
-                : t.total}
+              {result.unpricedItemCount > 0 ? t.incompleteTotal : t.total}
             </Text>
-            <Text style={styles.totalValue}>{money(result.total)}</Text>
+            <Text style={styles.totalValue}>
+              {result.unpricedItemCount > 0 ? t.incompleteValue : money(result.total)}
+            </Text>
           </View>
         </View>
       )}
