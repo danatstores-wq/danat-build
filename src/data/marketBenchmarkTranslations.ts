@@ -176,6 +176,9 @@ const SOURCE_LABELS: Record<string, [string, string]> = {
   'shabiba.com': ['الشبيبة – تقرير أسعار محلي', 'Shabiba – article sur les prix locaux'],
   'binaasouq.com': ['BinaaSouq – أسعار موردين محليين', 'BinaaSouq – prix de fournisseurs locaux'],
   'mcp.om': ['MCP Oman – أسعار المصنع المنشورة', 'MCP Oman – prix publiés du fabricant'],
+  'mtv.com.lb': ['MTV Lebanon – قرار وزارة الصناعة', 'MTV Lebanon – décision du ministère de l’Industrie'],
+  'ayass-boutique.store': ['MAHDI Trading & Contracting – متجر مواد بناء في بيروت', 'MAHDI Trading & Contracting – magasin de matériaux à Beyrouth'],
+  'lebanoneconomy.net': ['Lebanon Economy – تقرير أسعار السوق اللبنانية', 'Lebanon Economy – rapport sur les prix du marché libanais'],
 };
 
 export function marketBenchmarkSourceLabel(source: string, language: MarketBenchmarkLanguage): string {
@@ -198,6 +201,9 @@ export function marketBenchmarkSourceLabel(source: string, language: MarketBench
       'shabiba.com': 'Shabiba – local price report',
       'binaasouq.com': 'BinaaSouq – local supplier prices',
       'mcp.om': 'MCP Oman – published manufacturer prices',
+      'mtv.com.lb': 'MTV Lebanon – Ministry of Industry decision',
+      'ayass-boutique.store': 'MAHDI Trading & Contracting – Beirut building-material retailer',
+      'lebanoneconomy.net': 'Lebanon Economy – Lebanese market price report',
     };
     return labels[key];
   }
