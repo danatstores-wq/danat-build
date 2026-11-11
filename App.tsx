@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   SafeAreaView,
@@ -16,6 +16,7 @@ import CalculatorScreen from './src/components/CalculatorScreen';
 import BuildingCalculatorScreen from './src/components/BuildingCalculatorScreen';
 import AuthScreen from './src/components/AuthScreen';
 import ProfileScreen from './src/components/ProfileScreen';
+import { AppTheme, getThemedStyles } from './src/theme';
 import { signOut } from 'firebase/auth';
 import { auth } from './src/firebase';
 
@@ -91,6 +92,7 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('welcome');
   const [mode, setMode] = useState<Mode>('professional');
   const [units, setUnits] = useState<'metric' | 'imperial'>('metric');
+  const [theme, setTheme] = useState<AppTheme>('dark');
   const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [selected, setSelected] = useState('concrete');
   const [favourites, setFavourites] = useState<string[]>([]);
@@ -106,6 +108,7 @@ export default function App() {
           if (['en', 'ar', 'fr'].includes(settings.lang)) setLang(settings.lang);
           if (['professional', 'homeowner'].includes(settings.mode)) setMode(settings.mode);
           if (['metric', 'imperial'].includes(settings.units)) setUnits(settings.units);
+          if (['dark', 'light'].includes(settings.theme)) setTheme(settings.theme);
         }
       } catch (error) {
         console.warn('Could not load settings:', error);
@@ -122,11 +125,13 @@ export default function App() {
 
     AsyncStorage.setItem(
       'danatBuildSettings',
-      JSON.stringify({ lang, mode, units })
+      JSON.stringify({ lang, mode, units, theme })
     ).catch(error => console.warn('Could not save settings:', error));
-  }, [lang, mode, units, settingsLoaded]);
+  }, [lang, mode, units, theme, settingsLoaded]);
 
   const isAr = lang === 'ar';
+  const isLight = theme === 'light';
+  const ui = useMemo(() => getThemedStyles(styles, theme), [theme]);
 
   const tr = (en: string, ar: string, fr: string) =>
     lang === 'ar' ? ar : lang === 'fr' ? fr : en;
@@ -154,12 +159,12 @@ export default function App() {
   ) => (
     <Pressable
       onPress={() => setScreen(target)}
-      style={styles.navItem}
+      style={ui.navItem}
     >
       <Text
         style={[
-          styles.navIcon,
-          screen === target && styles.activeNav,
+          ui.navIcon,
+          screen === target && ui.activeNav,
         ]}
       >
         {icon}
@@ -167,8 +172,8 @@ export default function App() {
 
       <Text
         style={[
-          styles.navLabel,
-          screen === target && styles.activeNav,
+          ui.navLabel,
+          screen === target && ui.activeNav,
         ]}
       >
         {label}
@@ -180,7 +185,7 @@ export default function App() {
     <Pressable
       key={tool.id}
       onPress={() => openTool(tool.id)}
-      style={styles.toolCard}
+      style={ui.toolCard}
     >
       <Image
         source={
@@ -196,13 +201,13 @@ export default function App() {
             ? require('./assets/icons/sand-cement.png')
             : require('./assets/icons/project-cost.png')
         }
-        style={styles.toolImage}
+        style={ui.toolImage}
         resizeMode="contain"
       />
 
-      <Text style={styles.toolTitle}>{title(tool)}</Text>
+      <Text style={ui.toolTitle}>{title(tool)}</Text>
 
-      <Text style={styles.toolDesc}>
+      <Text style={ui.toolDesc}>
         {tr(
           tool.desc,
           tool.id === 'concrete'
@@ -216,10 +221,10 @@ export default function App() {
 
       <Pressable
         onPress={() => toggleFavourite(tool.id)}
-        style={styles.cardStar}
+        style={ui.cardStar}
         hitSlop={8}
       >
-        <Text style={styles.star}>
+        <Text style={ui.star}>
           {favourites.includes(tool.id) ? '★' : '☆'}
         </Text>
       </Pressable>
@@ -227,35 +232,35 @@ export default function App() {
   );
 
   return (
-    <View style={styles.webOuterContainer}>
-      <SafeAreaView style={styles.safe}>
+    <View style={ui.webOuterContainer}>
+      <SafeAreaView style={ui.safe}>
         <StatusBar
-          barStyle="light-content"
-          backgroundColor={BG}
+          barStyle={isLight ? 'dark-content' : 'light-content'}
+          backgroundColor={isLight ? '#f5f7fa' : BG}
         />
 
         {screen === 'welcome' ? (
           <ScrollView
-            contentContainerStyle={styles.welcome}
+            contentContainerStyle={ui.welcome}
             showsVerticalScrollIndicator={false}
           >
             <Image
               source={require('./assets/branding/danat-build-brand.png')}
-              style={styles.welcomeLogo}
+              style={ui.welcomeLogo}
               resizeMode="contain"
             />
 
-            <Text style={styles.welcomeSub}>
+            <Text style={ui.welcomeSub}>
               SMART CONSTRUCTION
             </Text>
 
-            <Text style={styles.welcomeSub}>
+            <Text style={ui.welcomeSub}>
               CALCULATOR
             </Text>
 
-            <View style={styles.welcomeRule} />
+            <View style={ui.welcomeRule} />
 
-            <Text style={styles.script}>
+            <Text style={ui.script}>
               {tr(
                 'Build Smarter.\nCalculate Better.',
                 'ابنِ بذكاء.\nاحسب بدقة.',
@@ -263,20 +268,20 @@ export default function App() {
               )}
             </Text>
 
-            <View style={styles.langRow}>
+            <View style={ui.langRow}>
               {(['en', 'ar', 'fr'] as const).map(language => (
                 <Pressable
                   key={language}
                   onPress={() => setLang(language)}
                   style={[
-                    styles.langBtn,
-                    lang === language && styles.langOn,
+                    ui.langBtn,
+                    lang === language && ui.langOn,
                   ]}
                 >
                   <Text
                     style={[
-                      styles.langText,
-                      lang === language && styles.langTextOn,
+                      ui.langText,
+                      lang === language && ui.langTextOn,
                     ]}
                   >
                     {language === 'en'
@@ -290,10 +295,10 @@ export default function App() {
             </View>
 
             <Pressable
-              style={styles.goldButton}
+              style={ui.goldButton}
               onPress={() => setScreen('auth')}
             >
-              <Text style={styles.goldButtonText}>
+              <Text style={ui.goldButtonText}>
                 {tr(
                   'GET STARTED  ›',
                   'ابدأ الآن  ›',
@@ -302,24 +307,25 @@ export default function App() {
               </Text>
             </Pressable>
 
-            <Text style={styles.footerTag}>
+            <Text style={ui.footerTag}>
               DANAT BUILD • BUILD SMARTER
             </Text>
           </ScrollView>
         ) : screen === 'auth' ? (
           <AuthScreen
             language={lang}
+            theme={theme}
             onAuthenticated={() => setScreen('home')}
           />
         ) : (
-          <View style={styles.screenWrapper}>
+          <View style={ui.screenWrapper}>
             <ScrollView
-              contentContainerStyle={styles.page}
+              contentContainerStyle={ui.page}
               showsVerticalScrollIndicator={false}
             >
-              <View style={styles.topbar}>
+              <View style={ui.topbar}>
                 <Pressable onPress={() => setScreen('home')}>
-                  <Text style={styles.backIcon}>
+                  <Text style={ui.backIcon}>
                     {screen === 'home' ? '☰' : '‹'}
                   </Text>
                 </Pressable>
@@ -327,23 +333,23 @@ export default function App() {
                 <View style={{ flex: 1, alignItems: 'center' }}>
                   <Image
                     source={require('./assets/branding/danat-build-brand.png')}
-                    style={styles.innerBrandLogo}
+                    style={ui.innerBrandLogo}
                     resizeMode="contain"
                   />
 
-                  <Text style={styles.topSub}>
+                  <Text style={ui.topSub}>
                     SMART CONSTRUCTION CALCULATOR
                   </Text>
                 </View>
 
                 <Pressable onPress={() => setScreen('menu')}>
-                  <Text style={styles.menuIcon}>⋮</Text>
+                  <Text style={ui.menuIcon}>⋮</Text>
                 </Pressable>
               </View>
 
               {screen === 'home' && (
                 <>
-                  <Text style={styles.welcomeArabic}>
+                  <Text style={ui.welcomeArabic}>
                     {tr(
                       'Welcome to Danat Build',
                       'مرحباً بك في دانات للبناء',
@@ -351,7 +357,7 @@ export default function App() {
                     )}
                   </Text>
 
-                  <Text style={styles.centerMuted}>
+                  <Text style={ui.centerMuted}>
                     {tr(
                       'Choose your experience',
                       'اختر نوع الاستخدام',
@@ -361,20 +367,20 @@ export default function App() {
 
                   <View
                     style={[
-                      styles.modeRow,
-                      isAr && styles.rowRTL,
+                      ui.modeRow,
+                      isAr && ui.rowRTL,
                     ]}
                   >
                     <Pressable
                       onPress={() => setMode('professional')}
                       style={[
-                        styles.modeCard,
-                        mode === 'professional' && styles.modeActive,
+                        ui.modeCard,
+                        mode === 'professional' && ui.modeActive,
                       ]}
                     >
-                      <Text style={styles.modeEmoji}>👷</Text>
+                      <Text style={ui.modeEmoji}>👷</Text>
 
-                      <Text style={styles.modeText}>
+                      <Text style={ui.modeText}>
                         {tr(
                           'Professional',
                           'المهني',
@@ -382,7 +388,7 @@ export default function App() {
                         )}
                       </Text>
 
-                      <Text style={styles.modeHint}>
+                      <Text style={ui.modeHint}>
                         {tr(
                           'Advanced tools',
                           'أدوات متقدمة',
@@ -394,13 +400,13 @@ export default function App() {
                     <Pressable
                       onPress={() => setMode('homeowner')}
                       style={[
-                        styles.modeCard,
-                        mode === 'homeowner' && styles.modeActive,
+                        ui.modeCard,
+                        mode === 'homeowner' && ui.modeActive,
                       ]}
                     >
-                      <Text style={styles.modeEmoji}>🏡</Text>
+                      <Text style={ui.modeEmoji}>🏡</Text>
 
-                      <Text style={styles.modeText}>
+                      <Text style={ui.modeText}>
                         {tr(
                           'Homeowner',
                           'صاحب المنزل',
@@ -408,7 +414,7 @@ export default function App() {
                         )}
                       </Text>
 
-                      <Text style={styles.modeHint}>
+                      <Text style={ui.modeHint}>
                         {tr(
                           'Simple estimates',
                           'حسابات بسيطة',
@@ -421,18 +427,18 @@ export default function App() {
                   {mode === 'professional' && (
                   <Pressable
                     onPress={() => setScreen('building')}
-                    style={styles.buildingCard}
+                    style={ui.buildingCard}
                   >
-                    <Text style={styles.buildingIcon}>🏗️</Text>
+                    <Text style={ui.buildingIcon}>🏗️</Text>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.buildingTitle}>
+                      <Text style={ui.buildingTitle}>
                         {tr(
                           'FULL BUILDING CALCULATOR',
                           'حاسبة البناء الشاملة',
                           'CALCULATEUR COMPLET DU BÂTIMENT'
                         )}
                       </Text>
-                      <Text style={styles.buildingDesc}>
+                      <Text style={ui.buildingDesc}>
                         {tr(
                           'Calculate from foundations to finishing',
                           'احسب من الأساسات حتى التشطيبات',
@@ -440,11 +446,11 @@ export default function App() {
                         )}
                       </Text>
                     </View>
-                    <Text style={styles.buildingArrow}>›</Text>
+                    <Text style={ui.buildingArrow}>›</Text>
                   </Pressable>
                   )}
 
-                  <Text style={styles.section}>
+                  <Text style={ui.section}>
                     {tr(
                       'QUICK CALCULATORS',
                       'أدوات الحساب السريعة',
@@ -452,12 +458,12 @@ export default function App() {
                     )}
                   </Text>
 
-                  <View style={styles.toolGrid}>
+                  <View style={ui.toolGrid}>
                     {tools.map(renderToolCard)}
                   </View>
 
-                  <View style={styles.tipBox}>
-                    <Text style={styles.tipTitle}>
+                  <View style={ui.tipBox}>
+                    <Text style={ui.tipTitle}>
                       ✦ {tr(
                         'BUILD SMARTER',
                         'ابنِ بذكاء',
@@ -465,7 +471,7 @@ export default function App() {
                       )}
                     </Text>
 
-                    <Text style={styles.tipText}>
+                    <Text style={ui.tipText}>
                       {tr(
                         'Plan quantities before you buy materials.',
                         'خطط لكميات المواد قبل الشراء.',
@@ -480,6 +486,7 @@ export default function App() {
                 <CalculatorScreen
                   calculatorId={selected}
                   language={lang}
+                  theme={theme}
                   units={units}
                   onBack={() => setScreen('home')}
                 />
@@ -488,6 +495,7 @@ export default function App() {
               {screen === 'building' && (
                 <BuildingCalculatorScreen
                   language={lang}
+                  theme={theme}
                   mode={mode}
                   units={units}
                   onBack={() => setScreen('home')}
@@ -497,6 +505,7 @@ export default function App() {
               {screen === 'profile' && (
                 <ProfileScreen
                   language={lang}
+                  theme={theme}
                   mode={mode}
                   onSignOut={async () => {
                     await signOut(auth);
@@ -507,7 +516,7 @@ export default function App() {
 
               {screen === 'favorites' && (
                 <>
-                  <Text style={styles.h1}>
+                  <Text style={ui.h1}>
                     {tr(
                       'My Favorites',
                       'أدواتي المفضلة',
@@ -516,10 +525,10 @@ export default function App() {
                   </Text>
 
                   {favourites.length === 0 ? (
-                    <View style={styles.emptyCard}>
-                      <Text style={styles.emptyIcon}>☆</Text>
+                    <View style={ui.emptyCard}>
+                      <Text style={ui.emptyIcon}>☆</Text>
 
-                      <Text style={styles.emptyText}>
+                      <Text style={ui.emptyText}>
                         {tr(
                           'No favorites yet. Add calculators using the star icon.',
                           'لا توجد أدوات مفضلة بعد. أضف الأدوات باستخدام علامة النجمة.',
@@ -528,7 +537,7 @@ export default function App() {
                       </Text>
                     </View>
                   ) : (
-                    <View style={styles.toolGrid}>
+                    <View style={ui.toolGrid}>
                       {tools
                         .filter(tool => favourites.includes(tool.id))
                         .map(renderToolCard)}
@@ -539,15 +548,15 @@ export default function App() {
 
               {screen === 'about' && (
                 <>
-                  <Text style={styles.h1}>
+                  <Text style={ui.h1}>
                     {tr('About Danat Build', 'عن دانات للبناء', 'À propos de Danat Build')}
                   </Text>
 
-                  <View style={styles.emptyCard}>
-                    <Text style={styles.emptyIcon}>⌂</Text>
-                    <Text style={styles.menuRowText}>DANAT BUILD</Text>
+                  <View style={ui.emptyCard}>
+                    <Text style={ui.emptyIcon}>⌂</Text>
+                    <Text style={ui.menuRowText}>DANAT BUILD</Text>
 
-                    <Text style={styles.emptyText}>
+                    <Text style={ui.emptyText}>
                       {tr(
                         'Build smarter. Plan better.',
                         'ابنِ بذكاء وخطط بشكل أفضل.',
@@ -555,7 +564,7 @@ export default function App() {
                       )}
                     </Text>
 
-                    <Text style={styles.emptyText}>
+                    <Text style={ui.emptyText}>
                       {tr(
                         'Danat Build is a construction planning application designed to help professionals and homeowners calculate building materials, estimate quantities and plan projects more efficiently.',
                         'دانات للبناء هو تطبيق لتخطيط أعمال البناء، يساعد المهندسين والمحترفين وأصحاب المنازل على حساب مواد البناء وتقدير الكميات وتخطيط المشاريع بكفاءة.',
@@ -564,7 +573,7 @@ export default function App() {
                     </Text>
                   </View>
 
-                  <Text style={styles.section}>
+                  <Text style={ui.section}>
                     {tr('WHAT YOU CAN DO', 'ماذا يمكنك أن تفعل', 'CE QUE VOUS POUVEZ FAIRE')}
                   </Text>
 
@@ -574,16 +583,16 @@ export default function App() {
                     tr('Full building quantity calculations', 'حساب كميات المباني بالكامل', 'Calcul des quantités d’un bâtiment complet'),
                     tr('Save your favorite calculators', 'حفظ أدواتك المفضلة', 'Enregistrer vos calculateurs favoris'),
                   ].map((feature, index) => (
-                    <View key={index} style={styles.menuRow}>
-                      <Text style={styles.menuRowText}>✓  {feature}</Text>
+                    <View key={index} style={ui.menuRow}>
+                      <Text style={ui.menuRowText}>✓  {feature}</Text>
                     </View>
                   ))}
 
                   <Pressable
                     onPress={() => setScreen('menu')}
-                    style={styles.menuRow}
+                    style={ui.menuRow}
                   >
-                    <Text style={styles.menuRowText}>
+                    <Text style={ui.menuRowText}>
                       ‹  {tr('Back to More', 'العودة إلى المزيد', 'Retour au menu')}
                     </Text>
                   </Pressable>
@@ -593,16 +602,16 @@ export default function App() {
 
               {screen === 'guide' && (
                 <>
-                  <Text style={styles.h1}>
+                  <Text style={ui.h1}>
                     {tr('Tips & Guide', 'النصائح والإرشادات', 'Conseils et guide')}
                   </Text>
 
-                  <View style={styles.emptyCard}>
-                    <Text style={styles.emptyIcon}>📐</Text>
-                    <Text style={styles.menuRowText}>
+                  <View style={ui.emptyCard}>
+                    <Text style={ui.emptyIcon}>📐</Text>
+                    <Text style={ui.menuRowText}>
                       {tr('PLAN BEFORE YOU BUILD', 'خطط قبل البناء', 'PLANIFIEZ AVANT DE CONSTRUIRE')}
                     </Text>
-                    <Text style={styles.emptyText}>
+                    <Text style={ui.emptyText}>
                       {tr(
                         'Good planning helps reduce waste, control costs and avoid mistakes.',
                         'التخطيط الجيد يساعد على تقليل الهدر وضبط التكاليف وتجنب الأخطاء.',
@@ -667,20 +676,20 @@ export default function App() {
                       )
                     }
                   ].map((tip, index) => (
-                    <View key={index} style={styles.menuRow}>
-                      <Text style={styles.emptyIcon}>{tip.icon}</Text>
+                    <View key={index} style={ui.menuRow}>
+                      <Text style={ui.emptyIcon}>{tip.icon}</Text>
                       <View style={{ flex: 1 }}>
-                        <Text style={styles.menuRowText}>{tip.title}</Text>
-                        <Text style={styles.emptyText}>{tip.body}</Text>
+                        <Text style={ui.menuRowText}>{tip.title}</Text>
+                        <Text style={ui.emptyText}>{tip.body}</Text>
                       </View>
                     </View>
                   ))}
 
                   <Pressable
                     onPress={() => setScreen('menu')}
-                    style={styles.menuRow}
+                    style={ui.menuRow}
                   >
-                    <Text style={styles.menuRowText}>
+                    <Text style={ui.menuRowText}>
                       ‹  {tr('Back to More', 'العودة إلى المزيد', 'Retour au menu')}
                     </Text>
                   </Pressable>
@@ -689,40 +698,60 @@ export default function App() {
 
               {screen === 'settings' && (
                 <>
-                  <Text style={styles.h1}>
+                  <Text style={ui.h1}>
                     {tr('Settings', 'الإعدادات', 'Paramètres')}
                   </Text>
 
-                  <Text style={styles.section}>
+                  <Text style={ui.section}>
                     {tr('LANGUAGE', 'اللغة', 'LANGUE')}
                   </Text>
 
-                  <View style={styles.langRow}>
+                  <View style={ui.langRow}>
                     {(['en', 'ar', 'fr'] as const).map(language => (
                       <Pressable
                         key={language}
                         onPress={() => setLang(language)}
-                        style={[styles.langBtn, lang === language && styles.langOn]}
+                        style={[ui.langBtn, lang === language && ui.langOn]}
                       >
-                        <Text style={[styles.langText, lang === language && styles.langTextOn]}>
+                        <Text style={[ui.langText, lang === language && ui.langTextOn]}>
                           {language === 'en' ? 'English' : language === 'ar' ? 'العربية' : 'Français'}
                         </Text>
                       </Pressable>
                     ))}
                   </View>
 
-                  <Text style={styles.section}>
+                  <Text style={ui.section}>
+                    {tr('APPEARANCE', 'المظهر', 'APPARENCE')}
+                  </Text>
+
+                  <View style={ui.langRow}>
+                    {(['dark', 'light'] as const).map(option => (
+                      <Pressable
+                        key={option}
+                        onPress={() => setTheme(option)}
+                        style={[ui.langBtn, theme === option && ui.langOn]}
+                      >
+                        <Text style={[ui.langText, theme === option && ui.langTextOn]}>
+                          {option === 'dark'
+                            ? tr('Dark Gold', 'الأسود والذهبي', 'Sombre & or')
+                            : tr('Bright Light', 'الفاتح المشرق', 'Clair lumineux')}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+
+                  <Text style={ui.section}>
                     {tr('MEASUREMENT UNITS', 'وحدات القياس', 'UNITÉS DE MESURE')}
                   </Text>
 
-                  <View style={styles.langRow}>
+                  <View style={ui.langRow}>
                     {(['metric', 'imperial'] as const).map(unit => (
                       <Pressable
                         key={unit}
                         onPress={() => setUnits(unit)}
-                        style={[styles.langBtn, units === unit && styles.langOn]}
+                        style={[ui.langBtn, units === unit && ui.langOn]}
                       >
-                        <Text style={[styles.langText, units === unit && styles.langTextOn]}>
+                        <Text style={[ui.langText, units === unit && ui.langTextOn]}>
                           {unit === 'metric'
                             ? tr('Metric (m, cm)', 'متري (م، سم)', 'Métrique (m, cm)')
                             : tr('Imperial (ft, in)', 'إمبراطوري (قدم، بوصة)', 'Impérial (pi, po)')}
@@ -731,18 +760,18 @@ export default function App() {
                     ))}
                   </View>
 
-                  <Text style={styles.section}>
+                  <Text style={ui.section}>
                     {tr('DEFAULT WORKING MODE', 'وضع العمل الافتراضي', 'MODE DE TRAVAIL PAR DÉFAUT')}
                   </Text>
 
-                  <View style={styles.langRow}>
+                  <View style={ui.langRow}>
                     {(['professional', 'homeowner'] as const).map(option => (
                       <Pressable
                         key={option}
                         onPress={() => setMode(option)}
-                        style={[styles.langBtn, mode === option && styles.langOn]}
+                        style={[ui.langBtn, mode === option && ui.langOn]}
                       >
-                        <Text style={[styles.langText, mode === option && styles.langTextOn]}>
+                        <Text style={[ui.langText, mode === option && ui.langTextOn]}>
                           {option === 'professional'
                             ? tr('Professional', 'احترافي', 'Professionnel')
                             : tr('Homeowner', 'صاحب المنزل', 'Propriétaire')}
@@ -751,8 +780,8 @@ export default function App() {
                     ))}
                   </View>
 
-                  <Pressable onPress={() => setScreen('menu')} style={styles.menuRow}>
-                    <Text style={styles.menuRowText}>
+                  <Pressable onPress={() => setScreen('menu')} style={ui.menuRow}>
+                    <Text style={ui.menuRowText}>
                       ‹  {tr('Back to More', 'العودة إلى المزيد', 'Retour au menu')}
                     </Text>
                   </Pressable>
@@ -761,7 +790,7 @@ export default function App() {
 
               {screen === 'menu' && (
                 <>
-                  <Text style={styles.h1}>
+                  <Text style={ui.h1}>
                     {tr('More', 'المزيد', 'Plus')}
                   </Text>
 
@@ -778,34 +807,34 @@ export default function App() {
                         if (index === 1) setScreen('guide');
                         if (index === 3) setScreen('settings');
                       }}
-                      style={styles.menuRow}
+                      style={ui.menuRow}
                     >
-                      <Text style={styles.menuRowText}>
+                      <Text style={ui.menuRowText}>
                         {['ⓘ', '♥', '☎', '⚙'][index]}   {item}
                       </Text>
 
-                      <Text style={styles.menuArrow}>›</Text>
+                      <Text style={ui.menuArrow}>›</Text>
                     </Pressable>
                   ))}
 
-                  <Text style={styles.section}>
+                  <Text style={ui.section}>
                     {tr('LANGUAGE', 'اللغة', 'LANGUE')}
                   </Text>
 
-                  <View style={styles.langRow}>
+                  <View style={ui.langRow}>
                     {(['en', 'ar', 'fr'] as const).map(language => (
                       <Pressable
                         key={language}
                         onPress={() => setLang(language)}
                         style={[
-                          styles.langBtn,
-                          lang === language && styles.langOn,
+                          ui.langBtn,
+                          lang === language && ui.langOn,
                         ]}
                       >
                         <Text
                           style={[
-                            styles.langText,
-                            lang === language && styles.langTextOn,
+                            ui.langText,
+                            lang === language && ui.langTextOn,
                           ]}
                         >
                           {language === 'en'
@@ -823,8 +852,8 @@ export default function App() {
 
             <View
               style={[
-                styles.bottomNav,
-                isAr && styles.rowRTL,
+                ui.bottomNav,
+                isAr && ui.rowRTL,
               ]}
             >
               {nav(
