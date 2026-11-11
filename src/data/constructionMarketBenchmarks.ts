@@ -265,6 +265,11 @@ export const MARKET_RATE_LABELS = {
     ar: 'مرجع مسح السوق',
     fr: 'Référence issue d’une enquête de marché',
   },
+  'regional-reference': {
+    en: 'Regional parity reference — verify local quote',
+    ar: 'مرجع إقليمي للمقارنة — يجب التحقق من عرض محلي',
+    fr: 'Référence régionale indicative — devis local à vérifier',
+  },
   provisional: {
     en: 'Provisional planning estimate',
     ar: 'تقدير تخطيطي أولي',
