@@ -342,9 +342,7 @@ export default function App() {
                   </Text>
                 </View>
 
-                <Pressable onPress={() => setScreen('menu')}>
-                  <Text style={ui.menuIcon}>⋮</Text>
-                </Pressable>
+
               </View>
 
               {screen === 'home' && (
