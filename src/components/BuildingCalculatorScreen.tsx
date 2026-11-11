@@ -58,6 +58,13 @@ const PUBLISHED_MATERIAL_RATE_IDS: Partial<Record<Exclude<CountryCode, 'LB'>, st
   QA: ['foundationSteel', 'structuralSteel'],
 };
 
+// These concrete defaults use GCCPricing's calibrated regional parity values,
+// not direct local merchant quotations. Keep that distinction visible per input.
+const REGIONAL_REFERENCE_MATERIAL_RATE_IDS: Partial<Record<'KW' | 'OM', string[]>> = {
+  KW: ['footingConcrete', 'columnConcrete', 'stairConcrete', 'beamConcrete', 'slabConcrete'],
+  OM: ['footingConcrete', 'columnConcrete', 'stairConcrete', 'beamConcrete', 'slabConcrete'],
+};
+
 
 
 const COUNTRY_OPTIONS: {
@@ -1194,6 +1201,9 @@ export default function BuildingCalculatorScreen({
         : 'User-entered rate — verify against quotation';
     }
     if (rateType === 'Labor') return MARKET_RATE_LABELS.provisional[language];
+    if (REGIONAL_REFERENCE_MATERIAL_RATE_IDS[selectedCountry as 'KW' | 'OM']?.includes(itemId)) {
+      return MARKET_RATE_LABELS['regional-reference'][language];
+    }
     const published = PUBLISHED_MATERIAL_RATE_IDS[selectedCountry]?.includes(itemId);
     return published
       ? MARKET_RATE_LABELS.published[language]
