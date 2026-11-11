@@ -1,6 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { estimateBuildingQuantities } from './buildingQuantityEstimator';
 import {
+  CONSTRUCTION_MARKET_BENCHMARKS,
+  COUNTRY_ITEM_RATE_DEFAULTS,
+  MARKET_RATE_LABELS,
+} from '../data/constructionMarketBenchmarks';
+import {
   View,
   Text,
   TextInput,
@@ -10,6 +15,7 @@ import {
 } from 'react-native';
 
 type Language = 'en' | 'ar' | 'fr';
+type CountryCode = 'LB' | 'AE' | 'SA' | 'QA' | 'KW' | 'OM';
 
 type FloorData = {
   id: number;
@@ -40,10 +46,46 @@ type DetailedValues = Record<string, string>;
 
 const GOLD = '#E9B85D';
 
+// Material defaults backed by official/statistical price publications.
+// Other non-zero GCC material defaults are labelled as market-survey or
+// regional reference anchors; calculated labour allowances remain provisional.
+const PUBLISHED_MATERIAL_RATE_IDS: Partial<Record<Exclude<CountryCode, 'LB'>, string[]>> = {
+  AE: ['cementMasonry'],
+  SA: [
+    'footingConcrete', 'columnConcrete', 'stairConcrete', 'beamConcrete', 'slabConcrete',
+    'foundationSteel', 'structuralSteel', 'externalBlocks', 'cementMasonry', 'sandMasonry', 'floorTiles',
+  ],
+  QA: ['foundationSteel', 'structuralSteel'],
+};
+
+// These concrete defaults use GCCPricing's calibrated regional parity values,
+// not direct local merchant quotations. Keep that distinction visible per input.
+const REGIONAL_REFERENCE_MATERIAL_RATE_IDS: Partial<Record<'KW' | 'OM', string[]>> = {
+  KW: ['footingConcrete', 'columnConcrete', 'stairConcrete', 'beamConcrete', 'slabConcrete'],
+  OM: ['footingConcrete', 'columnConcrete', 'stairConcrete', 'beamConcrete', 'slabConcrete'],
+};
+
+
+
+const COUNTRY_OPTIONS: {
+  id: CountryCode;
+  currency: string;
+  names: [string, string, string];
+}[] = [
+  { id: 'LB', currency: 'USD', names: ['Lebanon', 'لبنان', 'Liban'] },
+  { id: 'AE', currency: 'AED', names: ['United Arab Emirates', 'الإمارات العربية المتحدة', 'Émirats arabes unis'] },
+  { id: 'SA', currency: 'SAR', names: ['Saudi Arabia', 'السعودية', 'Arabie saoudite'] },
+  { id: 'QA', currency: 'QAR', names: ['Qatar', 'قطر', 'Qatar'] },
+  { id: 'KW', currency: 'KWD', names: ['Kuwait', 'الكويت', 'Koweït'] },
+  { id: 'OM', currency: 'OMR', names: ['Oman', 'عُمان', 'Oman'] },
+];
+
 const translations = {
   en: {
     title: 'Full Building Calculator',
     subtitle: 'Complete building quantity and cost estimation',
+    country: 'COUNTRY / CONSTRUCTION MARKET',
+    ratesPending: 'Prefilled rates are incomplete for this market. Some labor rates are provisional planning allowances derived from local wage observations and productivity assumptions, not contractor quotations. Enter local unit rates below; the calculator shows a partial total and flags active items missing a required rate.',
     floors: 'FLOOR DIMENSIONS',
     addFloor: '+ ADD FLOOR',
     remove: 'Remove',
@@ -134,6 +176,8 @@ const translations = {
   ar: {
     title: 'حاسبة البناء الشاملة',
     subtitle: 'تقدير كميات وتكاليف المبنى بالكامل',
+    country: 'الدولة / سوق البناء',
+    ratesPending: 'الأسعار المعبأة مسبقاً لهذا السوق غير مكتملة. بعض أجور العمالة تقديرات تخطيطية أولية مبنية على أجور محلية وافتراضات إنتاجية وليست عروض أسعار من مقاولين. أدخل الأسعار المحلية في الجدول أدناه؛ سيعرض الحاسوب مجموعاً جزئياً وينبّهك إلى البنود المستخدمة التي ينقصها سعر مطلوب.',
     floors: 'أبعاد الطوابق',
     addFloor: '+ إضافة طابق',
     remove: 'حذف',
@@ -224,6 +268,8 @@ const translations = {
   fr: {
     title: 'Calculateur complet du bâtiment',
     subtitle: 'Estimation complète des quantités et des coûts',
+    country: 'PAYS / MARCHÉ DE CONSTRUCTION',
+    ratesPending: 'Les tarifs préremplis de ce marché sont incomplets. Certains tarifs de main-d’œuvre sont des estimations provisoires fondées sur les salaires locaux et des hypothèses de productivité, et non des devis d’entrepreneurs. Les tarifs libanais en USD ne sont pas appliqués ; le calculateur affiche un sous-total et signale les postes actifs auxquels il manque un tarif.',
     floors: 'DIMENSIONS DES ÉTAGES',
     addFloor: '+ AJOUTER UN ÉTAGE',
     remove: 'Supprimer',
@@ -529,6 +575,26 @@ function createDetailedCostValues(): DetailedValues {
   return values;
 }
 
+// GCC markets start with country-specific local rates where supported; all other
+// rates remain editable zeros and are flagged when their line item is used.
+function createCountryCostValues(
+  country: Exclude<CountryCode, 'LB'>
+): DetailedValues {
+  const values: DetailedValues = {};
+  const sourcedRates = COUNTRY_ITEM_RATE_DEFAULTS[country] ?? {};
+  COST_ITEMS.forEach(item => {
+    const sourcedRate = sourcedRates[item.id];
+    values[`${item.id}Qty`] = '0';
+    values[`${item.id}Material`] = sourcedRate
+      ? String(sourcedRate.material)
+      : '0';
+    values[`${item.id}Labor`] = sourcedRate
+      ? String(sourcedRate.labor)
+      : '0';
+  });
+  return values;
+}
+
 const initialFloor = (id: number): FloorData => ({
   id,
   length: '15',
@@ -566,8 +632,8 @@ const initialValues: Record<string, string> = {
 const number = (values: Record<string, string>, key: string) =>
   Number(values[key] ?? 0);
 
-const money = (value: number) =>
-  `$${value.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+const money = (value: number, currency = 'USD') =>
+  new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(value);
 
 const quantity = (value: number) =>
   value.toLocaleString(undefined, { maximumFractionDigits: 2 });
@@ -675,6 +741,8 @@ export default function BuildingCalculatorScreen({
 }: Props) {
   const t = translations[language];
   const isArabic = language === 'ar';
+  const [selectedCountry, setSelectedCountry] = useState<CountryCode>('LB');
+  const selectedCurrency = COUNTRY_OPTIONS.find(country => country.id === selectedCountry)?.currency ?? 'USD';
 
   const [floors, setFloors] = useState<FloorData[]>([
     initialFloor(1),
@@ -682,10 +750,37 @@ export default function BuildingCalculatorScreen({
   ]);
 
   const [values, setValues] = useState(initialValues);
-  const [detailedValues, setDetailedValues] = useState<DetailedValues>(
-    createDetailedCostValues
-  );
-  const manuallyEditedQuantities = useRef<Set<string>>(new Set());
+  const [detailedValuesByCountry, setDetailedValuesByCountry] = useState<Record<CountryCode, DetailedValues>>({
+    LB: createDetailedCostValues(),
+    AE: createCountryCostValues('AE'),
+    SA: createCountryCostValues('SA'),
+    QA: createCountryCostValues('QA'),
+    KW: createCountryCostValues('KW'),
+    OM: createCountryCostValues('OM'),
+  });
+  const detailedValues = detailedValuesByCountry[selectedCountry];
+  const setDetailedValues = (updater: (old: DetailedValues) => DetailedValues) => {
+    setDetailedValuesByCountry(old => ({
+      ...old,
+      [selectedCountry]: updater(old[selectedCountry]),
+    }));
+  };
+  const manuallyEditedQuantities = useRef<Record<CountryCode, Set<string>>>({
+    LB: new Set(),
+    AE: new Set(),
+    SA: new Set(),
+    QA: new Set(),
+    KW: new Set(),
+    OM: new Set(),
+  });
+  const manuallyEditedRates = useRef<Record<CountryCode, Set<string>>>({
+    LB: new Set(),
+    AE: new Set(),
+    SA: new Set(),
+    QA: new Set(),
+    KW: new Set(),
+    OM: new Set(),
+  });
   const [result, setResult] = useState<Record<string, any> | null>(null);
   const [error, setError] = useState('');
   const previousUnits = useRef<'metric' | 'imperial'>('metric');
@@ -712,30 +807,33 @@ export default function BuildingCalculatorScreen({
       return converted;
     });
 
-    setDetailedValues(old => {
-      const next = { ...old };
+    setDetailedValuesByCountry(old => {
+      const converted = { ...old };
 
-      COST_ITEMS.forEach(item => {
-        const factor =
-          item.unit === 'm²' ? SQFT_TO_SQM :
-          item.unit === 'm³' ? CUFT_TO_CUM :
-          item.unit === 'm' ? FT_TO_M : 1;
+      (Object.keys(converted) as CountryCode[]).forEach(countryCode => {
+        const next = { ...converted[countryCode] };
+        COST_ITEMS.forEach(item => {
+          const factor =
+            item.unit === 'm²' ? SQFT_TO_SQM :
+            item.unit === 'm³' ? CUFT_TO_CUM :
+            item.unit === 'm' ? FT_TO_M : 1;
 
-        if (factor === 1) return;
+          if (factor === 1) return;
 
-        ['Material', 'Labor'].forEach(suffix => {
-          const key = `${item.id}${suffix}`;
-          const amount = Number(next[key]);
-
-          if (Number.isFinite(amount)) {
-            next[key] = String(
-              units === 'imperial' ? amount * factor : amount / factor
-            );
-          }
+          ['Material', 'Labor'].forEach(suffix => {
+            const key = `${item.id}${suffix}`;
+            const amount = Number(next[key]);
+            if (Number.isFinite(amount)) {
+              next[key] = String(
+                units === 'imperial' ? amount * factor : amount / factor
+              );
+            }
+          });
         });
+        converted[countryCode] = next;
       });
 
-      return next;
+      return converted;
     });
 
     previousUnits.current = units;
@@ -750,7 +848,10 @@ export default function BuildingCalculatorScreen({
 
   const updateDetailedValue = (key: string, value: string) => {
     if (key.endsWith('Qty')) {
-      manuallyEditedQuantities.current.add(key);
+      manuallyEditedQuantities.current[selectedCountry].add(key);
+    }
+    if (key.endsWith('Material') || key.endsWith('Labor')) {
+      manuallyEditedRates.current[selectedCountry].add(key);
     }
     setDetailedValues(old => ({ ...old, [key]: value }));
     setResult(null);
@@ -765,14 +866,14 @@ export default function BuildingCalculatorScreen({
     setDetailedValues(old => {
       const next = { ...old };
       Object.entries(automaticQuantities).forEach(([key, estimate]) => {
-        if (!manuallyEditedQuantities.current.has(key)) {
+        if (!manuallyEditedQuantities.current[selectedCountry].has(key)) {
           next[key] = estimate;
         }
       });
       return next;
     });
     setResult(null);
-  }, [automaticQuantities]);
+  }, [automaticQuantities, selectedCountry]);
 
   const updateFloor = (id: number, key: keyof FloorData, value: string) => {
     setFloors(old =>
@@ -1071,10 +1172,49 @@ export default function BuildingCalculatorScreen({
     return unit;
   };
 
+  const rateProvenanceNote = (itemId: string, rateType: 'Material' | 'Labor', value: string) => {
+    if (selectedCountry === 'LB') return undefined;
+    const costItem = COST_ITEMS.find(item => item.id === itemId);
+    const rateNotRequired = rateType === 'Labor'
+      ? costItem?.requiresLabor === false
+      : costItem?.requiresMaterial === false;
+    if (rateNotRequired) {
+      return language === 'ar'
+        ? 'غير مطلوب لهذا البند'
+        : language === 'fr'
+        ? 'Non requis pour ce poste'
+        : 'Not required for this item';
+    }
+    if (Number(value) <= 0) {
+      return language === 'ar'
+        ? 'لا يوجد سعر محلي معبأ — أدخل عرض سعر'
+        : language === 'fr'
+        ? 'Aucun tarif local prérempli — saisir un devis'
+        : 'No local rate mapped — enter a quotation';
+    }
+    const rateKey = `${itemId}${rateType}`;
+    if (manuallyEditedRates.current[selectedCountry].has(rateKey)) {
+      return language === 'ar'
+        ? 'سعر أدخله المستخدم — يُراجع مع عرض السعر'
+        : language === 'fr'
+        ? 'Tarif saisi manuellement — à vérifier avec le devis'
+        : 'User-entered rate — verify against quotation';
+    }
+    if (rateType === 'Labor') return MARKET_RATE_LABELS.provisional[language];
+    if (REGIONAL_REFERENCE_MATERIAL_RATE_IDS[selectedCountry as 'KW' | 'OM']?.includes(itemId)) {
+      return MARKET_RATE_LABELS['regional-reference'][language];
+    }
+    const published = PUBLISHED_MATERIAL_RATE_IDS[selectedCountry]?.includes(itemId);
+    return published
+      ? MARKET_RATE_LABELS.published[language]
+      : MARKET_RATE_LABELS['market-survey'][language];
+  };
+
   const detailedField = (
     key: string,
     label: string,
-    value: string
+    value: string,
+    provenanceNote?: string
   ) => (
     <View style={styles.detailedInputColumn} key={key}>
       <Text style={styles.detailedInputLabel}>{label}</Text>
@@ -1087,6 +1227,9 @@ export default function BuildingCalculatorScreen({
         style={styles.detailedInput}
         selectTextOnFocus
       />
+      {!!provenanceNote && (
+        <Text style={styles.rateProvenanceNote}>{provenanceNote}</Text>
+      )}
     </View>
   );
 
@@ -1112,6 +1255,76 @@ export default function BuildingCalculatorScreen({
         <Text style={styles.infoText}>
           {mode === 'professional' ? t.professional : t.homeowner}
         </Text>
+      </View>
+
+      <View style={styles.sectionCard}>
+        <Text style={[styles.sectionTitle, isArabic && styles.rtl]}>
+          {t.country}
+        </Text>
+        <View style={styles.countryOptions}>
+          {COUNTRY_OPTIONS.map(country => (
+            <Pressable
+              key={country.id}
+              onPress={() => {
+                setSelectedCountry(country.id);
+                setResult(null);
+                setError('');
+              }}
+              style={[
+                styles.countryOption,
+                selectedCountry === country.id && styles.countryOptionSelected,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.countryOptionText,
+                  selectedCountry === country.id && styles.countryOptionTextSelected,
+                ]}
+              >
+                {country.names[language === 'ar' ? 1 : language === 'fr' ? 2 : 0]}
+              </Text>
+              <Text
+                style={[
+                  styles.countryCurrency,
+                  selectedCountry === country.id && styles.countryOptionTextSelected,
+                ]}
+              >
+                {country.currency}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+        {selectedCountry !== 'LB' && (
+          <>
+            <View style={styles.warningBox}>
+              <Text style={styles.warningText}>{t.ratesPending}</Text>
+            </View>
+            <View style={styles.marketBenchmarks}>
+              <Text style={styles.marketBenchmarksTitle}>
+                {language === 'ar' ? 'مؤشرات أسعار السوق المنشورة' : language === 'fr' ? 'Repères de prix du marché' : 'Published market price benchmarks'}
+              </Text>
+              {CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].benchmarks.map((benchmark, index) => (
+                <View key={`${benchmark.item}-${index}`} style={styles.marketBenchmarkRow}>
+                  <View style={styles.marketBenchmarkText}>
+                    <Text style={styles.marketBenchmarkItem}>{benchmark.item}</Text>
+                    <Text style={styles.marketBenchmarkNote}>{benchmark.note || benchmark.source.replace('https://', '').replace('http://', '')}</Text>
+                  </View>
+                  <View style={styles.marketBenchmarkValueWrap}>
+                    <Text style={styles.marketBenchmarkValue}>
+                      {new Intl.NumberFormat(undefined, { style: 'currency', currency: CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].currency }).format(benchmark.value)}
+                    </Text>
+                    <Text style={styles.marketBenchmarkUnit}>{benchmark.unit}</Text>
+                    <Text style={styles.marketBenchmarkStatus}>
+                      {benchmark.status === 'published'
+                        ? (language === 'ar' ? 'منشور' : language === 'fr' ? 'Publié' : 'Published')
+                        : (language === 'ar' ? 'مسح سوق' : language === 'fr' ? 'Enquête marché' : 'Market survey')}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
       </View>
 
       {section(
@@ -1202,7 +1415,7 @@ export default function BuildingCalculatorScreen({
       )}
 
 
-      {section(
+      {selectedCountry === 'LB' && section(
         t.prices,
         <>
           {(
@@ -1221,7 +1434,7 @@ export default function BuildingCalculatorScreen({
       {section(
         t.detailedCosts,
         <>
-          <Text style={styles.detailedHint}>{t.detailedHint}</Text>
+          <Text style={styles.detailedHint}>{selectedCountry === 'LB' ? t.detailedHint : (language === 'ar' ? 'أدخل أسعار المواد والعمالة المحلية لكل بند. لا تُستخدم أسعار لبنان في هذا السوق.' : language === 'fr' ? 'Saisissez les prix locaux des matériaux et de la main-d’œuvre. Les prix libanais ne sont pas réutilisés pour ce marché.' : 'Enter local material and labor rates for each item. Lebanon prices are not reused for this market.')}</Text>
 
           {COST_CATEGORIES.map(category => {
             const items = COST_ITEMS.filter(
@@ -1237,7 +1450,7 @@ export default function BuildingCalculatorScreen({
                     {category.names[language === 'ar' ? 1 : language === 'fr' ? 2 : 0]}
                   </Text>
                   <Text style={styles.detailedCategoryTotal}>
-                    {money(categoryTotal)}
+                    {money(categoryTotal, selectedCurrency)}
                   </Text>
                 </View>
 
@@ -1266,13 +1479,15 @@ export default function BuildingCalculatorScreen({
                         )}
                         {detailedField(
                           `${item.id}Material`,
-                          t.materialUnit,
-                          detailedValues[`${item.id}Material`]
+                          t.materialUnit.replace(String.fromCharCode(36), selectedCurrency),
+                          detailedValues[`${item.id}Material`],
+                          rateProvenanceNote(item.id, 'Material', detailedValues[`${item.id}Material`])
                         )}
                         {detailedField(
                           `${item.id}Labor`,
-                          t.laborUnit,
-                          detailedValues[`${item.id}Labor`]
+                          t.laborUnit.replace(String.fromCharCode(36), selectedCurrency),
+                          detailedValues[`${item.id}Labor`],
+                          rateProvenanceNote(item.id, 'Labor', detailedValues[`${item.id}Labor`])
                         )}
                       </View>
 
@@ -1281,7 +1496,7 @@ export default function BuildingCalculatorScreen({
                           {t.itemTotal}
                         </Text>
                         <Text style={styles.detailedItemTotalValue}>
-                          {money(itemTotal)}
+                          {money(itemTotal, selectedCurrency)}
                         </Text>
                       </View>
                     </View>
@@ -1293,7 +1508,7 @@ export default function BuildingCalculatorScreen({
                     {t.categoryTotal}
                   </Text>
                   <Text style={styles.detailedCategoryFooterValue}>
-                    {money(categoryTotal)}
+                    {money(categoryTotal, selectedCurrency)}
                   </Text>
                 </View>
               </View>
@@ -1348,20 +1563,20 @@ export default function BuildingCalculatorScreen({
           <View style={styles.resultDivider} />
           {resultRow(t.electricalPoints, quantity(result.electricalPoints))}
           {resultRow(t.plumbingPoints, quantity(result.plumbingPoints))}
-          {resultRow(t.materialTotal, money(result.materialTotal))}
-          {resultRow(t.laborResult, money(result.labor))}
-          {resultRow(t.equipmentResult, money(result.equipment))}
-          {resultRow(t.extraResult, money(result.extra))}
+          {resultRow(t.materialTotal, money(result.materialTotal, selectedCurrency))}
+          {resultRow(t.laborResult, money(result.labor, selectedCurrency))}
+          {resultRow(t.equipmentResult, money(result.equipment, selectedCurrency))}
+          {resultRow(t.extraResult, money(result.extra, selectedCurrency))}
 
           {COST_CATEGORIES.map(category =>
             resultRow(
               category.names[language === 'ar' ? 1 : language === 'fr' ? 2 : 0],
-              money(result.categoryTotals[category.id] || 0)
+              money(result.categoryTotals[category.id] || 0, selectedCurrency)
             )
           )}
 
-          {resultRow(result.unpricedItemCount > 0 ? t.pricedSubtotal : t.subtotal, money(result.subtotal))}
-          {resultRow(result.unpricedItemCount > 0 ? t.pricedReserve : t.reserve, money(result.reserve))}
+          {resultRow(result.unpricedItemCount > 0 ? t.pricedSubtotal : t.subtotal, money(result.subtotal, selectedCurrency))}
+          {resultRow(result.unpricedItemCount > 0 ? t.pricedReserve : t.reserve, money(result.reserve, selectedCurrency))}
           {result.unpricedItemCount > 0 && (
             <View style={styles.warningBox}>
               <Text style={styles.warningTitle}>
@@ -1385,7 +1600,7 @@ export default function BuildingCalculatorScreen({
               {result.unpricedItemCount > 0 ? t.incompleteTotal : t.total}
             </Text>
             <Text style={styles.totalValue}>
-              {result.unpricedItemCount > 0 ? t.incompleteValue : money(result.total)}
+              {result.unpricedItemCount > 0 ? t.incompleteValue : money(result.total, selectedCurrency)}
             </Text>
           </View>
         </View>
@@ -1450,6 +1665,96 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     letterSpacing: 0.8,
     marginBottom: 14,
+  },
+  marketBenchmarks: {
+    backgroundColor: '#20262d',
+    borderWidth: 1,
+    borderColor: '#51432f',
+    borderRadius: 11,
+    padding: 12,
+    marginTop: 10,
+    marginBottom: 14,
+  },
+  marketBenchmarksTitle: {
+    color: GOLD,
+    fontSize: 12,
+    fontWeight: '900',
+    marginBottom: 10,
+  },
+  marketBenchmarkRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 10,
+    paddingVertical: 9,
+    borderTopWidth: 1,
+    borderTopColor: '#3b4145',
+  },
+  marketBenchmarkText: {
+    flex: 1,
+  },
+  marketBenchmarkItem: {
+    color: '#f1f1f1',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  marketBenchmarkNote: {
+    color: '#aeb4bb',
+    fontSize: 9,
+    lineHeight: 14,
+    marginTop: 3,
+  },
+  marketBenchmarkValueWrap: {
+    alignItems: 'flex-end',
+    maxWidth: 125,
+  },
+  marketBenchmarkValue: {
+    color: GOLD,
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  marketBenchmarkUnit: {
+    color: '#c5c9ce',
+    fontSize: 9,
+    marginTop: 2,
+  },
+  marketBenchmarkStatus: {
+    color: '#9ca3af',
+    fontSize: 8,
+    marginTop: 3,
+  },
+  countryOptions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  countryOption: {
+    borderWidth: 1,
+    borderColor: '#45484d',
+    borderRadius: 9,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    minWidth: 105,
+    flexGrow: 1,
+    backgroundColor: '#20262d',
+  },
+  countryOptionSelected: {
+    borderColor: GOLD,
+    backgroundColor: '#302719',
+  },
+  countryOptionText: {
+    color: '#ddd',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  countryOptionTextSelected: {
+    color: GOLD,
+  },
+  countryCurrency: {
+    color: '#9ca3af',
+    fontSize: 10,
+    marginTop: 4,
+    fontWeight: '700',
   },
   floorCard: {
     backgroundColor: '#20262d',
@@ -1669,6 +1974,13 @@ const styles = StyleSheet.create({
     fontSize: 9,
     marginBottom: 5,
     minHeight: 23,
+  },
+  rateProvenanceNote: {
+    color: '#b7a27f',
+    fontSize: 8,
+    lineHeight: 11,
+    marginTop: 4,
+    minHeight: 22,
   },
   detailedInput: {
     backgroundColor: '#292f36',
