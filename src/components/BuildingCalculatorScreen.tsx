@@ -497,17 +497,6 @@ const initialValues: Record<string, string> = {
   paintCoverage: '10',
   tileWaste: '10',
   waterproof: '180',
-  electrical: '80',
-  plumbing: '20',
-  concretePrice: '110',
-  blockPrice: '1',
-  plasterPrice: '4',
-  tilePrice: '15',
-  paintPrice: '8',
-  waterproofPrice: '12',
-  electricalPrice: '25',
-  plumbingPrice: '35',
-  labor: '0',
   equipment: '0',
   extra: '0',
   contingency: '10',
@@ -540,8 +529,6 @@ const lengthKeys = [
 
 const areaKeys = ['openings', 'partitions', 'waterproof'];
 const blockDimensionKeys = ['blockLength', 'blockHeight'];
-const areaPriceKeys = ['plasterPrice', 'tilePrice', 'waterproofPrice'];
-
 function inputAsMetric(
   key: string,
   value: number,
@@ -554,9 +541,6 @@ function inputAsMetric(
   if (blockDimensionKeys.includes(key)) return value * IN_TO_CM;
   if (key === 'stairVolume') return value * CUFT_TO_CUM;
   if (key === 'paintCoverage') return value / SQFT_PER_GAL_TO_SQM_PER_L;
-  if (key === 'concretePrice') return value * CUFT_PER_CUM;
-  if (areaPriceKeys.includes(key)) return value * SQFT_PER_SQM;
-  if (key === 'paintPrice') return value * US_GAL_TO_L;
 
   return value;
 }
@@ -575,9 +559,6 @@ function convertStoredValue(
     if (blockDimensionKeys.includes(key)) return String(n / IN_TO_CM);
     if (key === 'stairVolume') return String(n / CUFT_TO_CUM);
     if (key === 'paintCoverage') return String(n * SQFT_PER_GAL_TO_SQM_PER_L);
-    if (key === 'concretePrice') return String(n / CUFT_PER_CUM);
-    if (areaPriceKeys.includes(key)) return String(n / SQFT_PER_SQM);
-    if (key === 'paintPrice') return String(n / US_GAL_TO_L);
     return value;
   }
 
@@ -586,9 +567,6 @@ function convertStoredValue(
   if (blockDimensionKeys.includes(key)) return String(n * IN_TO_CM);
   if (key === 'stairVolume') return String(n * CUFT_TO_CUM);
   if (key === 'paintCoverage') return String(n / SQFT_PER_GAL_TO_SQM_PER_L);
-  if (key === 'concretePrice') return String(n * CUFT_PER_CUM);
-  if (areaPriceKeys.includes(key)) return String(n * SQFT_TO_SQM);
-  if (key === 'paintPrice') return String(n * US_GAL_TO_L);
   return value;
 }
 
@@ -892,63 +870,18 @@ export default function BuildingCalculatorScreen({
     let unpricedItemCount = 0;
     const categoryTotals: Record<string, number> = {};
 
-    // Legacy allowances cover itemized materials only when their own rate is
-    // actually entered. If a legacy rate is zero, the detailed material rate
-    // remains eligible so the same scope is not silently omitted.
-    const legacyMaterialRateByItem: Record<string, string> = {
-      footingConcrete: 'concretePrice',
-      columnConcrete: 'concretePrice',
-      beamConcrete: 'concretePrice',
-      slabConcrete: 'concretePrice',
-      externalBlocks: 'blockPrice',
-      internalBlocks: 'blockPrice',
-      internalPlaster: 'plasterPrice',
-      externalPlaster: 'plasterPrice',
-      floorTiles: 'tilePrice',
-      interiorPaint: 'paintPrice',
-      exteriorPaint: 'paintPrice',
-      roofWaterproofing: 'waterproofPrice',
-      lightingPoints: 'electricalPrice',
-      singleSockets: 'electricalPrice',
-      doubleSockets: 'electricalPrice',
-      acPoints: 'electricalPrice',
-      waterHeaterPoints: 'electricalPrice',
-      tvPoints: 'electricalPrice',
-      internetPoints: 'electricalPrice',
-      switchPoints: 'electricalPrice',
-      distributionBoard: 'electricalPrice',
-      electricalCables: 'electricalPrice',
-      electricalConduits: 'electricalPrice',
-      grounding: 'electricalPrice',
-      coldWaterPoints: 'plumbingPrice',
-      hotWaterPoints: 'plumbingPrice',
-      toiletConnections: 'plumbingPrice',
-      showerConnections: 'plumbingPrice',
-      basinConnections: 'plumbingPrice',
-      kitchenConnections: 'plumbingPrice',
-      drainagePipes: 'plumbingPrice',
-      waterPipes: 'plumbingPrice',
-    };
-
     COST_ITEMS.forEach(item => {
       const qty = Number(detailedValues[`${item.id}Qty`] || 0);
       const material = Number(detailedValues[`${item.id}Material`] || 0);
       const labor = Number(detailedValues[`${item.id}Labor`] || 0);
 
-      const rawMaterialCost = qty * material;
-      const legacyRateKey = legacyMaterialRateByItem[item.id];
-      const legacyMaterialCovered =
-        !!legacyRateKey && v(legacyRateKey) > 0;
-      const materialCost = legacyMaterialCovered ? 0 : rawMaterialCost;
+      const materialCost = qty * material;
       const laborCost = qty * labor;
       const itemTotal = materialCost + laborCost;
 
-      // A legacy allowance already covers material for mapped items. The
-      // project-wide labor allowance can also cover labor when no per-item
-      // labor rate has been entered; only flag a missing cost when neither
-      // pricing path supplies it.
-      const materialMissing = !legacyMaterialCovered && material <= 0;
-      const laborMissing = labor <= 0 && v('labor') <= 0;
+      // Every active line item must have both a material and labor rate.
+      const materialMissing = material <= 0;
+      const laborMissing = labor <= 0;
       if (qty > 0 && (materialMissing || laborMissing)) {
         unpricedItemCount += 1;
       }
@@ -961,32 +894,16 @@ export default function BuildingCalculatorScreen({
 
     const detailedTotal = detailedMaterialTotal + detailedLaborTotal;
 
-    // Legacy allowances cover their mapped materials once; itemized labor remains included.
-    const concreteCost = concrete * v('concretePrice');
-    const blockCost = blocks * v('blockPrice');
-    const plasterCost = plasterArea * v('plasterPrice');
-    const tileCost = tileArea * v('tilePrice');
-    const paintCost = paintLitres * v('paintPrice');
-    const waterproofCost = waterproofArea * v('waterproofPrice');
-    const electricalCost = v('electrical') * v('electricalPrice');
-    const plumbingCost = v('plumbing') * v('plumbingPrice');
-
-    const basicMaterialTotal =
-      concreteCost +
-      blockCost +
-      plasterCost +
-      tileCost +
-      paintCost +
-      waterproofCost +
-      electricalCost +
-      plumbingCost;
-
-    // Detailed materials above exclude every material already covered by a
-    // legacy allowance, preventing duplicate charges for the same work.
-    const materialTotal = basicMaterialTotal + detailedMaterialTotal;
-    const labor = v('labor') + detailedLaborTotal;
+    // The detailed bill of quantities is the sole source for trade materials
+    // and labor. Project-wide equipment and other costs remain separate.
+    const materialTotal = detailedMaterialTotal;
+    const labor = detailedLaborTotal;
     const equipment = v('equipment');
     const extra = v('extra');
+
+    // Keep category subtotals reconcilable with the project subtotal.
+    categoryTotals.other =
+      (categoryTotals.other || 0) + equipment + extra;
 
     const subtotal = materialTotal + labor + equipment + extra;
     const reserve = subtotal * (v('contingency') / 100);
@@ -1215,19 +1132,6 @@ export default function BuildingCalculatorScreen({
         </>
       )}
 
-      {section(
-        t.services,
-        <>
-          {(
-            [
-              ['electrical', t.electrical],
-              ['plumbing', t.plumbing],
-            ] as [string, string][]
-          ).map(([key, label]) =>
-            field(key, label, values[key], value => updateValue(key, value))
-          )}
-        </>
-      )}
 
       {section(
         t.prices,
@@ -1272,44 +1176,7 @@ export default function BuildingCalculatorScreen({
                   const qty = Number(detailedValues[`${item.id}Qty`] || 0);
                   const material = Number(detailedValues[`${item.id}Material`] || 0);
                   const labor = Number(detailedValues[`${item.id}Labor`] || 0);
-                  const legacyRateKey: Record<string, string> = {
-                    footingConcrete: 'concretePrice',
-                    columnConcrete: 'concretePrice',
-                    beamConcrete: 'concretePrice',
-                    slabConcrete: 'concretePrice',
-                    externalBlocks: 'blockPrice',
-                    internalBlocks: 'blockPrice',
-                    internalPlaster: 'plasterPrice',
-                    externalPlaster: 'plasterPrice',
-                    floorTiles: 'tilePrice',
-                    interiorPaint: 'paintPrice',
-                    exteriorPaint: 'paintPrice',
-                    roofWaterproofing: 'waterproofPrice',
-                    lightingPoints: 'electricalPrice',
-                    singleSockets: 'electricalPrice',
-                    doubleSockets: 'electricalPrice',
-                    acPoints: 'electricalPrice',
-                    waterHeaterPoints: 'electricalPrice',
-                    tvPoints: 'electricalPrice',
-                    internetPoints: 'electricalPrice',
-                    switchPoints: 'electricalPrice',
-                    distributionBoard: 'electricalPrice',
-                    electricalCables: 'electricalPrice',
-                    electricalConduits: 'electricalPrice',
-                    grounding: 'electricalPrice',
-                    coldWaterPoints: 'plumbingPrice',
-                    hotWaterPoints: 'plumbingPrice',
-                    toiletConnections: 'plumbingPrice',
-                    showerConnections: 'plumbingPrice',
-                    basinConnections: 'plumbingPrice',
-                    kitchenConnections: 'plumbingPrice',
-                    drainagePipes: 'plumbingPrice',
-                    waterPipes: 'plumbingPrice',
-                  }[item.id];
-                  const legacyMaterialCovered =
-                    !!legacyRateKey && Number(values[legacyRateKey] || 0) > 0;
-                  const itemTotal =
-                    qty * ((legacyMaterialCovered ? 0 : material) + labor);
+                  const itemTotal = qty * (material + labor);
 
                   return (
                     <View key={item.id} style={styles.detailedItem}>
@@ -1408,8 +1275,6 @@ export default function BuildingCalculatorScreen({
             labelForUnits(t.waterproofArea, units),
             `${quantity(displayArea(result.waterproofArea, units))} ${units === 'imperial' ? 'ft²' : 'm²'}`
           )}
-          {resultRow(t.electricalPoints, quantity(result.electrical))}
-          {resultRow(t.plumbingPoints, quantity(result.plumbing))}
 
           <View style={styles.resultDivider} />
           {resultRow(t.materialTotal, money(result.materialTotal))}
