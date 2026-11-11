@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { estimateBuildingQuantities } from './buildingQuantityEstimator';
+import { CONSTRUCTION_MARKET_BENCHMARKS } from '../data/constructionMarketBenchmarks';
 import {
   View,
   Text,
@@ -1179,9 +1180,35 @@ export default function BuildingCalculatorScreen({
           ))}
         </View>
         {selectedCountry !== 'LB' && (
-          <View style={styles.warningBox}>
-            <Text style={styles.warningText}>{t.ratesPending}</Text>
-          </View>
+          <>
+            <View style={styles.warningBox}>
+              <Text style={styles.warningText}>{t.ratesPending}</Text>
+            </View>
+            <View style={styles.marketBenchmarks}>
+              <Text style={styles.marketBenchmarksTitle}>
+                {language === 'ar' ? 'مؤشرات أسعار السوق المنشورة' : language === 'fr' ? 'Repères de prix du marché' : 'Published market price benchmarks'}
+              </Text>
+              {CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].benchmarks.map((benchmark, index) => (
+                <View key={`${benchmark.item}-${index}`} style={styles.marketBenchmarkRow}>
+                  <View style={styles.marketBenchmarkText}>
+                    <Text style={styles.marketBenchmarkItem}>{benchmark.item}</Text>
+                    <Text style={styles.marketBenchmarkNote}>{benchmark.note || benchmark.source.replace(/^https?:\\/\\//, '')}</Text>
+                  </View>
+                  <View style={styles.marketBenchmarkValueWrap}>
+                    <Text style={styles.marketBenchmarkValue}>
+                      {new Intl.NumberFormat(undefined, { style: 'currency', currency: CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].currency }).format(benchmark.value)}
+                    </Text>
+                    <Text style={styles.marketBenchmarkUnit}>{benchmark.unit}</Text>
+                    <Text style={styles.marketBenchmarkStatus}>
+                      {benchmark.status === 'published'
+                        ? (language === 'ar' ? 'منشور' : language === 'fr' ? 'Publié' : 'Published')
+                        : (language === 'ar' ? 'مسح سوق' : language === 'fr' ? 'Enquête marché' : 'Market survey')}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </>
         )}
       </View>
 
@@ -1521,6 +1548,63 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     letterSpacing: 0.8,
     marginBottom: 14,
+  },
+  marketBenchmarks: {
+    backgroundColor: '#20262d',
+    borderWidth: 1,
+    borderColor: '#51432f',
+    borderRadius: 11,
+    padding: 12,
+    marginTop: 10,
+    marginBottom: 14,
+  },
+  marketBenchmarksTitle: {
+    color: GOLD,
+    fontSize: 12,
+    fontWeight: '900',
+    marginBottom: 10,
+  },
+  marketBenchmarkRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 10,
+    paddingVertical: 9,
+    borderTopWidth: 1,
+    borderTopColor: '#3b4145',
+  },
+  marketBenchmarkText: {
+    flex: 1,
+  },
+  marketBenchmarkItem: {
+    color: '#f1f1f1',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  marketBenchmarkNote: {
+    color: '#aeb4bb',
+    fontSize: 9,
+    lineHeight: 14,
+    marginTop: 3,
+  },
+  marketBenchmarkValueWrap: {
+    alignItems: 'flex-end',
+    maxWidth: 125,
+  },
+  marketBenchmarkValue: {
+    color: GOLD,
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  marketBenchmarkUnit: {
+    color: '#c5c9ce',
+    fontSize: 9,
+    marginTop: 2,
+  },
+  marketBenchmarkStatus: {
+    color: '#9ca3af',
+    fontSize: 8,
+    marginTop: 3,
   },
   countryOptions: {
     flexDirection: 'row',
