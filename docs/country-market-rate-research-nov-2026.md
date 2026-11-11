@@ -42,6 +42,15 @@ The listed manpower rates include visa, accommodation and transport by the suppl
 
 The procurement quantities are large and the source is 2025; do not treat these as small-residential-project quotations.
 
+**Additional measured-work references (Turner & Townsend, 2025):**
+- Footing excavation: AED 25/m³ Dubai.
+- Beam reinforcement measured/installed: AED 5,000/t Dubai (not the supply-only rebar rate).
+- 200 mm solid-block wall: AED 180/m² Dubai.
+- Standard ceramic floor tiles: AED 150/m² Dubai.
+- Single solid-core door with frame and hardware: AED 4,000 each Dubai.
+
+These are measured rates from larger projects and should not be treated as small-villa quotations.
+
 Sources:
 - QS Mind Dubai labor: https://prices.qsmind.app/en/uae/labour
 - Turner & Townsend UAE market intelligence 2025: https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance
@@ -65,6 +74,17 @@ The same data source reports official national averages for 37 material specific
 - Machine excavation in normal soil, including loading and spreading within site: SAR 21.50/m³.
 - Internal cement plaster supply and apply: SAR 26/m².
 - Structural frame with materials: SAR 613/m² of built-up area, with excavation and finishes excluded; specification and exclusions must be read before comparison.
+
+**Additional installed-work references (QS Mind, Riyadh):**
+- Machine excavation in normal soil: SAR 21.50/m³, including machine, fuel and operator; excludes rock and off-site disposal.
+- Internal cement plaster supply and apply: SAR 26/m².
+- Porcelain floor tiling supply and install: SAR 67.50/m².
+- Internal emulsion painting supply and apply: SAR 22/m².
+- 4 mm roof waterproofing membrane supply and install: SAR 35/m².
+- Gypsum-board ceiling supply and install: SAR 82.50/m².
+- Lighting point supply and install: SAR 85/point; socket point SAR 97.50/point.
+
+These are Riyadh subcontract benchmarks with defined specifications. Installed prices must not be entered as material-only rates.
 
 Sources:
 - GASTAT national material averages via iBuild: https://ibuild.sa/material-prices
@@ -95,8 +115,20 @@ BoqCalc is a commercial pricing source, not an official authority. Use as a cros
 
 Differences between these values and smaller-job listings likely reflect specification, date, procurement scale and source methodology; do not average them blindly.
 
+**Additional illustrative BOQ references (Qatar quantity-surveying provider):**
+- Ordinary soil excavation: QAR 28/m³.
+- C15 blinding concrete: QAR 310/m³.
+- C35 reinforced foundation concrete: QAR 395/m³.
+- 200 mm hollow blockwork: QAR 62/m².
+- 15 mm internal cement plaster: QAR 34/m².
+- Porcelain floor tiling: QAR 145/m².
+- Two-coat emulsion paint: QAR 16/m².
+
+These are sample BOQ rates, not a government tariff or a guarantee of current contractor pricing. Scope and procurement quantities vary.
+
 Sources:
 - Ashghal price list: https://www.ashghal.gov.qa/en/Services/Pages/PriceList.aspx
+- Qatar sample quantity-surveying BOQ: https://www.carbonblueglobal.com/services/quantity-surveying
 - BoqCalc Qatar: https://boqcalc.com/countries/qatar
 - Turner & Townsend Qatar market intelligence 2025: https://marketintelligence.turnerandtownsend.com/qatar-mi-2025/construction-cost-performance
 
