@@ -819,7 +819,7 @@ export default function BuildingCalculatorScreen({
       return next;
     });
     setResult(null);
-  }, [automaticQuantities]);
+  }, [automaticQuantities, selectedCountry]);
 
   const updateFloor = (id: number, key: keyof FloorData, value: string) => {
     setFloors(old =>
@@ -1054,11 +1054,6 @@ export default function BuildingCalculatorScreen({
   }, [floors, values, detailedValues, units]);
 
   const calculate = () => {
-    if (selectedCountry !== 'LB') {
-      setError(t.ratesPending);
-      setResult(null);
-      return;
-    }
     if (!calculations) {
       setError(t.invalid);
       setResult(null);
