@@ -121,9 +121,9 @@ const translations = {
     homeowner: 'Homeowner mode: enter building dimensions and use contractor-supplied specifications and prices.',
     noFloors: 'At least one floor is required.',
     detailedCosts: 'DETAILED ITEMIZED COSTS',
-    detailedHint: 'Enter the quantity, material price per unit and labor price per unit for each item. Leave unused items at zero.',
+    detailedHint: 'Enter each quantity, material or service price per unit, and labor price per unit. Leave unused items at zero.',
     quantity: 'Quantity',
-    materialUnit: 'Material / unit ($)',
+    materialUnit: 'Material or service / unit ($)',
     laborUnit: 'Labor / unit ($)',
     itemTotal: 'Item total',
     categoryTotal: 'Category subtotal',
@@ -211,9 +211,9 @@ const translations = {
     homeowner: 'وضع صاحب المنزل: أدخل أبعاد المبنى واستخدم المواصفات والأسعار المقدمة من المقاول.',
     noFloors: 'يجب إضافة طابق واحد على الأقل.',
     detailedCosts: 'تفصيل تكاليف جميع البنود',
-    detailedHint: 'أدخل الكمية وسعر المواد للوحدة وأجرة العمل للوحدة لكل بند. اترك البنود غير المستخدمة صفراً.',
+    detailedHint: 'أدخل الكمية وسعر المواد أو الخدمة للوحدة وأجرة العمل للوحدة لكل بند. اترك البنود غير المستخدمة صفراً.',
     quantity: 'الكمية',
-    materialUnit: 'المواد / الوحدة ($)',
+    materialUnit: 'المواد أو الخدمة / الوحدة ($)',
     laborUnit: 'العمل / الوحدة ($)',
     itemTotal: 'مجموع البند',
     categoryTotal: 'مجموع القسم',
@@ -301,9 +301,9 @@ const translations = {
     homeowner: 'Mode propriétaire : saisissez les dimensions et utilisez les spécifications et prix du constructeur.',
     noFloors: 'Au moins un étage est requis.',
     detailedCosts: 'COÛTS DÉTAILLÉS PAR POSTE',
-    detailedHint: 'Saisissez la quantité, le prix des matériaux par unité et le coût de main-d’œuvre par unité. Laissez les postes inutilisés à zéro.',
+    detailedHint: 'Saisissez la quantité, le prix des matériaux ou du service par unité et le coût de main-d’œuvre par unité. Laissez les postes inutilisés à zéro.',
     quantity: 'Quantité',
-    materialUnit: 'Matériaux / unité ($)',
+    materialUnit: 'Matériaux ou service / unité ($)',
     laborUnit: 'Main-d’œuvre / unité ($)',
     itemTotal: 'Total du poste',
     categoryTotal: 'Total de catégorie',
@@ -873,10 +873,7 @@ export default function BuildingCalculatorScreen({
 
     const lastFloor = floorData[floorData.length - 1];
 
-    const waterproofArea =
-      v('waterproof') > 0
-        ? v('waterproof')
-        : lastFloor.length * lastFloor.width;
+    const waterproofArea = v('waterproof');
 
     let detailedMaterialTotal = 0;
     let detailedLaborTotal = 0;
@@ -892,7 +889,7 @@ export default function BuildingCalculatorScreen({
       const laborCost = qty * labor;
       const itemTotal = materialCost + laborCost;
 
-      // Every active line item must have both a material and labor rate.
+      // Check only the rate types required by each active line item.
       const materialMissing = item.requiresMaterial !== false && material <= 0;
       const laborMissing = item.requiresLabor !== false && labor <= 0;
       if (qty > 0 && (materialMissing || laborMissing)) {
@@ -945,8 +942,6 @@ export default function BuildingCalculatorScreen({
       tileArea,
       paintLitres,
       waterproofArea,
-      electrical: v('electrical'),
-      plumbing: v('plumbing'),
       detailedMaterialTotal,
       detailedLaborTotal,
       detailedTotal,
