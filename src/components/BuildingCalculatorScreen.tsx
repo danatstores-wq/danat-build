@@ -115,7 +115,7 @@ const translations = {
     incompleteValue: '—',
     total: 'TOTAL ESTIMATED COST',
     note: 'IMPORTANT ENGINEERING NOTE',
-    warning: 'This is a preliminary quantity and cost estimate, not a structural design. Footing, column, beam, slab and reinforcement specifications must be supplied or approved by a qualified structural engineer. Electrical and plumbing quantities are allowances based on the entered point counts.',
+    warning: 'This is a preliminary quantity and cost estimate, not a structural design. Footing, column, beam, slab and reinforcement specifications must be supplied or approved by a qualified structural engineer. Electrical and plumbing quantities are preliminary floor-area allowances and must be checked against the project layouts.',
     invalid: 'Please enter valid positive dimensions and quantities.',
     professional: 'Professional mode: enter engineering specifications and actual unit prices.',
     homeowner: 'Homeowner mode: enter building dimensions and use contractor-supplied specifications and prices.',
@@ -205,7 +205,7 @@ const translations = {
     incompleteValue: '—',
     total: 'التكلفة الإجمالية التقديرية',
     note: 'ملاحظة هندسية مهمة',
-    warning: 'هذا تقدير أولي للكميات والتكاليف وليس تصميماً إنشائياً. يجب أن يحدد أو يعتمد مهندس إنشائي مؤهل أبعاد القواعد والأعمدة والجسور والبلاطات وحديد التسليح. كميات الكهرباء والسباكة تقديرية وفق عدد النقاط المدخل.',
+    warning: 'هذا تقدير أولي للكميات والتكاليف وليس تصميماً إنشائياً. يجب أن يحدد أو يعتمد مهندس إنشائي مؤهل أبعاد القواعد والأعمدة والجسور والبلاطات وحديد التسليح. كميات الكهرباء والسباكة تقديرية حسب مساحة الطوابق ويجب مراجعتها وفق مخططات المشروع.',
     invalid: 'يرجى إدخال أبعاد وكميات صحيحة وموجبة.',
     professional: 'الوضع المهني: أدخل المواصفات الهندسية وأسعار الوحدات الفعلية.',
     homeowner: 'وضع صاحب المنزل: أدخل أبعاد المبنى واستخدم المواصفات والأسعار المقدمة من المقاول.',
@@ -295,7 +295,7 @@ const translations = {
     incompleteValue: '—',
     total: 'COÛT TOTAL ESTIMÉ',
     note: 'NOTE TECHNIQUE IMPORTANTE',
-    warning: 'Cette estimation préliminaire ne constitue pas une conception structurelle. Les dimensions des semelles, poteaux, poutres, dalles et armatures doivent être fournies ou validées par un ingénieur qualifié. Les quantités électriques et de plomberie sont indicatives.',
+    warning: 'Cette estimation préliminaire ne constitue pas une conception structurelle. Les dimensions des semelles, poteaux, poutres, dalles et armatures doivent être fournies ou validées par un ingénieur qualifié. Les quantités électriques et de plomberie sont estimées selon la surface des étages et doivent être vérifiées sur les plans du projet.',
     invalid: 'Veuillez saisir des dimensions et quantités positives valides.',
     professional: 'Mode professionnel : saisissez les spécifications techniques et les prix réels.',
     homeowner: 'Mode propriétaire : saisissez les dimensions et utilisez les spécifications et prix du constructeur.',
@@ -504,7 +504,6 @@ const initialValues: Record<string, string> = {
   stairVolume: '2',
   blockLength: '40',
   blockHeight: '20',
-  plaster: '2',
   paintCoats: '2',
   paintCoverage: '10',
   tileWaste: '10',
@@ -857,7 +856,7 @@ export default function BuildingCalculatorScreen({
         ? Math.ceil((netWallArea / blockFaceArea) * 1.05)
         : 0;
 
-    const plasterArea = netWallArea * v('plaster');
+    const plasterArea = netWallArea * 2;
 
     const tileArea =
       floorArea * (1 + v('tileWaste') / 100);
@@ -1141,7 +1140,6 @@ export default function BuildingCalculatorScreen({
             [
               ['blockLength', t.blockLength],
               ['blockHeight', t.blockHeight],
-              ['plaster', t.plaster],
               ['paintCoats', t.paintCoats],
               ['paintCoverage', t.paintCoverage],
               ['tileWaste', t.tileWaste],
