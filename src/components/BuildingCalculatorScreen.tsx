@@ -732,7 +732,14 @@ export default function BuildingCalculatorScreen({
       [selectedCountry]: updater(old[selectedCountry]),
     }));
   };
-  const manuallyEditedQuantities = useRef<Set<string>>(new Set());
+  const manuallyEditedQuantities = useRef<Record<CountryCode, Set<string>>>({
+    LB: new Set(),
+    AE: new Set(),
+    SA: new Set(),
+    QA: new Set(),
+    KW: new Set(),
+    OM: new Set(),
+  });
   const [result, setResult] = useState<Record<string, any> | null>(null);
   const [error, setError] = useState('');
   const previousUnits = useRef<'metric' | 'imperial'>('metric');
@@ -800,7 +807,7 @@ export default function BuildingCalculatorScreen({
 
   const updateDetailedValue = (key: string, value: string) => {
     if (key.endsWith('Qty')) {
-      manuallyEditedQuantities.current.add(key);
+      manuallyEditedQuantities.current[selectedCountry].add(key);
     }
     setDetailedValues(old => ({ ...old, [key]: value }));
     setResult(null);
@@ -815,7 +822,7 @@ export default function BuildingCalculatorScreen({
     setDetailedValues(old => {
       const next = { ...old };
       Object.entries(automaticQuantities).forEach(([key, estimate]) => {
-        if (!manuallyEditedQuantities.current.has(key)) {
+        if (!manuallyEditedQuantities.current[selectedCountry].has(key)) {
           next[key] = estimate;
         }
       });
