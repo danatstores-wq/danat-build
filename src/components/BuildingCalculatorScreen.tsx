@@ -888,16 +888,39 @@ export default function BuildingCalculatorScreen({
 
     let detailedMaterialTotal = 0;
     let detailedLaborTotal = 0;
+    let unpricedItemCount = 0;
     const categoryTotals: Record<string, number> = {};
+
+    // These materials are already priced by the legacy allowance fields below.
+    // Keep their itemized labor, but do not add their material cost a second time.
+    const legacyCoveredMaterialIds = new Set([
+      'footingConcrete', 'columnConcrete', 'beamConcrete', 'slabConcrete',
+      'externalBlocks', 'internalBlocks',
+      'internalPlaster', 'externalPlaster',
+      'floorTiles', 'interiorPaint', 'exteriorPaint', 'roofWaterproofing',
+      'lightingPoints', 'singleSockets', 'doubleSockets', 'acPoints',
+      'waterHeaterPoints', 'tvPoints', 'internetPoints', 'switchPoints',
+      'distributionBoard', 'electricalCables', 'electricalConduits', 'grounding',
+      'coldWaterPoints', 'hotWaterPoints', 'toiletConnections',
+      'showerConnections', 'basinConnections', 'kitchenConnections',
+      'drainagePipes', 'waterPipes',
+    ]);
 
     COST_ITEMS.forEach(item => {
       const qty = Number(detailedValues[`${item.id}Qty`] || 0);
       const material = Number(detailedValues[`${item.id}Material`] || 0);
       const labor = Number(detailedValues[`${item.id}Labor`] || 0);
 
-      const materialCost = qty * material;
+      const rawMaterialCost = qty * material;
+      const materialCost = legacyCoveredMaterialIds.has(item.id)
+        ? 0
+        : rawMaterialCost;
       const laborCost = qty * labor;
       const itemTotal = materialCost + laborCost;
+
+      if (qty > 0 && (material <= 0 || labor <= 0)) {
+        unpricedItemCount += 1;
+      }
 
       detailedMaterialTotal += materialCost;
       detailedLaborTotal += laborCost;
@@ -907,7 +930,7 @@ export default function BuildingCalculatorScreen({
 
     const detailedTotal = detailedMaterialTotal + detailedLaborTotal;
 
-    // Preserve the original full-construction estimate.
+    // Legacy allowances cover their mapped materials once; itemized labor remains included.
     const concreteCost = concrete * v('concretePrice');
     const blockCost = blocks * v('blockPrice');
     const plasterCost = plasterArea * v('plasterPrice');
@@ -927,13 +950,9 @@ export default function BuildingCalculatorScreen({
       electricalCost +
       plumbingCost;
 
-    // Floor tiles are already included in the original tile estimate.
-    const additionalDetailedMaterials =
-      detailedMaterialTotal -
-      Number(detailedValues.floorTilesQty || 0) *
-      Number(detailedValues.floorTilesMaterial || 0);
-
-    const materialTotal = basicMaterialTotal + additionalDetailedMaterials;
+    // Detailed materials above exclude every material already covered by a
+    // legacy allowance, preventing duplicate charges for the same work.
+    const materialTotal = basicMaterialTotal + detailedMaterialTotal;
     const labor = v('labor') + detailedLaborTotal;
     const equipment = v('equipment');
     const extra = v('extra');
@@ -958,6 +977,7 @@ export default function BuildingCalculatorScreen({
       detailedLaborTotal,
       detailedTotal,
       categoryTotals,
+      unpricedItemCount,
       materialTotal,
       labor,
       equipment,
@@ -1338,8 +1358,34 @@ export default function BuildingCalculatorScreen({
 
           {resultRow(t.subtotal, money(result.subtotal))}
           {resultRow(t.reserve, money(result.reserve))}
+          {result.unpricedItemCount > 0 && (
+            <View style={styles.warningBox}>
+              <Text style={styles.warningTitle}>
+                {language === 'ar'
+                  ? 'تنبيه: أسعار غير مكتملة'
+                  : language === 'fr'
+                  ? 'Attention : tarifs incomplets'
+                  : 'Warning: incomplete rates'}
+              </Text>
+              <Text style={styles.warningText}>
+                {language === 'ar'
+                  ? `يوجد ${result.unpricedItemCount} بنداً مستخدماً ينقصه سعر مواد أو أجرة عمل. الإجمالي الحالي جزئي ولا يشمل هذه التكاليف الناقصة.`
+                  : language === 'fr'
+                  ? `${result.unpricedItemCount} postes utilisés n’ont pas de prix de matériaux ou de main-d’œuvre. Le total est partiel et exclut ces coûts manquants.`
+                  : `${result.unpricedItemCount} active line items are missing a material rate or labor rate. The displayed total is partial and excludes those missing costs.`}
+              </Text>
+            </View>
+          )}
           <View style={styles.totalBox}>
-            <Text style={styles.totalLabel}>{t.total}</Text>
+            <Text style={styles.totalLabel}>
+              {result.unpricedItemCount > 0
+                ? (language === 'ar'
+                    ? 'الإجمالي الجزئي التقديري'
+                    : language === 'fr'
+                    ? 'TOTAL PARTIEL ESTIMÉ'
+                    : 'PARTIAL ESTIMATED COST')
+                : t.total}
+            </Text>
             <Text style={styles.totalValue}>{money(result.total)}</Text>
           </View>
         </View>
