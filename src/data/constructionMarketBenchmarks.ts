@@ -23,9 +23,15 @@ export type ConstructionMarketBenchmarks = {
 };
 
 export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
-  'AE' | 'SA' | 'QA' | 'KW' | 'OM',
+  'LB' | 'AE' | 'SA' | 'QA' | 'KW' | 'OM',
   ConstructionMarketBenchmarks
 > = {
+  LB: {
+    currency: 'USD',
+    // Lebanon planning allowances remain in the detailed BOQ. No separate
+    // published benchmark series is shown until local sources are documented.
+    benchmarks: [],
+  },
   AE: {
     currency: 'AED',
     benchmarks: [
@@ -35,8 +41,8 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
       { item: 'formwork carpenter', value: 206, unit: '9-hour day', status: 'market-survey', source: 'https://prices.qsmind.app/en/uae/labour', checkedAt: '2026-11-11', note: 'Dubai labor survey; do not treat as a per-m² installed rate.' },
       { item: 'plasterer', value: 164, unit: '8-hour day', status: 'market-survey', source: 'https://prices.qsmind.app/en/uae/labour', checkedAt: '2026-11-11', note: 'Dubai labor survey; supplier-provided accommodation/transport assumptions apply.' },
       { item: 'electrician', value: 208, unit: '8-hour day', status: 'market-survey', source: 'https://prices.qsmind.app/en/uae/labour', checkedAt: '2026-11-11' },
-      { item: 'plumber', value: 190, unit: '8-hour day', status: 'market-survey', source: 'https://prices.qsmind.app/en/uae/labour', checkedAt: '2026-11-11' },
-      { item: 'painter', value: 150, unit: '8-hour day', status: 'market-survey', source: 'https://prices.qsmind.app/en/uae/labour', checkedAt: '2026-11-11' },
+      { item: 'plumber', value: 208, unit: '8-hour day', status: 'market-survey', source: 'https://prices.qsmind.app/en/uae/labour', checkedAt: '2026-11-11', note: 'Dubai labour survey; AED 208 per 8-hour working day.' },
+      { item: 'painter', value: 190, unit: '8-hour day', status: 'market-survey', source: 'https://prices.qsmind.app/en/uae/labour', checkedAt: '2026-11-11', note: 'Dubai labour survey; AED 190 per 8-hour working day.' },
       { item: 'footing excavation', value: 25, unit: 'm³ installed', status: 'market-survey', source: 'https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance', checkedAt: '2026-11-11', note: 'Dubai 2025 measured rate; large-project reference, excludes unrelated earthworks.' },
       { item: 'reinforcement', value: 5000, unit: 'tonne installed', status: 'market-survey', source: 'https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance', checkedAt: '2026-11-11', note: 'Dubai 2025 beam reinforcement measured rate; not steel supply price.' },
       { item: 'blockwork', value: 180, unit: 'm² installed', status: 'market-survey', source: 'https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance', checkedAt: '2026-11-11', note: 'Dubai 2025, 200 mm solid concrete block wall, bulk project.' },
@@ -154,18 +160,18 @@ export const COUNTRY_ITEM_RATE_DEFAULTS: Partial<
     tvPoints: { material: 0, labor: 31.2 },
     internetPoints: { material: 0, labor: 31.2 },
     switchPoints: { material: 0, labor: 31.2 },
-    coldWaterPoints: { material: 0, labor: 35.63 }, // 1.5 plumber hours/point × AED190/8h
-    hotWaterPoints: { material: 0, labor: 35.63 },
-    toiletConnections: { material: 0, labor: 35.63 },
-    showerConnections: { material: 0, labor: 35.63 },
-    basinConnections: { material: 0, labor: 35.63 },
-    kitchenConnections: { material: 0, labor: 35.63 },
+    coldWaterPoints: { material: 0, labor: 39 }, // 1.5 plumber hours/point × AED208/8h
+    hotWaterPoints: { material: 0, labor: 39 },
+    toiletConnections: { material: 0, labor: 39 },
+    showerConnections: { material: 0, labor: 39 },
+    basinConnections: { material: 0, labor: 39 },
+    kitchenConnections: { material: 0, labor: 39 },
     floorTiles: { material: 0, labor: 7.88 }, // 0.45 skilled-trade hours/m² × AED17.50/hr
     falseCeiling: { material: 20, labor: 7.88 }, // T&T plasterboard material; frame excluded
-    wallPrimer: { material: 0, labor: 2.25 }, // 0.12 painter hours/m² × AED150/8h
-    wallPutty: { material: 0, labor: 2.25 },
-    interiorPaint: { material: 0, labor: 2.25 },
-    exteriorPaint: { material: 0, labor: 2.25 },
+    wallPrimer: { material: 0, labor: 2.85 }, // 0.12 painter hours/m² × AED190/8h
+    wallPutty: { material: 0, labor: 2.85 },
+    interiorPaint: { material: 0, labor: 2.85 },
+    exteriorPaint: { material: 0, labor: 2.85 },
   },
   SA: {
     excavation: { material: 21.5, labor: 0 }, // QS Mind machine excavation, SAR/m³ installed

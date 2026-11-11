@@ -79,6 +79,8 @@ const NOTE_LABELS: Record<string, [string, string]> = {
   'Dubai indicative index, October 2026, excluding VAT.': ['مؤشر استرشادي لدبي، أكتوبر 2026، غير شامل ضريبة القيمة المضافة.', 'Indice indicatif de Dubaï, octobre 2026, hors TVA.'],
   'Emirates Steel delivered-to-Dubai indicative benchmark; ex-works and retail quotes differ.': ['سعر استرشادي من حديد الإمارات مع التوصيل إلى دبي؛ تختلف أسعار المصنع والتجزئة.', 'Référence indicative d’Emirates Steel livrée à Dubaï ; les prix départ usine et de détail diffèrent.'],
   'Dubai indicative index, excluding VAT.': ['مؤشر استرشادي لدبي، غير شامل ضريبة القيمة المضافة.', 'Indice indicatif de Dubaï, hors TVA.'],
+  'Dubai labour survey; AED 208 per 8-hour working day.': ['مسح أجور في دبي؛ 208 دراهم عن يوم عمل مدته 8 ساعات.', 'Enquête salariale à Dubaï ; 208 AED pour une journée de 8 heures.'],
+  'Dubai labour survey; AED 190 per 8-hour working day.': ['مسح أجور في دبي؛ 190 درهماً عن يوم عمل مدته 8 ساعات.', 'Enquête salariale à Dubaï ; 190 AED pour une journée de 8 heures.'],
   'Dubai labor survey; do not treat as a per-m² installed rate.': ['مسح أجور في دبي؛ لا يُعتمد كسعر تنفيذ للمتر المربع.', 'Enquête salariale à Dubaï ; ne pas considérer comme un prix posé au m².'],
   'Dubai labor survey; supplier-provided accommodation/transport assumptions apply.': ['مسح أجور في دبي؛ يفترض توفير السكن والنقل من جهة صاحب العمل.', 'Enquête salariale à Dubaï ; suppose que le logement et le transport sont fournis par l’employeur.'],
   'Dubai 2025 measured rate; large-project reference, excludes unrelated earthworks.': ['سعر مقاس في دبي لعام 2025؛ مرجع للمشاريع الكبيرة ولا يشمل أعمالاً ترابية أخرى.', 'Prix mesuré à Dubaï en 2025 ; référence pour grands projets, hors autres travaux de terrassement.'],
@@ -137,4 +139,47 @@ export function marketBenchmarkLabel(value: string, language: MarketBenchmarkLan
   if (language === 'en') return value;
   const translated = ITEM_LABELS[value] || UNIT_LABELS[value] || NOTE_LABELS[value];
   return translated ? translated[language === 'ar' ? 0 : 1] : value;
+}
+
+
+const SOURCE_LABELS: Record<string, [string, string]> = {
+  'prices.qsmind.app': ['QSMind – مسح أجور السوق', 'QSMind – enquête salariale'],
+  'quantohq.com': ['QuantoHQ – مؤشر أسعار الإمارات', 'QuantoHQ – indice des prix des Émirats'],
+  'marketintelligence.turnerandtownsend.com': ['Turner & Townsend – بيانات تكاليف البناء', 'Turner & Townsend – données de coûts de construction'],
+  'ibuild.sa': ['iBuild / GASTAT – أسعار المواد', 'iBuild / GASTAT – prix des matériaux'],
+  'boqcalc.com': ['BOQCalc – تقديرات سوق قطر', 'BOQCalc – estimations du marché qatari'],
+  'carbonblueglobal.com': ['CarbonBlue – نموذج جدول كميات', 'CarbonBlue – exemple de bordereau'],
+  'gccpricing.com': ['GCCPricing – مؤشر أسعار إقليمي', 'GCCPricing – indice régional des prix'],
+  'online.nicbm.com': ['NIC Kuwait – قائمة أسعار المصنع', 'NIC Kuwait – catalogue tarifaire du fabricant'],
+  'tajhrservices.com': ['Taj HR Services – دليل الأجور', 'Taj HR Services – guide des salaires'],
+  'madaar.om': ['Madaar – بوابة الموردين', 'Madaar – portail fournisseurs'],
+  'shabiba.com': ['الشبيبة – تقرير أسعار محلي', 'Shabiba – article sur les prix locaux'],
+  'binaasouq.com': ['BinaaSouq – أسعار موردين محليين', 'BinaaSouq – prix de fournisseurs locaux'],
+  'mcp.om': ['MCP Oman – أسعار المصنع المنشورة', 'MCP Oman – prix publiés du fabricant'],
+};
+
+export function marketBenchmarkSourceLabel(source: string, language: MarketBenchmarkLanguage): string {
+  let host = source.split('://').pop()?.split('/')[0] ?? source;
+  if (host.startsWith('www.')) host = host.slice(4);
+  const key = Object.keys(SOURCE_LABELS).find(domain => host === domain || host.endsWith('.' + domain));
+  if (!key) return language === 'ar' ? 'عرض المصدر' : language === 'fr' ? 'Consulter la source' : 'Open source';
+  if (language === 'en') {
+    const labels: Record<string, string> = {
+      'prices.qsmind.app': 'QSMind – labour market survey',
+      'quantohq.com': 'QuantoHQ – UAE price index',
+      'marketintelligence.turnerandtownsend.com': 'Turner & Townsend – construction cost data',
+      'ibuild.sa': 'iBuild / GASTAT – material prices',
+      'boqcalc.com': 'BOQCalc – Qatar market estimates',
+      'carbonblueglobal.com': 'CarbonBlue – sample bill of quantities',
+      'gccpricing.com': 'GCCPricing – regional price index',
+      'online.nicbm.com': 'NIC Kuwait – manufacturer price list',
+      'tajhrservices.com': 'Taj HR Services – salary guide',
+      'madaar.om': 'Madaar – supplier gateway',
+      'shabiba.com': 'Shabiba – local price report',
+      'binaasouq.com': 'BinaaSouq – local supplier prices',
+      'mcp.om': 'MCP Oman – published manufacturer prices',
+    };
+    return labels[key];
+  }
+  return SOURCE_LABELS[key][language === 'ar' ? 0 : 1];
 }

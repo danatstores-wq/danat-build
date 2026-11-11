@@ -5,7 +5,7 @@ import {
   COUNTRY_ITEM_RATE_DEFAULTS,
   MARKET_RATE_LABELS,
 } from '../data/constructionMarketBenchmarks';
-import { marketBenchmarkLabel } from '../data/marketBenchmarkTranslations';
+import { marketBenchmarkLabel, marketBenchmarkSourceLabel } from '../data/marketBenchmarkTranslations';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import {
   Pressable,
   StyleSheet,
   ScrollView,
+  Linking,
 } from 'react-native';
 
 type Language = 'en' | 'ar' | 'fr';
@@ -1295,37 +1296,52 @@ export default function BuildingCalculatorScreen({
             </Pressable>
           ))}
         </View>
-        {selectedCountry !== 'LB' && (
-          <>
+        <>
+          {selectedCountry !== 'LB' && (
             <View style={styles.warningBox}>
               <Text style={styles.warningText}>{t.ratesPending}</Text>
             </View>
-            <View style={styles.marketBenchmarks}>
-              <Text style={styles.marketBenchmarksTitle}>
-                {language === 'ar' ? 'مؤشرات أسعار السوق المنشورة' : language === 'fr' ? 'Repères de prix du marché' : 'Published market price benchmarks'}
+          )}
+          <View style={styles.marketBenchmarks}>
+            <Text style={styles.marketBenchmarksTitle}>
+              {language === 'ar' ? 'مؤشرات أسعار السوق' : language === 'fr' ? 'Repères de prix du marché' : 'Market price benchmarks'}
+            </Text>
+            {CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].benchmarks.length === 0 ? (
+              <Text style={styles.marketBenchmarkNote}>
+                {language === 'ar'
+                  ? 'تُعرض أسعار لبنان الافتراضية بالدولار ضمن جدول التكاليف التفصيلي كتقديرات تخطيطية محلية. لم تُضف بعد قائمة منفصلة من مؤشرات السوق المنشورة الموثقة؛ لذلك لا نعرض أسعاراً غير متحقق منها.'
+                  : language === 'fr'
+                  ? 'Les tarifs libanais par défaut en USD figurent dans le bordereau détaillé comme estimations locales de planification. Aucune série distincte de références de marché publiées et vérifiées n’a encore été ajoutée ; aucun prix non vérifié n’est donc affiché.'
+                  : 'Lebanon default USD rates remain in the detailed cost table as local planning allowances. A separate verified published-market benchmark series has not yet been added, so no unverified prices are displayed.'}
               </Text>
-              {CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].benchmarks.map((benchmark, index) => (
-                <View key={`${benchmark.item}-${index}`} style={styles.marketBenchmarkRow}>
-                  <View style={styles.marketBenchmarkText}>
-                    <Text style={styles.marketBenchmarkItem}>{marketBenchmarkLabel(benchmark.item, language)}</Text>
-                    <Text style={styles.marketBenchmarkNote}>{benchmark.note ? marketBenchmarkLabel(benchmark.note, language) : benchmark.source.replace('https://', '').replace('http://', '')}</Text>
-                  </View>
-                  <View style={styles.marketBenchmarkValueWrap}>
-                    <Text style={styles.marketBenchmarkValue}>
-                      {new Intl.NumberFormat(undefined, { style: 'currency', currency: CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].currency }).format(benchmark.value)}
+            ) : CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].benchmarks.map((benchmark, index) => (
+              <View key={`${benchmark.item}-${index}`} style={styles.marketBenchmarkRow}>
+                <View style={styles.marketBenchmarkText}>
+                  <Text style={styles.marketBenchmarkItem}>{marketBenchmarkLabel(benchmark.item, language)}</Text>
+                  {!!benchmark.note && (
+                    <Text style={styles.marketBenchmarkNote}>{marketBenchmarkLabel(benchmark.note, language)}</Text>
+                  )}
+                  <Pressable onPress={() => Linking.openURL(benchmark.source)}>
+                    <Text style={styles.marketBenchmarkSource}>
+                      {language === 'ar' ? 'المصدر: ' : language === 'fr' ? 'Source : ' : 'Source: '}{marketBenchmarkSourceLabel(benchmark.source, language)}
                     </Text>
-                    <Text style={styles.marketBenchmarkUnit}>{marketBenchmarkLabel(benchmark.unit, language)}</Text>
-                    <Text style={styles.marketBenchmarkStatus}>
-                      {benchmark.status === 'published'
-                        ? (language === 'ar' ? 'منشور' : language === 'fr' ? 'Publié' : 'Published')
-                        : (language === 'ar' ? 'مسح سوق' : language === 'fr' ? 'Enquête marché' : 'Market survey')}
-                    </Text>
-                  </View>
+                  </Pressable>
                 </View>
-              ))}
-            </View>
-          </>
-        )}
+                <View style={styles.marketBenchmarkValueWrap}>
+                  <Text style={styles.marketBenchmarkValue}>
+                    {new Intl.NumberFormat(undefined, { style: 'currency', currency: CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].currency }).format(benchmark.value)}
+                  </Text>
+                  <Text style={styles.marketBenchmarkUnit}>{marketBenchmarkLabel(benchmark.unit, language)}</Text>
+                  <Text style={styles.marketBenchmarkStatus}>
+                    {benchmark.status === 'published'
+                      ? (language === 'ar' ? 'منشور' : language === 'fr' ? 'Publié' : 'Published')
+                      : (language === 'ar' ? 'مسح سوق' : language === 'fr' ? 'Enquête marché' : 'Market survey')}
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        </>
       </View>
 
       {section(
@@ -1704,6 +1720,12 @@ const styles = StyleSheet.create({
     fontSize: 9,
     lineHeight: 14,
     marginTop: 3,
+  },
+  marketBenchmarkSource: {
+    color: GOLD,
+    fontSize: 9,
+    textDecorationLine: 'underline',
+    marginTop: 4,
   },
   marketBenchmarkValueWrap: {
     alignItems: 'flex-end',
