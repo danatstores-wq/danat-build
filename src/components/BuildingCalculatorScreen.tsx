@@ -1192,7 +1192,7 @@ export default function BuildingCalculatorScreen({
                 <View key={`${benchmark.item}-${index}`} style={styles.marketBenchmarkRow}>
                   <View style={styles.marketBenchmarkText}>
                     <Text style={styles.marketBenchmarkItem}>{benchmark.item}</Text>
-                    <Text style={styles.marketBenchmarkNote}>{benchmark.note || benchmark.source.replace(/^https?:\\/\\//, '')}</Text>
+                    <Text style={styles.marketBenchmarkNote}>{benchmark.note || benchmark.source.replace('https://', '').replace('http://', '')}</Text>
                   </View>
                   <View style={styles.marketBenchmarkValueWrap}>
                     <Text style={styles.marketBenchmarkValue}>
