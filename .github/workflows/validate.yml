@@ -18,14 +18,20 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
-      - name: Install dependencies
+      - name: Install app dependencies
         run: npm ci
+
+      - name: Install Firebase Functions dependencies
+        run: npm ci --prefix functions
 
       - name: TypeScript check
         run: npx tsc --noEmit
+
+      - name: Firebase Functions build
+        run: npm run build --prefix functions
 
       - name: Export web app
         run: npx expo export --platform web
