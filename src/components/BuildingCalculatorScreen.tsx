@@ -891,20 +891,43 @@ export default function BuildingCalculatorScreen({
     let unpricedItemCount = 0;
     const categoryTotals: Record<string, number> = {};
 
-    // These materials are already priced by the legacy allowance fields below.
-    // Keep their itemized labor, but do not add their material cost a second time.
-    const legacyCoveredMaterialIds = new Set([
-      'footingConcrete', 'columnConcrete', 'beamConcrete', 'slabConcrete',
-      'externalBlocks', 'internalBlocks',
-      'internalPlaster', 'externalPlaster',
-      'floorTiles', 'interiorPaint', 'exteriorPaint', 'roofWaterproofing',
-      'lightingPoints', 'singleSockets', 'doubleSockets', 'acPoints',
-      'waterHeaterPoints', 'tvPoints', 'internetPoints', 'switchPoints',
-      'distributionBoard', 'electricalCables', 'electricalConduits', 'grounding',
-      'coldWaterPoints', 'hotWaterPoints', 'toiletConnections',
-      'showerConnections', 'basinConnections', 'kitchenConnections',
-      'drainagePipes', 'waterPipes',
-    ]);
+    // Legacy allowances cover itemized materials only when their own rate is
+    // actually entered. If a legacy rate is zero, the detailed material rate
+    // remains eligible so the same scope is not silently omitted.
+    const legacyMaterialRateByItem: Record<string, string> = {
+      footingConcrete: 'concretePrice',
+      columnConcrete: 'concretePrice',
+      beamConcrete: 'concretePrice',
+      slabConcrete: 'concretePrice',
+      externalBlocks: 'blockPrice',
+      internalBlocks: 'blockPrice',
+      internalPlaster: 'plasterPrice',
+      externalPlaster: 'plasterPrice',
+      floorTiles: 'tilePrice',
+      interiorPaint: 'paintPrice',
+      exteriorPaint: 'paintPrice',
+      roofWaterproofing: 'waterproofPrice',
+      lightingPoints: 'electricalPrice',
+      singleSockets: 'electricalPrice',
+      doubleSockets: 'electricalPrice',
+      acPoints: 'electricalPrice',
+      waterHeaterPoints: 'electricalPrice',
+      tvPoints: 'electricalPrice',
+      internetPoints: 'electricalPrice',
+      switchPoints: 'electricalPrice',
+      distributionBoard: 'electricalPrice',
+      electricalCables: 'electricalPrice',
+      electricalConduits: 'electricalPrice',
+      grounding: 'electricalPrice',
+      coldWaterPoints: 'plumbingPrice',
+      hotWaterPoints: 'plumbingPrice',
+      toiletConnections: 'plumbingPrice',
+      showerConnections: 'plumbingPrice',
+      basinConnections: 'plumbingPrice',
+      kitchenConnections: 'plumbingPrice',
+      drainagePipes: 'plumbingPrice',
+      waterPipes: 'plumbingPrice',
+    };
 
     COST_ITEMS.forEach(item => {
       const qty = Number(detailedValues[`${item.id}Qty`] || 0);
@@ -912,9 +935,10 @@ export default function BuildingCalculatorScreen({
       const labor = Number(detailedValues[`${item.id}Labor`] || 0);
 
       const rawMaterialCost = qty * material;
-      const materialCost = legacyCoveredMaterialIds.has(item.id)
-        ? 0
-        : rawMaterialCost;
+      const legacyRateKey = legacyMaterialRateByItem[item.id];
+      const legacyMaterialCovered =
+        !!legacyRateKey && v(legacyRateKey) > 0;
+      const materialCost = legacyMaterialCovered ? 0 : rawMaterialCost;
       const laborCost = qty * labor;
       const itemTotal = materialCost + laborCost;
 
@@ -922,7 +946,7 @@ export default function BuildingCalculatorScreen({
       // project-wide labor allowance can also cover labor when no per-item
       // labor rate has been entered; only flag a missing cost when neither
       // pricing path supplies it.
-      const materialMissing = !legacyCoveredMaterialIds.has(item.id) && material <= 0;
+      const materialMissing = !legacyMaterialCovered && material <= 0;
       const laborMissing = labor <= 0 && v('labor') <= 0;
       if (qty > 0 && (materialMissing || laborMissing)) {
         unpricedItemCount += 1;
