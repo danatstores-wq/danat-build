@@ -69,7 +69,6 @@ const ITEM_LABELS: Record<string, [string, string]> = {
 
 const UNIT_LABELS: Record<string, [string, string]> = {
   '50 kg bag': ['كيس 50 كغ', 'Sac de 50 kg'],
-  '25 kg bag': ['كيس 25 كغ', 'Sac de 25 kg'],
   'day': ['يوم عمل', 'jour'],
   '100 pieces': ['100 قطعة', '100 pièces'],
   '25 kg bag': ['كيس 25 كغ', 'Sac de 25 kg'],
