@@ -1,6 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { estimateBuildingQuantities } from './buildingQuantityEstimator';
-import { CONSTRUCTION_MARKET_BENCHMARKS } from '../data/constructionMarketBenchmarks';
+import {
+  CONSTRUCTION_MARKET_BENCHMARKS,
+  COUNTRY_ITEM_RATE_DEFAULTS,
+} from '../data/constructionMarketBenchmarks';
 import {
   View,
   Text,
@@ -552,12 +555,20 @@ function createDetailedCostValues(): DetailedValues {
 
 // GCC markets start with blank editable rates until a country-specific rate card
 // is approved. This prevents Lebanon USD values from being shown as local prices.
-function createEmptyCountryCostValues(): DetailedValues {
+function createCountryCostValues(
+  country: Exclude<CountryCode, 'LB'>
+): DetailedValues {
   const values: DetailedValues = {};
+  const sourcedRates = COUNTRY_ITEM_RATE_DEFAULTS[country] ?? {};
   COST_ITEMS.forEach(item => {
+    const sourcedRate = sourcedRates[item.id];
     values[`${item.id}Qty`] = '0';
-    values[`${item.id}Material`] = '0';
-    values[`${item.id}Labor`] = '0';
+    values[`${item.id}Material`] = sourcedRate
+      ? String(sourcedRate.material)
+      : '0';
+    values[`${item.id}Labor`] = sourcedRate
+      ? String(sourcedRate.labor)
+      : '0';
   });
   return values;
 }
@@ -719,11 +730,11 @@ export default function BuildingCalculatorScreen({
   const [values, setValues] = useState(initialValues);
   const [detailedValuesByCountry, setDetailedValuesByCountry] = useState<Record<CountryCode, DetailedValues>>({
     LB: createDetailedCostValues(),
-    AE: createEmptyCountryCostValues(),
-    SA: createEmptyCountryCostValues(),
-    QA: createEmptyCountryCostValues(),
-    KW: createEmptyCountryCostValues(),
-    OM: createEmptyCountryCostValues(),
+    AE: createCountryCostValues('AE'),
+    SA: createCountryCostValues('SA'),
+    QA: createCountryCostValues('QA'),
+    KW: createCountryCostValues('KW'),
+    OM: createCountryCostValues('OM'),
   });
   const detailedValues = detailedValuesByCountry[selectedCountry];
   const setDetailedValues = (updater: (old: DetailedValues) => DetailedValues) => {
