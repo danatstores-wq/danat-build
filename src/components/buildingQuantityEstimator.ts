@@ -197,9 +197,10 @@ export function estimateBuildingQuantities(
   // Earthworks
   set('excavation', excavation);
   set('soilRemoval', excavation);
-  set('backfilling', Math.max(0, excavation - footingConcrete));
+  set('backfilling', Math.max(0, excavation - footingConcrete - footingCount * footingLength * footingWidth * 0.1));
   set('soilCompaction', excavation > 0 ? footingCount * footingLength * footingWidth : 0);
-  set('sitePreparation', totalArea);
+  // Plot area is not known from floor area; require a measured site quantity.
+  set('sitePreparation', 0);
 
   // Foundations and structure
   set('leanConcrete', footingCount * footingLength * footingWidth * 0.1);
@@ -213,7 +214,7 @@ export function estimateBuildingQuantities(
   set('beamConcrete', beamConcrete);
   set('slabConcrete', slabConcrete);
   set('stairConcrete', v('stairVolume'));
-  set('structuralSteel', structuralConcrete * 110);
+  set('structuralSteel', (structuralConcrete + v('stairVolume')) * 110);
   set('columnFormwork', columnFormwork);
   set('beamFormwork', beamFormwork);
   set('slabFormwork', totalArea);
