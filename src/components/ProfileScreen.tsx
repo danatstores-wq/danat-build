@@ -9,20 +9,24 @@ import {
 import { doc, getDoc } from 'firebase/firestore';
 import { auth } from '../firebase';
 import { db } from '../firestore';
+import { getThemedStyles } from '../theme';
 
 type Props = {
   language: 'en' | 'ar' | 'fr';
   mode: 'professional' | 'homeowner';
   onSignOut: () => void;
+  theme: 'dark' | 'light';
 };
 
 const GOLD = '#E9B85D';
 
 export default function ProfileScreen({
   language,
+  theme,
   mode,
   onSignOut,
 }: Props) {
+  const ui = getThemedStyles(styles, theme);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -71,55 +75,55 @@ export default function ProfileScreen({
     : t('Not available', 'غير متوفر', 'Non disponible');
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.brand}>DANAT BUILD</Text>
+    <View style={ui.container}>
+      <Text style={ui.brand}>DANAT BUILD</Text>
 
-      <Text style={styles.heading}>
+      <Text style={ui.heading}>
         {t('My Profile', 'ملفي الشخصي', 'Mon profil')}
       </Text>
 
       {loading ? (
         <ActivityIndicator color={GOLD} size="large" />
       ) : error ? (
-        <Text style={styles.error}>{error}</Text>
+        <Text style={ui.error}>{error}</Text>
       ) : (
         <>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
+          <View style={ui.avatar}>
+            <Text style={ui.avatarText}>
               {(profile?.email || 'U').charAt(0).toUpperCase()}
             </Text>
           </View>
 
-          <Text style={styles.email}>{profile?.email}</Text>
+          <Text style={ui.email}>{profile?.email}</Text>
 
-          <View style={styles.card}>
-            <Text style={styles.label}>
+          <View style={ui.card}>
+            <Text style={ui.label}>
               {t('ACCOUNT TYPE', 'نوع الحساب', 'TYPE DE COMPTE')}
             </Text>
-            <Text style={styles.value}>
+            <Text style={ui.value}>
               {mode === 'professional'
                 ? t('Professional', 'مهني', 'Professionnel')
                 : t('Homeowner', 'صاحب منزل', 'Propriétaire')}
             </Text>
 
-            <View style={styles.divider} />
+            <View style={ui.divider} />
 
-            <Text style={styles.label}>
+            <Text style={ui.label}>
               {t('USER ID', 'رقم المستخدم', 'IDENTIFIANT')}
             </Text>
-            <Text selectable style={styles.smallValue}>
+            <Text selectable style={ui.smallValue}>
               {auth.currentUser?.uid}
             </Text>
 
-            <View style={styles.divider} />
+            <View style={ui.divider} />
 
-            <Text style={styles.label}>
+            <Text style={ui.label}>
               {t('REGISTRATION DATE', 'تاريخ التسجيل', 'DATE D’INSCRIPTION')}
             </Text>
-            <Text style={styles.value}>{createdAt}</Text>
+            <Text style={ui.value}>{createdAt}</Text>
           </View>
 
-          <Text style={styles.note}>
+          <Text style={ui.note}>
             {t(
               'Subscription management will be available here.',
               'ستتوفر إدارة الاشتراك هنا.',
@@ -129,8 +133,8 @@ export default function ProfileScreen({
         </>
       )}
 
-      <Pressable style={styles.signOut} onPress={onSignOut}>
-        <Text style={styles.signOutText}>
+      <Pressable style={ui.signOut} onPress={onSignOut}>
+        <Text style={ui.signOutText}>
           {t('SIGN OUT', 'تسجيل الخروج', 'SE DÉCONNECTER')}
         </Text>
       </Pressable>
