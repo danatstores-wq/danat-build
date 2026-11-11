@@ -208,106 +208,107 @@ export const COUNTRY_ITEM_RATE_DEFAULTS: Partial<
   Record<'AE' | 'SA' | 'QA' | 'KW' | 'OM', Record<string, { material: number; labor: number }>>
 > = {
   AE: {
-    excavation: { material: 25, labor: 0 }, // T&T 2025 Dubai measured excavation service, AED/m³
-    footingConcrete: { material: 300, labor: 13.13 }, // T&T 2025 Dubai 30 MPa ready-mix material, AED/m³
+    excavation: { material: 25, labor: 0 }, // T&T 2025 measured excavation service, AED/m³
+    footingConcrete: { material: 300, labor: 13.13 }, // 0.75 skilled-trade hours/m³ × AED17.50/hr
     columnConcrete: { material: 300, labor: 13.13 },
     stairConcrete: { material: 300, labor: 13.13 },
     beamConcrete: { material: 300, labor: 13.13 },
     slabConcrete: { material: 300, labor: 13.13 },
-    foundationSteel: { material: 2.9, labor: 1.4 }, // T&T 16 mm rebar AED 2,900/t converted to kg
+    foundationSteel: { material: 2.9, labor: 1.4 }, // 0.08 skilled-trade hours/kg × AED17.50/hr
     structuralSteel: { material: 2.9, labor: 1.4 },
-    internalBlocks: { material: 40.63, labor: 0 }, // T&T 100 mm solid block AED3.25/each × 12.5 blocks/m² (400×200 mm face module)
-    falseCeiling: { material: 20, labor: 7.88 }, // T&T 13 mm plasterboard sheet material, AED/m²; frame and installation excluded
+    foundationFormwork: { material: 0, labor: 11.44 }, // 0.5 carpenter hours/m² × AED206/9h
+    columnFormwork: { material: 0, labor: 11.44 },
+    beamFormwork: { material: 0, labor: 11.44 },
+    slabFormwork: { material: 0, labor: 11.44 },
+    externalBlocks: { material: 0, labor: 11.38 }, // 0.65 skilled-trade hours/m² × AED17.50/hr
+    internalBlocks: { material: 40.63, labor: 0 }, // T&T 100 mm solid block AED3.25 each × 12.5 blocks/m²
     cementMasonry: { material: 13.13, labor: 0 }, // Quanto UAE cement, AED/50 kg bag
-    foundationFormwork: { material: 0, labor: 11.44 }, // provisional labor-only allowance; see productivity assumptions
-    columnFormwork: { material: 0, labor: 11.44 }, // provisional labor-only allowance; see productivity assumptions
-    beamFormwork: { material: 0, labor: 11.44 }, // provisional labor-only allowance; see productivity assumptions
-    slabFormwork: { material: 0, labor: 11.44 }, // provisional labor-only allowance; see productivity assumptions
-    externalBlocks: { material: 0, labor: 11.38 }, // provisional labor-only allowance; see productivity assumptions
-    internalPlaster: { material: 0, labor: 6.15 }, // provisional labor-only allowance; see productivity assumptions
-    externalPlaster: { material: 0, labor: 6.15 }, // provisional labor-only allowance; see productivity assumptions
-    ceilingPlaster: { material: 0, labor: 6.15 }, // provisional labor-only allowance; see productivity assumptions
-    lightingPoints: { material: 0, labor: 31.2 }, // provisional labor-only allowance; see productivity assumptions
-    singleSockets: { material: 0, labor: 31.2 }, // provisional labor-only allowance; see productivity assumptions
-    doubleSockets: { material: 0, labor: 31.2 }, // provisional labor-only allowance; see productivity assumptions
-    acPoints: { material: 0, labor: 31.2 }, // provisional labor-only allowance; see productivity assumptions
-    waterHeaterPoints: { material: 0, labor: 31.2 }, // provisional labor-only allowance; see productivity assumptions
-    tvPoints: { material: 0, labor: 31.2 }, // provisional labor-only allowance; see productivity assumptions
-    internalPlaster: { material: 0, labor: 4.5 }, // provisional labor-only allowance; see productivity assumptions
-    externalPlaster: { material: 0, labor: 4.5 }, // provisional labor-only allowance; see productivity assumptions
-    ceilingPlaster: { material: 0, labor: 4.5 }, // provisional labor-only allowance; see productivity assumptions
-    coldWaterPoints: { material: 0, labor: 22.5 }, // provisional labor-only allowance; see productivity assumptions
-    hotWaterPoints: { material: 0, labor: 22.5 }, // provisional labor-only allowance; see productivity assumptions
-    toiletConnections: { material: 0, labor: 22.5 }, // provisional labor-only allowance; see productivity assumptions
-    showerConnections: { material: 0, labor: 22.5 }, // provisional labor-only allowance; see productivity assumptions
-    basinConnections: { material: 0, labor: 22.5 }, // provisional labor-only allowance; see productivity assumptions
-    kitchenConnections: { material: 0, labor: 22.5 }, // provisional labor-only allowance; see productivity assumptions
-    internetPoints: { material: 0, labor: 31.2 }, // provisional labor-only allowance; see productivity assumptions
-    switchPoints: { material: 0, labor: 31.2 }, // provisional labor-only allowance; see productivity assumptions
-    coldWaterPoints: { material: 0, labor: 35.63 }, // provisional labor-only allowance; see productivity assumptions
-    hotWaterPoints: { material: 0, labor: 35.63 }, // provisional labor-only allowance; see productivity assumptions
-    foundationFormwork: { material: 0, labor: 22.22 }, // provisional labor-only allowance; see productivity assumptions
-    columnFormwork: { material: 0, labor: 22.22 }, // provisional labor-only allowance; see productivity assumptions
-    beamFormwork: { material: 0, labor: 22.22 }, // provisional labor-only allowance; see productivity assumptions
-    slabFormwork: { material: 0, labor: 22.22 }, // provisional labor-only allowance; see productivity assumptions
-    externalBlocks: { material: 0, labor: 27.36 }, // provisional labor-only allowance; see productivity assumptions
-    internalPlaster: { material: 0, labor: 12.63 }, // provisional labor-only allowance; see productivity assumptions
-    externalPlaster: { material: 0, labor: 12.63 }, // provisional labor-only allowance; see productivity assumptions
-    ceilingPlaster: { material: 0, labor: 12.63 }, // provisional labor-only allowance; see productivity assumptions
-    lightingPoints: { material: 0, labor: 56.12 }, // provisional labor-only allowance; see productivity assumptions
-    singleSockets: { material: 0, labor: 56.12 }, // provisional labor-only allowance; see productivity assumptions
-    doubleSockets: { material: 0, labor: 56.12 }, // provisional labor-only allowance; see productivity assumptions
-    acPoints: { material: 0, labor: 56.12 }, // provisional labor-only allowance; see productivity assumptions
-    waterHeaterPoints: { material: 0, labor: 56.12 }, // provisional labor-only allowance; see productivity assumptions
-    tvPoints: { material: 0, labor: 56.12 }, // provisional labor-only allowance; see productivity assumptions
-    internetPoints: { material: 0, labor: 56.12 }, // provisional labor-only allowance; see productivity assumptions
-    switchPoints: { material: 0, labor: 56.12 }, // provisional labor-only allowance; see productivity assumptions
-    coldWaterPoints: { material: 0, labor: 70.16 }, // provisional labor-only allowance; see productivity assumptions
-    hotWaterPoints: { material: 0, labor: 70.16 }, // provisional labor-only allowance; see productivity assumptions
-    toiletConnections: { material: 0, labor: 70.16 }, // provisional labor-only allowance; see productivity assumptions
-    showerConnections: { material: 0, labor: 70.16 }, // provisional labor-only allowance; see productivity assumptions
-    basinConnections: { material: 0, labor: 70.16 }, // provisional labor-only allowance; see productivity assumptions
-    kitchenConnections: { material: 0, labor: 70.16 }, // provisional labor-only allowance; see productivity assumptions
-    wallPrimer: { material: 0, labor: 4.21 }, // provisional labor-only allowance; see productivity assumptions
-    wallPutty: { material: 0, labor: 4.21 }, // provisional labor-only allowance; see productivity assumptions
-    interiorPaint: { material: 0, labor: 4.21 }, // provisional labor-only allowance; see productivity assumptions
-    exteriorPaint: { material: 0, labor: 4.21 }, // provisional labor-only allowance; see productivity assumptions
-    toiletConnections: { material: 0, labor: 35.63 }, // provisional labor-only allowance; see productivity assumptions
-    showerConnections: { material: 0, labor: 35.63 }, // provisional labor-only allowance; see productivity assumptions
-    basinConnections: { material: 0, labor: 35.63 }, // provisional labor-only allowance; see productivity assumptions
-    kitchenConnections: { material: 0, labor: 35.63 }, // provisional labor-only allowance; see productivity assumptions
-    floorTiles: { material: 0, labor: 7.88 }, // provisional labor-only allowance; see productivity assumptions
-    wallPrimer: { material: 0, labor: 2.25 }, // provisional labor-only allowance; see productivity assumptions
-    wallPutty: { material: 0, labor: 2.25 }, // provisional labor-only allowance; see productivity assumptions
-    interiorPaint: { material: 0, labor: 2.25 }, // provisional labor-only allowance; see productivity assumptions
-    exteriorPaint: { material: 0, labor: 2.25 }, // provisional labor-only allowance; see productivity assumptions
+    internalPlaster: { material: 0, labor: 6.15 }, // 0.3 plasterer hours/m² × AED164/8h
+    externalPlaster: { material: 0, labor: 6.15 },
+    ceilingPlaster: { material: 0, labor: 6.15 },
+    lightingPoints: { material: 0, labor: 31.2 }, // 1.2 electrician hours/point × AED208/8h
+    singleSockets: { material: 0, labor: 31.2 },
+    doubleSockets: { material: 0, labor: 31.2 },
+    acPoints: { material: 0, labor: 31.2 },
+    waterHeaterPoints: { material: 0, labor: 31.2 },
+    tvPoints: { material: 0, labor: 31.2 },
+    internetPoints: { material: 0, labor: 31.2 },
+    switchPoints: { material: 0, labor: 31.2 },
+    coldWaterPoints: { material: 0, labor: 35.63 }, // 1.5 plumber hours/point × AED190/8h
+    hotWaterPoints: { material: 0, labor: 35.63 },
+    toiletConnections: { material: 0, labor: 35.63 },
+    showerConnections: { material: 0, labor: 35.63 },
+    basinConnections: { material: 0, labor: 35.63 },
+    kitchenConnections: { material: 0, labor: 35.63 },
+    floorTiles: { material: 0, labor: 7.88 }, // 0.45 skilled-trade hours/m² × AED17.50/hr
+    falseCeiling: { material: 20, labor: 7.88 }, // T&T plasterboard material; frame excluded
+    wallPrimer: { material: 0, labor: 2.25 }, // 0.12 painter hours/m² × AED150/8h
+    wallPutty: { material: 0, labor: 2.25 },
+    interiorPaint: { material: 0, labor: 2.25 },
+    exteriorPaint: { material: 0, labor: 2.25 },
   },
   SA: {
-    excavation: { material: 21.5, labor: 0 }, // QS Mind Riyadh machine excavation service, SAR/m³
-    footingConcrete: { material: 212.52, labor: 25.52 }, // GASTAT 350K normal concrete, SAR/m³
+    excavation: { material: 21.5, labor: 0 }, // QS Mind machine excavation, SAR/m³ installed
+    footingConcrete: { material: 212.52, labor: 25.52 }, // 0.75 concrete-worker hours/m³ × SAR34.03/hr
     columnConcrete: { material: 212.52, labor: 25.52 },
     stairConcrete: { material: 212.52, labor: 25.52 },
     beamConcrete: { material: 212.52, labor: 25.52 },
     slabConcrete: { material: 212.52, labor: 25.52 },
-    foundationSteel: { material: 3.12285, labor: 1.28 }, // GASTAT 12 mm rebar SAR/t converted to kg
+    foundationSteel: { material: 3.12285, labor: 1.28 }, // 0.08 steel-fixer hours/kg × SAR16/hr
     structuralSteel: { material: 3.12285, labor: 1.28 },
-    externalBlocks: { material: 20.97, labor: 10.4 }, // GASTAT 15 cm block SAR1.67778/each × 12.5 blocks/m² (400×200 mm face module)
-    floorTiles: { material: 23.16, labor: 8.1 }, // GASTAT marble tile national average, SAR/m²; installation and adhesive excluded
+    externalBlocks: { material: 20.97, labor: 10.4 }, // GASTAT 15 cm block × 12.5 blocks/m²; 0.65 mason hours
     cementMasonry: { material: 15.53, labor: 0 }, // GASTAT black cement, SAR/50 kg bag
-    sandMasonry: { material: 77.61, labor: 0 }, // GASTAT white soft sand, SAR/m³
+    sandMasonry: { material: 77.61, labor: 0 }, // GASTAT soft sand, SAR/m³
+    internalPlaster: { material: 0, labor: 4.5 }, // 0.3 plaster-mason hours/m² × SAR15/hr
+    externalPlaster: { material: 0, labor: 4.5 },
+    ceilingPlaster: { material: 0, labor: 4.5 },
+    floorTiles: { material: 23.16, labor: 8.1 }, // GASTAT marble material + 0.45 tile-mason hours/m²
+    coldWaterPoints: { material: 0, labor: 22.5 }, // 1.5 plumber hours/point × SAR15/hr
+    hotWaterPoints: { material: 0, labor: 22.5 },
+    toiletConnections: { material: 0, labor: 22.5 },
+    showerConnections: { material: 0, labor: 22.5 },
+    basinConnections: { material: 0, labor: 22.5 },
+    kitchenConnections: { material: 0, labor: 22.5 },
   },
   QA: {
-    excavation: { material: 28, labor: 0 }, // Qatar sample BOQ excavation service, QAR/m³
-    footingConcrete: { material: 305, labor: 28.07 }, // BoqCalc C30/37 ready-mix, QAR/m³
+    excavation: { material: 28, labor: 0 }, // Qatar sample BOQ machine excavation service, QAR/m³
+    footingConcrete: { material: 305, labor: 28.07 }, // 0.75 concrete-worker hours/m³ × QAR37.42/hr
     columnConcrete: { material: 305, labor: 28.07 },
     stairConcrete: { material: 305, labor: 28.07 },
     beamConcrete: { material: 305, labor: 28.07 },
     slabConcrete: { material: 305, labor: 28.07 },
-    foundationSteel: { material: 2.99, labor: 0 }, // Ashghal 10–40 mm rebar QAR/t converted to kg
+    foundationSteel: { material: 2.99, labor: 0 }, // Ashghal 10–40 mm rebar, QAR/kg
     structuralSteel: { material: 2.99, labor: 0 },
-    falseCeiling: { material: 23, labor: 17.89 }, // BoqCalc gypsum board sheet material, QAR/m²; metal frame and installation excluded
-    cementMasonry: { material: 34, labor: 0 }, // BoqCalc QAR17/25 kg converted to 50 kg bag
+    foundationFormwork: { material: 0, labor: 22.22 }, // 0.5 carpenter hours/m² × QAR44.43/hr
+    columnFormwork: { material: 0, labor: 22.22 },
+    beamFormwork: { material: 0, labor: 22.22 },
+    slabFormwork: { material: 0, labor: 22.22 },
+    externalBlocks: { material: 0, labor: 27.36 }, // 0.65 mason hours/m² × QAR42.09/hr
+    cementMasonry: { material: 34, labor: 0 }, // QAR17/25 kg converted to 50 kg bag
     sandMasonry: { material: 72, labor: 0 }, // BoqCalc sand QAR/m³
+    internalPlaster: { material: 0, labor: 12.63 }, // 0.3 skilled mason hours/m² × QAR42.09/hr
+    externalPlaster: { material: 0, labor: 12.63 },
+    ceilingPlaster: { material: 0, labor: 12.63 },
+    lightingPoints: { material: 0, labor: 56.12 }, // 1.2 electrician hours/point × QAR46.77/hr
+    singleSockets: { material: 0, labor: 56.12 },
+    doubleSockets: { material: 0, labor: 56.12 },
+    acPoints: { material: 0, labor: 56.12 },
+    waterHeaterPoints: { material: 0, labor: 56.12 },
+    tvPoints: { material: 0, labor: 56.12 },
+    internetPoints: { material: 0, labor: 56.12 },
+    switchPoints: { material: 0, labor: 56.12 },
+    coldWaterPoints: { material: 0, labor: 70.16 }, // 1.5 plumber hours/point × QAR46.77/hr
+    hotWaterPoints: { material: 0, labor: 70.16 },
+    toiletConnections: { material: 0, labor: 70.16 },
+    showerConnections: { material: 0, labor: 70.16 },
+    basinConnections: { material: 0, labor: 70.16 },
+    kitchenConnections: { material: 0, labor: 70.16 },
+    floorTiles: { material: 0, labor: 18.94 }, // 0.45 tiler hours/m² × QAR42.09/hr
+    falseCeiling: { material: 23, labor: 17.89 }, // QAR23/m² board + 0.45 installer hours
+    wallPrimer: { material: 0, labor: 4.21 }, // 0.12 painter hours/m² × QAR35.08/hr
+    wallPutty: { material: 0, labor: 4.21 },
+    interiorPaint: { material: 0, labor: 4.21 },
+    exteriorPaint: { material: 0, labor: 4.21 },
   },
   KW: {
     foundationSteel: { material: 0.245, labor: 0 }, // GCCPricing KWD245/t converted to kg
@@ -322,7 +323,7 @@ export const COUNTRY_ITEM_RATE_DEFAULTS: Partial<
     slabConcrete: { material: 24, labor: 0 },
     foundationSteel: { material: 0.307, labor: 0 }, // GCCPricing OMR307/t converted to kg
     structuralSteel: { material: 0.307, labor: 0 },
-    externalBlocks: { material: 2.13, labor: 0 }, // MCP 20 cm hollow block OMR0.17/each × 12.5 blocks/m² (400×200 mm face module)
+    externalBlocks: { material: 2.13, labor: 0 }, // MCP 20 cm hollow block OMR0.17 each × 12.5 blocks/m²
     cementMasonry: { material: 3, labor: 0 }, // GCCPricing OMR/50 kg bag
   },
 };
