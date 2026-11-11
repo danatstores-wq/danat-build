@@ -166,8 +166,7 @@ export function estimateBuildingQuantities(
     v('beamLength') * (2 * v('beamDepth') + v('beamWidth'));
 
   const blockArea = wallArea;
-  const plasterMultiplier = safe(values.plaster, 2);
-  const plasterArea = wallArea * plasterMultiplier;
+  const plasterArea = wallArea * 2;
   const ceilingArea = totalArea;
 
   const tileWaste = safe(values.tileWaste, 10) / 100;
