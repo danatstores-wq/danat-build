@@ -3,6 +3,7 @@ name: Validate Danat Build
 on:
   push:
     branches:
+      - main
       - fix/construction-cost-calculation
   pull_request:
     branches:
