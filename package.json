@@ -8,7 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test:quantities": "node --experimental-strip-types --experimental-default-type=module --test src/components/buildingQuantityEstimator.test.mjs"
+    "test:quantities": "npx tsc src/components/buildingQuantityEstimator.ts --target ES2022 --module commonjs --rootDir src/components --outDir .test-build --skipLibCheck && node --test src/components/buildingQuantityEstimator.test.cjs"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
