@@ -17,12 +17,13 @@ import CalculatorScreen from './src/components/CalculatorScreen';
 import BuildingCalculatorScreen from './src/components/BuildingCalculatorScreen';
 import AuthScreen from './src/components/AuthScreen';
 import ProfileScreen from './src/components/ProfileScreen';
+import MyProjectsScreen from './src/components/MyProjectsScreen';
 import { AppTheme, getThemedStyles } from './src/theme';
 import { signOut } from 'firebase/auth';
 import { auth } from './src/firebase';
 
 type Language = 'en' | 'ar' | 'fr';
-type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings';
+type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings' | 'projects';
 type Mode = 'professional' | 'homeowner';
 
 type Tool = {
@@ -501,6 +502,7 @@ export default function App() {
                   language={lang}
                   theme={theme}
                   units={units}
+                  userId={auth.currentUser?.uid || 'guest'}
                   onBack={() => setScreen('home')}
                 />
               )}
@@ -511,8 +513,13 @@ export default function App() {
                   theme={theme}
                   mode={mode}
                   units={units}
+                  userId={auth.currentUser?.uid || 'guest'}
                   onBack={() => setScreen('home')}
                 />
+              )}
+
+              {screen === 'projects' && (
+                <MyProjectsScreen language={lang} theme={theme} userId={auth.currentUser?.uid || 'guest'} onBack={() => setScreen('home')} />
               )}
 
               {screen === 'profile' && (
@@ -812,6 +819,7 @@ export default function App() {
                     tr('Tips & Guide', 'النصائح والإرشادات', 'Conseils'),
                     tr('Contact Us', 'اتصل بنا', 'Contact'),
                     tr('Settings', 'الإعدادات', 'Paramètres'),
+                    tr('My Projects', 'مشاريعي', 'Mes projets'),
                   ].map((item, index) => (
                     <Pressable
                       key={item}
@@ -819,6 +827,7 @@ export default function App() {
                         if (index === 0) setScreen('about');
                         if (index === 1) setScreen('guide');
                         if (index === 3) setScreen('settings');
+                        if (index === 4) setScreen('projects');
                       }}
                       style={ui.menuRow}
                     >

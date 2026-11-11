@@ -136,9 +136,14 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
   },
   BH: {
     currency: 'BHD',
-    // Bahrain has its own market profile. No defensible item-level local
-    // observations have been mapped yet; do not import neighbouring GCC prices.
-    benchmarks: [],
+    benchmarks: [
+      { item: '12 mm reinforcement steel (market average)', value: 301, unit: 'tonne', status: 'market-survey', source: 'https://www.gccpricing.com/bahrain-construction-prices', checkedAt: '2026-11-11', note: 'Bahrain country page reports BHD 301/tonne average steel price; confirm grade, delivery and supplier quotation.' },
+      { item: 'C20/25 ready-mix concrete, 75 mm slump', value: 26.4, unit: 'm³', status: 'market-survey', source: 'https://www.gccpricing.com/materials/ready-mix-concrete-c20-price-bahrain', checkedAt: '2026-11-11', note: 'Bahrain local observed rate, delivered basis; specification C20/25 and 75 mm slump. Obtain project-specific quote.' },
+      { item: 'C40/50 ready-mix concrete, 100 mm slump', value: 34.16, unit: 'm³', status: 'market-survey', source: 'https://www.gccpricing.com/materials/ready-mix-concrete-c40-price-bahrain', checkedAt: '2026-11-11', note: 'Bahrain local observed rate, delivered basis; specification C40/50 and 100 mm slump. Obtain project-specific quote.' },
+      { item: 'electrician basic wage', value: 200, unit: 'month', status: 'market-survey', source: 'https://tajhrservices.com/salary-guide/bahrain', checkedAt: '2026-11-11', note: 'Median overseas-intake basic salary; BHD 170–280 observed span. Housing, transport, food and overtime are separate.' },
+      { item: 'plumber basic wage', value: 195, unit: 'month', status: 'market-survey', source: 'https://tajhrservices.com/salary-guide/bahrain', checkedAt: '2026-11-11', note: 'Median overseas-intake basic salary; BHD 160–270 observed span. Housing, transport, food and overtime are separate.' },
+      { item: 'formwork carpenter basic wage', value: 200, unit: 'month', status: 'market-survey', source: 'https://tajhrservices.com/salary-guide/bahrain', checkedAt: '2026-11-11', note: 'Median overseas-intake basic salary; BHD 170–280 observed span. Housing, transport, food and overtime are separate.' },
+    ],
   },
 };
 
@@ -273,6 +278,15 @@ export const COUNTRY_ITEM_RATE_DEFAULTS: Partial<
     structuralSteel: { material: 0.307, labor: 0 },
     externalBlocks: { material: 2.13, labor: 0 }, // MCP 20 cm hollow block OMR0.17 each × 12.5 blocks/m²
     cementMasonry: { material: 1.6, labor: 0 }, // Al Wusta Oct 2026 field-survey midpoint, OMR/50 kg bag; regional provisional anchor
+  },
+  BH: {
+    footingConcrete: { material: 30.54, labor: 0 }, // Bahrain observed C30 delivered reference, BHD/m³; confirm mix and quote
+    columnConcrete: { material: 30.54, labor: 0 },
+    stairConcrete: { material: 30.54, labor: 0 },
+    beamConcrete: { material: 30.54, labor: 0 },
+    slabConcrete: { material: 30.54, labor: 0 },
+    foundationSteel: { material: 0.301, labor: 0 }, // BHD 301/tonne market average converted to kg
+    structuralSteel: { material: 0.301, labor: 0 },
   },
 };
 

@@ -7,6 +7,7 @@ import {
 } from '../data/constructionMarketBenchmarks';
 import { marketBenchmarkLabel, marketBenchmarkSourceLabel } from '../data/marketBenchmarkTranslations';
 import { getThemedStyles } from '../theme';
+import { saveLocalCalculation } from '../storage/localProjects';
 import {
   View,
   Text,
@@ -35,6 +36,7 @@ type Props = {
   units: 'metric' | 'imperial';
   onBack: () => void;
   theme: 'dark' | 'light';
+  userId: string;
 };
 
 type CostItem = {
@@ -744,6 +746,7 @@ export default function BuildingCalculatorScreen({
   mode,
   units,
   onBack,
+  userId,
 }: Props) {
   const ui = getThemedStyles(styles, theme);
   const t = translations[language];
@@ -793,6 +796,8 @@ export default function BuildingCalculatorScreen({
   });
   const [result, setResult] = useState<Record<string, any> | null>(null);
   const [error, setError] = useState('');
+  const [projectName, setProjectName] = useState('');
+  const [saveMessage, setSaveMessage] = useState('');
   const previousUnits = useRef<'metric' | 'imperial'>('metric');
 
   useEffect(() => {
@@ -1635,6 +1640,17 @@ export default function BuildingCalculatorScreen({
         <Text style={ui.warningTitle}>{t.note}</Text>
         <Text style={ui.warningText}>{t.warning}</Text>
       </View>
+
+      {result && (
+        <View style={{ marginTop: 16, padding: 14, borderRadius: 12, backgroundColor: '#171c22', borderWidth: 1, borderColor: '#6c5938' }}>
+          <Text style={{ color: GOLD, fontWeight: '800', marginBottom: 8 }}>{language === 'ar' ? 'اسم المشروع للحفظ' : language === 'fr' ? 'Nom du projet' : 'PROJECT NAME'}</Text>
+          <TextInput value={projectName} onChangeText={setProjectName} placeholder="e.g. My Villa – Beirut" placeholderTextColor="#888" style={{ backgroundColor: '#292f36', color: '#fff', borderRadius: 9, padding: 12, marginBottom: 10 }} />
+          <Pressable style={ui.calculateButton} onPress={async () => { try { await saveLocalCalculation(userId, projectName, { title: t.title, kind: 'building', payload: { selectedCountry, selectedCurrency, units, floors, values, detailedValues, result } }); setSaveMessage(language === 'ar' ? 'تم الحفظ على هذا الجهاز' : language === 'fr' ? 'Enregistré sur cet appareil' : 'Saved on this device'); } catch (error) { setSaveMessage(error instanceof Error ? error.message : 'Could not save'); } }}>
+            <Text style={ui.calculateButtonText}>{language === 'ar' ? 'حفظ في المشروع' : language === 'fr' ? 'ENREGISTRER DANS LE PROJET' : 'SAVE TO PROJECT'}</Text>
+          </Pressable>
+          {!!saveMessage && <Text style={{ color: GOLD, marginTop: 8, textAlign: 'center' }}>{saveMessage}</Text>}
+        </View>
+      )}
     </ScrollView>
   );
 }

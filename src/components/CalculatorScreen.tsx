@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { calculateTool } from '../calculators';
 import { getThemedStyles } from '../theme';
+import { saveLocalCalculation } from '../storage/localProjects';
 
 type Props = {
   calculatorId: string;
@@ -17,6 +18,7 @@ type Props = {
   units: 'metric' | 'imperial';
   onBack: () => void;
   theme: 'dark' | 'light';
+  userId: string;
 };
 
 type Field = {
@@ -210,6 +212,7 @@ export default function CalculatorScreen({
   theme,
   units,
   onBack,
+  userId,
 }: Props) {
   const ui = getThemedStyles(styles, theme);
   const [values, setValues] = useState<Record<string, string>>(
@@ -239,6 +242,8 @@ export default function CalculatorScreen({
   >(null);
 
   const [error, setError] = useState('');
+  const [projectName, setProjectName] = useState('');
+  const [saveMessage, setSaveMessage] = useState('');
 
   const isArabic = language === 'ar';
   const title = titles[calculatorId]?.[language] || 'Calculator';
@@ -380,6 +385,17 @@ export default function CalculatorScreen({
               </Text>
             </View>
           ))}
+        </View>
+      )}
+
+      {result !== null && (
+        <View style={{ marginTop: 16, padding: 14, borderRadius: 12, backgroundColor: '#171c22', borderWidth: 1, borderColor: '#6c5938' }}>
+          <Text style={{ color: GOLD, fontWeight: '800', marginBottom: 8 }}>{language === 'ar' ? 'اسم المشروع للحفظ' : language === 'fr' ? 'Nom du projet' : 'PROJECT NAME'}</Text>
+          <TextInput value={projectName} onChangeText={setProjectName} placeholder="e.g. My Villa – Beirut" placeholderTextColor="#888" style={{ backgroundColor: '#292f36', color: '#fff', borderRadius: 9, padding: 12, marginBottom: 10 }} />
+          <Pressable style={ui.button} onPress={async () => { try { await saveLocalCalculation(userId, projectName, { title, kind: 'quick', payload: { calculatorId, units, values, result } }); setSaveMessage(language === 'ar' ? 'تم الحفظ على هذا الجهاز' : language === 'fr' ? 'Enregistré sur cet appareil' : 'Saved on this device'); } catch (error) { setSaveMessage(error instanceof Error ? error.message : 'Could not save'); } }}>
+            <Text style={ui.buttonText}>{language === 'ar' ? 'حفظ في المشروع' : language === 'fr' ? 'ENREGISTRER DANS LE PROJET' : 'SAVE TO PROJECT'}</Text>
+          </Pressable>
+          {!!saveMessage && <Text style={{ color: GOLD, marginTop: 8, textAlign: 'center' }}>{saveMessage}</Text>}
         </View>
       )}
     </ScrollView>
