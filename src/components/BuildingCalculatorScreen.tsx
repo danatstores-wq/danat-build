@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 
 type Language = 'en' | 'ar' | 'fr';
-type CountryCode = 'LB' | 'AE' | 'SA' | 'QA' | 'KW' | 'OM';
+type CountryCode = 'LB' | 'AE' | 'SA' | 'QA' | 'KW' | 'OM' | 'BH';
 
 type FloorData = {
   id: number;
@@ -82,6 +82,7 @@ const COUNTRY_OPTIONS: {
   { id: 'QA', currency: 'QAR', names: ['Qatar', 'قطر', 'Qatar'] },
   { id: 'KW', currency: 'KWD', names: ['Kuwait', 'الكويت', 'Koweït'] },
   { id: 'OM', currency: 'OMR', names: ['Oman', 'عُمان', 'Oman'] },
+  { id: 'BH', currency: 'BHD', names: ['Bahrain', 'البحرين', 'Bahreïn'] },
 ];
 
 const translations = {
@@ -763,6 +764,7 @@ export default function BuildingCalculatorScreen({
     QA: createCountryCostValues('QA'),
     KW: createCountryCostValues('KW'),
     OM: createCountryCostValues('OM'),
+    BH: createCountryCostValues('BH'),
   });
   const detailedValues = detailedValuesByCountry[selectedCountry];
   const setDetailedValues = (updater: (old: DetailedValues) => DetailedValues) => {
@@ -778,6 +780,7 @@ export default function BuildingCalculatorScreen({
     QA: new Set(),
     KW: new Set(),
     OM: new Set(),
+    BH: new Set(),
   });
   const manuallyEditedRates = useRef<Record<CountryCode, Set<string>>>({
     LB: new Set(),
@@ -786,6 +789,7 @@ export default function BuildingCalculatorScreen({
     QA: new Set(),
     KW: new Set(),
     OM: new Set(),
+    BH: new Set(),
   });
   const [result, setResult] = useState<Record<string, any> | null>(null);
   const [error, setError] = useState('');
@@ -1313,10 +1317,10 @@ export default function BuildingCalculatorScreen({
             {CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].benchmarks.length === 0 ? (
               <Text style={ui.marketBenchmarkNote}>
                 {language === 'ar'
-                  ? 'تُعرض أسعار لبنان الافتراضية بالدولار ضمن جدول التكاليف التفصيلي كتقديرات تخطيطية محلية. لم تُضف بعد قائمة منفصلة من مؤشرات السوق المنشورة الموثقة؛ لذلك لا نعرض أسعاراً غير متحقق منها.'
+                  ? 'لم تُضف بعد أسعار سوق محلية موثقة لهذا البلد. لا تُستخدم أسعار لبنان ولا نعرض أسعاراً غير متحقق منها.'
                   : language === 'fr'
-                  ? 'Les tarifs libanais par défaut en USD figurent dans le bordereau détaillé comme estimations locales de planification. Aucune série distincte de références de marché publiées et vérifiées n’a encore été ajoutée ; aucun prix non vérifié n’est donc affiché.'
-                  : 'Lebanon default USD rates remain in the detailed cost table as local planning allowances. A separate verified published-market benchmark series has not yet been added, so no unverified prices are displayed.'}
+                  ? 'Aucun tarif de marché local vérifié n’a encore été ajouté pour ce pays. Les prix libanais ne sont pas réutilisés et aucun prix non vérifié n’est affiché.'
+                  : 'No verified local market benchmarks have been added for this country yet. Lebanon prices are not reused, and no unverified prices are displayed.'}
               </Text>
             ) : CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].benchmarks.map((benchmark, index) => (
               <View key={`${benchmark.item}-${index}`} style={ui.marketBenchmarkRow}>
@@ -1753,6 +1757,7 @@ const styles = StyleSheet.create({
   countryOptions: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'center',
     gap: 8,
   },
   countryOption: {

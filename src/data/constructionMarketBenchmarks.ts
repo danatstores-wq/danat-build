@@ -23,7 +23,7 @@ export type ConstructionMarketBenchmarks = {
 };
 
 export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
-  'LB' | 'AE' | 'SA' | 'QA' | 'KW' | 'OM',
+  'LB' | 'AE' | 'SA' | 'QA' | 'KW' | 'OM' | 'BH',
   ConstructionMarketBenchmarks
 > = {
   LB: {
@@ -134,6 +134,12 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
       { item: 'formwork carpenter basic wage', value: 190, unit: 'month', status: 'market-survey', source: 'https://tajhrservices.com/salary-guide/oman', checkedAt: '2026-11-11', note: 'OMR 160-270 range; OMR 190 overseas-intake basic median. Not a contractor charge-out rate.' },
     ],
   },
+  BH: {
+    currency: 'BHD',
+    // Bahrain has its own market profile. No defensible item-level local
+    // observations have been mapped yet; do not import neighbouring GCC prices.
+    benchmarks: [],
+  },
 };
 
 // Directly mappable local material/service observations. Values are in the
@@ -141,7 +147,7 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
 // intentionally sparse: unsupported items remain zero and are flagged by the
 // calculator rather than being filled with Lebanon rates or an FX multiplier.
 export const COUNTRY_ITEM_RATE_DEFAULTS: Partial<
-  Record<'AE' | 'SA' | 'QA' | 'KW' | 'OM', Record<string, { material: number; labor: number }>>
+  Record<'AE' | 'SA' | 'QA' | 'KW' | 'OM' | 'BH', Record<string, { material: number; labor: number }>>
 > = {
   AE: {
     excavation: { material: 25, labor: 0 }, // T&T 2025 measured excavation service, AED/m³
