@@ -766,6 +766,14 @@ export default function BuildingCalculatorScreen({
     KW: new Set(),
     OM: new Set(),
   });
+  const manuallyEditedRates = useRef<Record<CountryCode, Set<string>>>({
+    LB: new Set(),
+    AE: new Set(),
+    SA: new Set(),
+    QA: new Set(),
+    KW: new Set(),
+    OM: new Set(),
+  });
   const [result, setResult] = useState<Record<string, any> | null>(null);
   const [error, setError] = useState('');
   const previousUnits = useRef<'metric' | 'imperial'>('metric');
@@ -834,6 +842,9 @@ export default function BuildingCalculatorScreen({
   const updateDetailedValue = (key: string, value: string) => {
     if (key.endsWith('Qty')) {
       manuallyEditedQuantities.current[selectedCountry].add(key);
+    }
+    if (key.endsWith('Material') || key.endsWith('Labor')) {
+      manuallyEditedRates.current[selectedCountry].add(key);
     }
     setDetailedValues(old => ({ ...old, [key]: value }));
     setResult(null);
@@ -1162,6 +1173,14 @@ export default function BuildingCalculatorScreen({
         : language === 'fr'
         ? 'Aucun tarif local prérempli — saisir un devis'
         : 'No local rate mapped — enter a quotation';
+    }
+    const rateKey = `${itemId}${rateType}`;
+    if (manuallyEditedRates.current[selectedCountry].has(rateKey)) {
+      return language === 'ar'
+        ? 'سعر أدخله المستخدم — يُراجع مع عرض السعر'
+        : language === 'fr'
+        ? 'Tarif saisi manuellement — à vérifier avec le devis'
+        : 'User-entered rate — verify against quotation';
     }
     if (rateType === 'Labor') return MARKET_RATE_LABELS.provisional[language];
     const published = PUBLISHED_MATERIAL_RATE_IDS[selectedCountry]?.includes(itemId);
