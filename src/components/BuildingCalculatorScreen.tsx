@@ -759,30 +759,33 @@ export default function BuildingCalculatorScreen({
       return converted;
     });
 
-    setDetailedValues(old => {
-      const next = { ...old };
+    setDetailedValuesByCountry(old => {
+      const converted = { ...old };
 
-      COST_ITEMS.forEach(item => {
-        const factor =
-          item.unit === 'm²' ? SQFT_TO_SQM :
-          item.unit === 'm³' ? CUFT_TO_CUM :
-          item.unit === 'm' ? FT_TO_M : 1;
+      (Object.keys(converted) as CountryCode[]).forEach(countryCode => {
+        const next = { ...converted[countryCode] };
+        COST_ITEMS.forEach(item => {
+          const factor =
+            item.unit === 'm²' ? SQFT_TO_SQM :
+            item.unit === 'm³' ? CUFT_TO_CUM :
+            item.unit === 'm' ? FT_TO_M : 1;
 
-        if (factor === 1) return;
+          if (factor === 1) return;
 
-        ['Material', 'Labor'].forEach(suffix => {
-          const key = `${item.id}${suffix}`;
-          const amount = Number(next[key]);
-
-          if (Number.isFinite(amount)) {
-            next[key] = String(
-              units === 'imperial' ? amount * factor : amount / factor
-            );
-          }
+          ['Material', 'Labor'].forEach(suffix => {
+            const key = `${item.id}${suffix}`;
+            const amount = Number(next[key]);
+            if (Number.isFinite(amount)) {
+              next[key] = String(
+                units === 'imperial' ? amount * factor : amount / factor
+              );
+            }
+          });
         });
+        converted[countryCode] = next;
       });
 
-      return next;
+      return converted;
     });
 
     previousUnits.current = units;
