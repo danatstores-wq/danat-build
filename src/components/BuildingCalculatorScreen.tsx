@@ -1,4 +1,3 @@
-
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
@@ -26,6 +25,15 @@ type Props = {
   units: 'metric' | 'imperial';
   onBack: () => void;
 };
+
+type CostItem = {
+  id: string;
+  category: string;
+  names: [string, string, string];
+  unit: string;
+};
+
+type DetailedValues = Record<string, string>;
 
 const GOLD = '#E9B85D';
 
@@ -105,6 +113,16 @@ const translations = {
     professional: 'Professional mode: enter engineering specifications and actual unit prices.',
     homeowner: 'Homeowner mode: enter building dimensions and use contractor-supplied specifications and prices.',
     noFloors: 'At least one floor is required.',
+    detailedCosts: 'DETAILED ITEMIZED COSTS',
+    detailedHint: 'Enter the quantity, material price per unit and labor price per unit for each item. Leave unused items at zero.',
+    quantity: 'Quantity',
+    materialUnit: 'Material / unit ($)',
+    laborUnit: 'Labor / unit ($)',
+    itemTotal: 'Item total',
+    categoryTotal: 'Category subtotal',
+    detailedMaterial: 'Itemized materials',
+    detailedLabor: 'Itemized labor',
+    detailedTotal: 'Total itemized costs',
   },
   ar: {
     title: 'حاسبة البناء الشاملة',
@@ -181,6 +199,16 @@ const translations = {
     professional: 'الوضع المهني: أدخل المواصفات الهندسية وأسعار الوحدات الفعلية.',
     homeowner: 'وضع صاحب المنزل: أدخل أبعاد المبنى واستخدم المواصفات والأسعار المقدمة من المقاول.',
     noFloors: 'يجب إضافة طابق واحد على الأقل.',
+    detailedCosts: 'تفصيل تكاليف جميع البنود',
+    detailedHint: 'أدخل الكمية وسعر المواد للوحدة وأجرة العمل للوحدة لكل بند. اترك البنود غير المستخدمة صفراً.',
+    quantity: 'الكمية',
+    materialUnit: 'المواد / الوحدة ($)',
+    laborUnit: 'العمل / الوحدة ($)',
+    itemTotal: 'مجموع البند',
+    categoryTotal: 'مجموع القسم',
+    detailedMaterial: 'مواد البنود التفصيلية',
+    detailedLabor: 'عمالة البنود التفصيلية',
+    detailedTotal: 'إجمالي التكاليف التفصيلية',
   },
   fr: {
     title: 'Calculateur complet du bâtiment',
@@ -257,8 +285,179 @@ const translations = {
     professional: 'Mode professionnel : saisissez les spécifications techniques et les prix réels.',
     homeowner: 'Mode propriétaire : saisissez les dimensions et utilisez les spécifications et prix du constructeur.',
     noFloors: 'Au moins un étage est requis.',
+    detailedCosts: 'COÛTS DÉTAILLÉS PAR POSTE',
+    detailedHint: 'Saisissez la quantité, le prix des matériaux par unité et le coût de main-d’œuvre par unité. Laissez les postes inutilisés à zéro.',
+    quantity: 'Quantité',
+    materialUnit: 'Matériaux / unité ($)',
+    laborUnit: 'Main-d’œuvre / unité ($)',
+    itemTotal: 'Total du poste',
+    categoryTotal: 'Total de catégorie',
+    detailedMaterial: 'Matériaux détaillés',
+    detailedLabor: 'Main-d’œuvre détaillée',
+    detailedTotal: 'Total des coûts détaillés',
   },
 };
+
+const COST_CATEGORIES = [
+  { id: 'earthworks', names: ['Earthworks', 'الأعمال الترابية', 'Terrassement'] },
+  { id: 'foundation', names: ['Foundation', 'الأساسات', 'Fondations'] },
+  { id: 'structure', names: ['Structural works', 'الأعمال الإنشائية', 'Gros œuvre'] },
+  { id: 'masonry', names: ['Masonry', 'أعمال البناء', 'Maçonnerie'] },
+  { id: 'roofing', names: ['Roofing and insulation', 'الأسطح والعزل', 'Toiture et isolation'] },
+  { id: 'plaster', names: ['Plastering', 'القصارة', 'Enduits'] },
+  { id: 'electrical', names: ['Electrical works', 'الأعمال الكهربائية', 'Électricité'] },
+  { id: 'plumbing', names: ['Plumbing and drainage', 'التمديدات الصحية', 'Plomberie'] },
+  { id: 'sanitary', names: ['Sanitary fixtures', 'الأدوات الصحية', 'Équipements sanitaires'] },
+  { id: 'elevator', names: ['Elevator', 'المصعد', 'Ascenseur'] },
+  { id: 'tiling', names: ['Tiling and flooring', 'البلاط والأرضيات', 'Carrelage et sols'] },
+  { id: 'openings', names: ['Doors and windows', 'الأبواب والنوافذ', 'Portes et fenêtres'] },
+  { id: 'painting', names: ['Painting', 'الدهان', 'Peinture'] },
+  { id: 'ceiling', names: ['Ceilings', 'الأسقف المستعارة', 'Plafonds'] },
+  { id: 'facade', names: ['Facade and external works', 'الواجهات والأعمال الخارجية', 'Façade et extérieurs'] },
+  { id: 'other', names: ['Other expenses', 'مصاريف أخرى', 'Autres dépenses'] },
+] as const;
+
+const COST_ITEMS: CostItem[] = [
+  // 1. EARTHWORKS
+  { id: 'excavation', category: 'earthworks', names: ['Excavation', 'حفر التربة', 'Excavation'], unit: 'm³' },
+  { id: 'soilRemoval', category: 'earthworks', names: ['Soil removal and disposal', 'نقل وترحيل الأتربة', 'Évacuation des terres'], unit: 'm³' },
+  { id: 'backfilling', category: 'earthworks', names: ['Backfilling', 'ردم التربة', 'Remblayage'], unit: 'm³' },
+  { id: 'soilCompaction', category: 'earthworks', names: ['Soil compaction', 'دك التربة', 'Compactage du sol'], unit: 'm²' },
+  { id: 'sitePreparation', category: 'earthworks', names: ['Site preparation', 'تجهيز الموقع', 'Préparation du chantier'], unit: 'm²' },
+
+  // 2. FOUNDATION
+  { id: 'leanConcrete', category: 'foundation', names: ['Blinding concrete', 'خرسانة النظافة', 'Béton de propreté'], unit: 'm³' },
+  { id: 'footingConcrete', category: 'foundation', names: ['Footing concrete', 'خرسانة القواعد', 'Béton des semelles'], unit: 'm³' },
+  { id: 'foundationSteel', category: 'foundation', names: ['Foundation reinforcement steel', 'حديد تسليح الأساسات', 'Acier des fondations'], unit: 'kg' },
+  { id: 'foundationFormwork', category: 'foundation', names: ['Foundation formwork', 'قوالب الأساسات', 'Coffrage des fondations'], unit: 'm²' },
+  { id: 'foundationWaterproofing', category: 'foundation', names: ['Foundation waterproofing', 'عزل الأساسات', 'Étanchéité des fondations'], unit: 'm²' },
+
+  // 3. STRUCTURE
+  { id: 'columnConcrete', category: 'structure', names: ['Column concrete', 'خرسانة الأعمدة', 'Béton des poteaux'], unit: 'm³' },
+  { id: 'beamConcrete', category: 'structure', names: ['Beam concrete', 'خرسانة الجسور', 'Béton des poutres'], unit: 'm³' },
+  { id: 'slabConcrete', category: 'structure', names: ['Slab concrete', 'خرسانة الأسقف', 'Béton des dalles'], unit: 'm³' },
+  { id: 'structuralSteel', category: 'structure', names: ['Structural reinforcement steel', 'حديد التسليح الإنشائي', 'Acier de structure'], unit: 'kg' },
+  { id: 'columnFormwork', category: 'structure', names: ['Column formwork', 'قوالب الأعمدة', 'Coffrage des poteaux'], unit: 'm²' },
+  { id: 'beamFormwork', category: 'structure', names: ['Beam formwork', 'قوالب الجسور', 'Coffrage des poutres'], unit: 'm²' },
+  { id: 'slabFormwork', category: 'structure', names: ['Slab formwork', 'قوالب الأسقف', 'Coffrage des dalles'], unit: 'm²' },
+  { id: 'scaffolding', category: 'structure', names: ['Scaffolding and supports', 'السقالات والدعائم', 'Échafaudages et étais'], unit: 'm²' },
+
+  // 4. MASONRY
+  { id: 'externalBlocks', category: 'masonry', names: ['External wall blocks', 'بلوك الجدران الخارجية', 'Blocs des murs extérieurs'], unit: 'm²' },
+  { id: 'internalBlocks', category: 'masonry', names: ['Internal wall blocks', 'بلوك القواطع الداخلية', 'Blocs des cloisons intérieures'], unit: 'm²' },
+  { id: 'cementMasonry', category: 'masonry', names: ['Cement for masonry', 'إسمنت البناء', 'Ciment de maçonnerie'], unit: 'bag' },
+  { id: 'sandMasonry', category: 'masonry', names: ['Sand for masonry', 'رمل البناء', 'Sable de maçonnerie'], unit: 'm³' },
+  { id: 'lintels', category: 'masonry', names: ['Door and window lintels', 'عتبات الأبواب والنوافذ', 'Linteaux des portes et fenêtres'], unit: 'm' },
+
+  // 5. ROOFING
+  { id: 'roofThermalInsulation', category: 'roofing', names: ['Thermal insulation', 'العزل الحراري', 'Isolation thermique'], unit: 'm²' },
+  { id: 'roofWaterproofing', category: 'roofing', names: ['Roof waterproofing membrane', 'عزل السطح المائي', 'Membrane d’étanchéité'], unit: 'm²' },
+  { id: 'roofScreed', category: 'roofing', names: ['Roof screed', 'ميول وتسوية السطح', 'Chape de toiture'], unit: 'm²' },
+  { id: 'roofProtection', category: 'roofing', names: ['Waterproofing protection layer', 'طبقة حماية العزل', 'Couche de protection'], unit: 'm²' },
+  { id: 'roofDrainage', category: 'roofing', names: ['Roof drainage outlets', 'مصارف مياه السطح', 'Évacuations de toiture'], unit: 'pcs' },
+
+  // 6. PLASTER
+  { id: 'internalPlaster', category: 'plaster', names: ['Internal plaster', 'قصارة داخلية', 'Enduit intérieur'], unit: 'm²' },
+  { id: 'externalPlaster', category: 'plaster', names: ['External plaster', 'قصارة خارجية', 'Enduit extérieur'], unit: 'm²' },
+  { id: 'ceilingPlaster', category: 'plaster', names: ['Ceiling plaster', 'قصارة الأسقف', 'Enduit de plafond'], unit: 'm²' },
+  { id: 'plasterMesh', category: 'plaster', names: ['Plaster reinforcement mesh', 'شبك القصارة', 'Treillis pour enduit'], unit: 'm²' },
+  { id: 'plasterMaterials', category: 'plaster', names: ['Plaster cement and sand', 'إسمنت ورمل القصارة', 'Ciment et sable pour enduit'], unit: 'm³' },
+
+  // 7. ELECTRICAL
+  { id: 'lightingPoints', category: 'electrical', names: ['Lighting points', 'نقاط إنارة', 'Points lumineux'], unit: 'pcs' },
+  { id: 'singleSockets', category: 'electrical', names: ['Single socket outlets', 'مآخذ كهرباء مفردة', 'Prises simples'], unit: 'pcs' },
+  { id: 'doubleSockets', category: 'electrical', names: ['Double socket outlets', 'مآخذ كهرباء مزدوجة', 'Prises doubles'], unit: 'pcs' },
+  { id: 'acPoints', category: 'electrical', names: ['Air-conditioning points', 'نقاط المكيفات', 'Points de climatisation'], unit: 'pcs' },
+  { id: 'waterHeaterPoints', category: 'electrical', names: ['Water-heater points', 'نقاط سخانات المياه', 'Points chauffe-eau'], unit: 'pcs' },
+  { id: 'tvPoints', category: 'electrical', names: ['TV points', 'نقاط التلفاز', 'Prises TV'], unit: 'pcs' },
+  { id: 'internetPoints', category: 'electrical', names: ['Internet points', 'نقاط الإنترنت', 'Prises Internet'], unit: 'pcs' },
+  { id: 'switchPoints', category: 'electrical', names: ['Switches and control points', 'مفاتيح ونقاط تحكم', 'Interrupteurs et commandes'], unit: 'pcs' },
+  { id: 'distributionBoard', category: 'electrical', names: ['Electrical distribution board', 'لوحة التوزيع الكهربائية', 'Tableau électrique'], unit: 'pcs' },
+  { id: 'electricalCables', category: 'electrical', names: ['Electrical cables', 'كابلات كهربائية', 'Câbles électriques'], unit: 'm' },
+  { id: 'electricalConduits', category: 'electrical', names: ['Electrical conduits', 'مواسير كهربائية', 'Conduits électriques'], unit: 'm' },
+  { id: 'grounding', category: 'electrical', names: ['Grounding system', 'نظام التأريض', 'Système de mise à la terre'], unit: 'set' },
+
+  // 8. PLUMBING
+  { id: 'coldWaterPoints', category: 'plumbing', names: ['Cold-water points', 'نقاط مياه باردة', 'Points d’eau froide'], unit: 'pcs' },
+  { id: 'hotWaterPoints', category: 'plumbing', names: ['Hot-water points', 'نقاط مياه ساخنة', 'Points d’eau chaude'], unit: 'pcs' },
+  { id: 'toiletConnections', category: 'plumbing', names: ['Toilet connections', 'توصيلات المرحاض', 'Raccordements WC'], unit: 'pcs' },
+  { id: 'showerConnections', category: 'plumbing', names: ['Shower connections', 'توصيلات الدش', 'Raccordements douche'], unit: 'pcs' },
+  { id: 'basinConnections', category: 'plumbing', names: ['Basin connections', 'توصيلات المغاسل', 'Raccordements lavabo'], unit: 'pcs' },
+  { id: 'kitchenConnections', category: 'plumbing', names: ['Kitchen sink connections', 'توصيلات حوض المطبخ', 'Raccordements évier cuisine'], unit: 'pcs' },
+  { id: 'drainagePipes', category: 'plumbing', names: ['Drainage pipes', 'أنابيب الصرف الصحي', 'Tuyaux d’évacuation'], unit: 'm' },
+  { id: 'waterPipes', category: 'plumbing', names: ['Water supply pipes', 'أنابيب تغذية المياه', 'Tuyaux d’alimentation en eau'], unit: 'm' },
+  { id: 'waterTank', category: 'plumbing', names: ['Water storage tank', 'خزان مياه', 'Réservoir d’eau'], unit: 'pcs' },
+  { id: 'waterPump', category: 'plumbing', names: ['Water pump', 'مضخة مياه', 'Pompe à eau'], unit: 'pcs' },
+
+  // 9. SANITARY
+  { id: 'toilets', category: 'sanitary', names: ['Toilets', 'مراحيض', 'Toilettes'], unit: 'pcs' },
+  { id: 'washBasins', category: 'sanitary', names: ['Wash basins', 'مغاسل', 'Lavabos'], unit: 'pcs' },
+  { id: 'showers', category: 'sanitary', names: ['Shower sets', 'أطقم دش', 'Ensembles de douche'], unit: 'pcs' },
+  { id: 'faucets', category: 'sanitary', names: ['Faucets and mixers', 'حنفيات وخلاطات', 'Robinets et mitigeurs'], unit: 'pcs' },
+  { id: 'sanitaryAccessories', category: 'sanitary', names: ['Sanitary accessories', 'إكسسوارات صحية', 'Accessoires sanitaires'], unit: 'set' },
+
+  // 10. ELEVATOR
+  { id: 'elevatorCabin', category: 'elevator', names: ['Elevator cabin', 'كابينة المصعد', 'Cabine d’ascenseur'], unit: 'pcs' },
+  { id: 'elevatorMotor', category: 'elevator', names: ['Elevator motor', 'محرك المصعد', 'Moteur d’ascenseur'], unit: 'pcs' },
+  { id: 'elevatorController', category: 'elevator', names: ['Elevator controller', 'لوحة تحكم المصعد', 'Contrôleur d’ascenseur'], unit: 'pcs' },
+  { id: 'elevatorRails', category: 'elevator', names: ['Guide rails and brackets', 'سكك التوجيه والحمالات', 'Rails de guidage et supports'], unit: 'set' },
+  { id: 'elevatorLandingDoors', category: 'elevator', names: ['Landing doors (per floor)', 'أبواب الطوابق', 'Portes palières (par étage)'], unit: 'pcs' },
+  { id: 'elevatorCables', category: 'elevator', names: ['Elevator cables and ropes', 'كوابل وحبال المصعد', 'Câbles et cordes'], unit: 'set' },
+  { id: 'elevatorSafety', category: 'elevator', names: ['Safety and emergency system', 'نظام السلامة والطوارئ', 'Système de sécurité et urgence'], unit: 'set' },
+  { id: 'elevatorInstallation', category: 'elevator', names: ['Elevator installation and testing', 'تركيب وفحص المصعد', 'Installation et essais'], unit: 'job' },
+
+  // 11. TILING
+  { id: 'floorTiles', category: 'tiling', names: ['Floor tiles', 'بلاط الأرضيات', 'Carrelage de sol'], unit: 'm²' },
+  { id: 'wallTiles', category: 'tiling', names: ['Wall tiles', 'بلاط الجدران', 'Carrelage mural'], unit: 'm²' },
+  { id: 'tileAdhesive', category: 'tiling', names: ['Tile adhesive', 'لاصق البلاط', 'Colle à carrelage'], unit: 'bag' },
+  { id: 'tileGrout', category: 'tiling', names: ['Tile grout', 'روبة البلاط', 'Joint de carrelage'], unit: 'bag' },
+  { id: 'skirting', category: 'tiling', names: ['Skirting tiles', 'وزرات البلاط', 'Plinthes carrelées'], unit: 'm' },
+
+  // 12. OPENINGS
+  { id: 'internalDoors', category: 'openings', names: ['Internal doors', 'أبواب داخلية', 'Portes intérieures'], unit: 'pcs' },
+  { id: 'externalDoors', category: 'openings', names: ['External doors', 'أبواب خارجية', 'Portes extérieures'], unit: 'pcs' },
+  { id: 'aluminumWindows', category: 'openings', names: ['Aluminium windows', 'نوافذ ألمنيوم', 'Fenêtres en aluminium'], unit: 'm²' },
+  { id: 'glassWork', category: 'openings', names: ['Glass and glazing', 'أعمال الزجاج', 'Vitrage'], unit: 'm²' },
+  { id: 'doorHardware', category: 'openings', names: ['Door locks and hardware', 'أقفال وإكسسوارات الأبواب', 'Serrures et quincaillerie'], unit: 'set' },
+
+  // 13. PAINTING
+  { id: 'wallPrimer', category: 'painting', names: ['Wall primer', 'وجه أساس للجدران', 'Primaire mural'], unit: 'm²' },
+  { id: 'wallPutty', category: 'painting', names: ['Wall putty and preparation', 'معجون وتجهيز الجدران', 'Enduit de préparation'], unit: 'm²' },
+  { id: 'interiorPaint', category: 'painting', names: ['Interior paint', 'دهان داخلي', 'Peinture intérieure'], unit: 'm²' },
+  { id: 'exteriorPaint', category: 'painting', names: ['Exterior paint', 'دهان خارجي', 'Peinture extérieure'], unit: 'm²' },
+  { id: 'metalWoodPaint', category: 'painting', names: ['Metal and wood paint', 'دهان المعادن والخشب', 'Peinture métal et bois'], unit: 'm²' },
+
+  // 14. CEILINGS
+  { id: 'falseCeiling', category: 'ceiling', names: ['False ceiling', 'سقف مستعار', 'Faux plafond'], unit: 'm²' },
+  { id: 'ceilingFrame', category: 'ceiling', names: ['Ceiling suspension frame', 'هيكل السقف المستعار', 'Ossature de plafond'], unit: 'm²' },
+  { id: 'ceilingInsulation', category: 'ceiling', names: ['Ceiling insulation', 'عزل الأسقف', 'Isolation du plafond'], unit: 'm²' },
+  { id: 'ceilingAccessPanels', category: 'ceiling', names: ['Ceiling access panels', 'فتحات صيانة السقف', 'Trappes de visite'], unit: 'pcs' },
+  { id: 'ceilingFinishing', category: 'ceiling', names: ['Ceiling finishing', 'تشطيب الأسقف', 'Finition des plafonds'], unit: 'm²' },
+
+  // 15. FACADE AND EXTERNAL WORKS
+  { id: 'facadeFinish', category: 'facade', names: ['Facade finish and cladding', 'تشطيب وكسوة الواجهة', 'Finition et revêtement façade'], unit: 'm²' },
+  { id: 'externalPaving', category: 'facade', names: ['External paving', 'تبليط خارجي', 'Pavage extérieur'], unit: 'm²' },
+  { id: 'balustrades', category: 'facade', names: ['Balcony railings', 'درابزين الشرفات', 'Garde-corps des balcons'], unit: 'm' },
+  { id: 'externalStairs', category: 'facade', names: ['External stairs and steps', 'درج خارجي', 'Escaliers extérieurs'], unit: 'm²' },
+  { id: 'landscaping', category: 'facade', names: ['Landscaping and external works', 'تنسيق الموقع والأعمال الخارجية', 'Aménagement paysager'], unit: 'm²' },
+
+  // 16. OTHER
+  { id: 'transport', category: 'other', names: ['Material transportation', 'نقل المواد', 'Transport des matériaux'], unit: 'job' },
+  { id: 'wasteDisposal', category: 'other', names: ['Construction waste disposal', 'ترحيل مخلفات البناء', 'Évacuation des déchets'], unit: 'job' },
+  { id: 'permits', category: 'other', names: ['Permits and inspections', 'رخص وفحوصات', 'Permis et inspections'], unit: 'job' },
+  { id: 'siteManagement', category: 'other', names: ['Site management', 'إدارة الموقع', 'Gestion du chantier'], unit: 'job' },
+  { id: 'miscellaneous', category: 'other', names: ['Miscellaneous expenses', 'مصاريف متنوعة', 'Dépenses diverses'], unit: 'job' },
+];
+
+function createDetailedCostValues(): DetailedValues {
+  const values: DetailedValues = {};
+  COST_ITEMS.forEach(item => {
+    values[`${item.id}Qty`] = '0';
+    values[`${item.id}Material`] = '0';
+    values[`${item.id}Labor`] = '0';
+  });
+  return values;
+}
 
 const initialFloor = (id: number): FloorData => ({
   id,
@@ -335,7 +534,11 @@ const areaKeys = ['openings', 'partitions', 'waterproof'];
 const blockDimensionKeys = ['blockLength', 'blockHeight'];
 const areaPriceKeys = ['plasterPrice', 'tilePrice', 'waterproofPrice'];
 
-function inputAsMetric(key: string, value: number, units: 'metric' | 'imperial') {
+function inputAsMetric(
+  key: string,
+  value: number,
+  units: 'metric' | 'imperial'
+) {
   if (units === 'metric') return value;
 
   if (lengthKeys.includes(key)) return value * FT_TO_M;
@@ -378,7 +581,6 @@ function convertStoredValue(
   if (key === 'concretePrice') return String(n * CUFT_PER_CUM);
   if (areaPriceKeys.includes(key)) return String(n * SQFT_TO_SQM);
   if (key === 'paintPrice') return String(n * US_GAL_TO_L);
-
   return value;
 }
 
@@ -433,7 +635,10 @@ export default function BuildingCalculatorScreen({
   ]);
 
   const [values, setValues] = useState(initialValues);
-  const [result, setResult] = useState<Record<string, number> | null>(null);
+  const [detailedValues, setDetailedValues] = useState<DetailedValues>(
+    createDetailedCostValues
+  );
+  const [result, setResult] = useState<Record<string, any> | null>(null);
   const [error, setError] = useState('');
   const previousUnits = useRef<'metric' | 'imperial'>('metric');
 
@@ -466,6 +671,11 @@ export default function BuildingCalculatorScreen({
 
   const updateValue = (key: string, value: string) => {
     setValues(old => ({ ...old, [key]: value }));
+    setResult(null);
+  };
+
+  const updateDetailedValue = (key: string, value: string) => {
+    setDetailedValues(old => ({ ...old, [key]: value }));
     setResult(null);
   };
 
@@ -510,7 +720,17 @@ export default function BuildingCalculatorScreen({
       return value.trim() !== '' && Number.isFinite(n) && n >= 0;
     });
 
-    if (!allFloorValues || !allInputs || floors.length === 0) {
+    const allDetailedInputs = Object.values(detailedValues).every(value => {
+      const n = Number(value);
+      return value.trim() !== '' && Number.isFinite(n) && n >= 0;
+    });
+
+    if (
+      !allFloorValues ||
+      !allInputs ||
+      !allDetailedInputs ||
+      floors.length === 0
+    ) {
       return null;
     }
 
@@ -568,7 +788,6 @@ export default function BuildingCalculatorScreen({
       v('beamDepth');
 
     const slabConcrete = floorArea * v('slabThickness');
-
     const stairConcrete = v('stairVolume');
 
     const concrete =
@@ -621,7 +840,7 @@ export default function BuildingCalculatorScreen({
     const electricalCost = v('electrical') * v('electricalPrice');
     const plumbingCost = v('plumbing') * v('plumbingPrice');
 
-    const materialTotal =
+    const basicMaterialTotal =
       concreteCost +
       blockCost +
       plasterCost +
@@ -631,7 +850,31 @@ export default function BuildingCalculatorScreen({
       electricalCost +
       plumbingCost;
 
-    const labor = v('labor');
+    let detailedMaterialTotal = 0;
+    let detailedLaborTotal = 0;
+    const categoryTotals: Record<string, number> = {};
+
+    COST_ITEMS.forEach(item => {
+      const qty = Number(detailedValues[`${item.id}Qty`] || 0);
+      const material = Number(detailedValues[`${item.id}Material`] || 0);
+      const labor = Number(detailedValues[`${item.id}Labor`] || 0);
+
+      const materialCost = qty * material;
+      const laborCost = qty * labor;
+      const itemTotal = materialCost + laborCost;
+
+      detailedMaterialTotal += materialCost;
+      detailedLaborTotal += laborCost;
+      categoryTotals[item.category] =
+        (categoryTotals[item.category] || 0) + itemTotal;
+    });
+
+    const detailedTotal = detailedMaterialTotal + detailedLaborTotal;
+
+    // The original unit-price estimate is preserved.
+    // Itemized entries are added to it as additional cost lines.
+    const materialTotal = basicMaterialTotal + detailedMaterialTotal;
+    const labor = v('labor') + detailedLaborTotal;
     const equipment = v('equipment');
     const extra = v('extra');
 
@@ -651,6 +894,11 @@ export default function BuildingCalculatorScreen({
       waterproofArea,
       electrical: v('electrical'),
       plumbing: v('plumbing'),
+      basicMaterialTotal,
+      detailedMaterialTotal,
+      detailedLaborTotal,
+      detailedTotal,
+      categoryTotals,
       materialTotal,
       labor,
       equipment,
@@ -659,7 +907,7 @@ export default function BuildingCalculatorScreen({
       reserve,
       total,
     };
-  }, [floors, values, units]);
+  }, [floors, values, detailedValues, units]);
 
   const calculate = () => {
     if (!calculations) {
@@ -714,6 +962,34 @@ export default function BuildingCalculatorScreen({
       <Text style={[styles.resultValue, bold && styles.boldResult]}>
         {value}
       </Text>
+    </View>
+  );
+
+  const unitForItem = (unit: string) => {
+    if (units === 'imperial') {
+      if (unit === 'm²') return 'ft²';
+      if (unit === 'm³') return 'ft³';
+      if (unit === 'm') return 'ft';
+    }
+    return unit;
+  };
+
+  const detailedField = (
+    key: string,
+    label: string,
+    value: string
+  ) => (
+    <View style={styles.detailedInputColumn} key={key}>
+      <Text style={styles.detailedInputLabel}>{label}</Text>
+      <TextInput
+        value={value}
+        onChangeText={text => updateDetailedValue(key, text)}
+        keyboardType="decimal-pad"
+        placeholder="0"
+        placeholderTextColor="#888"
+        style={styles.detailedInput}
+        selectTextOnFocus
+      />
     </View>
   );
 
@@ -867,6 +1143,91 @@ export default function BuildingCalculatorScreen({
         </>
       )}
 
+      {/* COMPLETE ITEMIZED COST CATALOG */}
+      {section(
+        t.detailedCosts,
+        <>
+          <Text style={styles.detailedHint}>{t.detailedHint}</Text>
+
+          {COST_CATEGORIES.map(category => {
+            const items = COST_ITEMS.filter(
+              item => item.category === category.id
+            );
+            const categoryTotal =
+              calculations?.categoryTotals?.[category.id] || 0;
+
+            return (
+              <View key={category.id} style={styles.detailedCategory}>
+                <View style={styles.detailedCategoryHeader}>
+                  <Text style={styles.detailedCategoryTitle}>
+                    {category.names[language === 'ar' ? 1 : language === 'fr' ? 2 : 0]}
+                  </Text>
+                  <Text style={styles.detailedCategoryTotal}>
+                    {money(categoryTotal)}
+                  </Text>
+                </View>
+
+                {items.map(item => {
+                  const qty = Number(detailedValues[`${item.id}Qty`] || 0);
+                  const material = Number(detailedValues[`${item.id}Material`] || 0);
+                  const labor = Number(detailedValues[`${item.id}Labor`] || 0);
+                  const itemTotal = qty * (material + labor);
+
+                  return (
+                    <View key={item.id} style={styles.detailedItem}>
+                      <View style={styles.detailedItemHeading}>
+                        <Text style={styles.detailedItemName}>
+                          {item.names[language === 'ar' ? 1 : language === 'fr' ? 2 : 0]}
+                        </Text>
+                        <Text style={styles.detailedUnit}>
+                          {unitForItem(item.unit)}
+                        </Text>
+                      </View>
+
+                      <View style={styles.detailedInputsRow}>
+                        {detailedField(
+                          `${item.id}Qty`,
+                          t.quantity,
+                          detailedValues[`${item.id}Qty`]
+                        )}
+                        {detailedField(
+                          `${item.id}Material`,
+                          t.materialUnit,
+                          detailedValues[`${item.id}Material`]
+                        )}
+                        {detailedField(
+                          `${item.id}Labor`,
+                          t.laborUnit,
+                          detailedValues[`${item.id}Labor`]
+                        )}
+                      </View>
+
+                      <View style={styles.detailedItemTotalRow}>
+                        <Text style={styles.detailedItemTotalLabel}>
+                          {t.itemTotal}
+                        </Text>
+                        <Text style={styles.detailedItemTotalValue}>
+                          {money(itemTotal)}
+                        </Text>
+                      </View>
+                    </View>
+                  );
+                })}
+
+                <View style={styles.detailedCategoryFooter}>
+                  <Text style={styles.detailedCategoryFooterLabel}>
+                    {t.categoryTotal}
+                  </Text>
+                  <Text style={styles.detailedCategoryFooterValue}>
+                    {money(categoryTotal)}
+                  </Text>
+                </View>
+              </View>
+            );
+          })}
+        </>
+      )}
+
       <Pressable style={styles.calculateButton} onPress={calculate}>
         <Text style={styles.calculateButtonText}>{t.calculate}</Text>
       </Pressable>
@@ -914,9 +1275,20 @@ export default function BuildingCalculatorScreen({
 
           <View style={styles.resultDivider} />
           {resultRow(t.materialTotal, money(result.materialTotal))}
+          {resultRow(t.detailedMaterial, money(result.detailedMaterialTotal))}
+          {resultRow(t.detailedLabor, money(result.detailedLaborTotal))}
+          {resultRow(t.detailedTotal, money(result.detailedTotal))}
           {resultRow(t.laborResult, money(result.labor))}
           {resultRow(t.equipmentResult, money(result.equipment))}
           {resultRow(t.extraResult, money(result.extra))}
+
+          {COST_CATEGORIES.map(category =>
+            resultRow(
+              category.names[language === 'ar' ? 1 : language === 'fr' ? 2 : 0],
+              money(result.categoryTotals[category.id] || 0)
+            )
+          )}
+
           {resultRow(t.subtotal, money(result.subtotal))}
           {resultRow(t.reserve, money(result.reserve))}
           <View style={styles.totalBox}>
@@ -1129,5 +1501,126 @@ const styles = StyleSheet.create({
     color: '#e2d7c5',
     fontSize: 11,
     lineHeight: 18,
+  },
+  detailedHint: {
+    color: '#b7bbc0',
+    fontSize: 11,
+    lineHeight: 17,
+    marginBottom: 13,
+  },
+  detailedCategory: {
+    backgroundColor: '#20262d',
+    borderWidth: 1,
+    borderColor: '#51432f',
+    borderRadius: 11,
+    padding: 10,
+    marginBottom: 13,
+  },
+  detailedCategoryHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#51432f',
+    paddingBottom: 10,
+    marginBottom: 10,
+    gap: 8,
+  },
+  detailedCategoryTitle: {
+    color: GOLD,
+    fontSize: 14,
+    fontWeight: '900',
+    flex: 1,
+  },
+  detailedCategoryTotal: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  detailedItem: {
+    backgroundColor: '#171c22',
+    borderRadius: 9,
+    borderWidth: 1,
+    borderColor: '#343a40',
+    padding: 9,
+    marginBottom: 9,
+  },
+  detailedItemHeading: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 9,
+    gap: 8,
+  },
+  detailedItemName: {
+    color: '#f1f1f1',
+    fontSize: 12,
+    fontWeight: '700',
+    flex: 1,
+  },
+  detailedUnit: {
+    color: GOLD,
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  detailedInputsRow: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  detailedInputColumn: {
+    flex: 1,
+    minWidth: 0,
+  },
+  detailedInputLabel: {
+    color: '#c4c4c4',
+    fontSize: 9,
+    marginBottom: 5,
+    minHeight: 23,
+  },
+  detailedInput: {
+    backgroundColor: '#292f36',
+    color: '#fff',
+    borderRadius: 7,
+    paddingHorizontal: 7,
+    paddingVertical: 9,
+    fontSize: 12,
+    borderWidth: 1,
+    borderColor: '#45484d',
+    minWidth: 0,
+  },
+  detailedItemTotalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderTopWidth: 1,
+    borderTopColor: '#343a40',
+    marginTop: 9,
+    paddingTop: 8,
+  },
+  detailedItemTotalLabel: {
+    color: '#aaa',
+    fontSize: 10,
+  },
+  detailedItemTotalValue: {
+    color: GOLD,
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  detailedCategoryFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderTopWidth: 1,
+    borderTopColor: '#6b5736',
+    paddingTop: 9,
+    marginTop: 2,
+  },
+  detailedCategoryFooterLabel: {
+    color: '#ddd0b5',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  detailedCategoryFooterValue: {
+    color: GOLD,
+    fontSize: 12,
+    fontWeight: '900',
   },
 });
