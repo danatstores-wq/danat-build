@@ -7,7 +7,7 @@
 
 The country selector and editable local-market rate catalog are implemented. A complete and defensible six-country price book for every Danat Build bill-of-quantities line is **not yet available from public evidence**. Do not prefill GCC prices by copying Lebanon rates, applying exchange rates, or applying one country-wide multiplier.
 
-Lebanon retains its existing USD defaults. GCC markets have separate saved rate inputs that start blank rather than inheriting Lebanon prices. The calculator can show a partial total for manually priced active items and flags missing required rates; a complete GCC estimate still requires country-specific item-level defaults, review and validation.
+Lebanon retains its existing USD material and labor defaults unchanged. GCC markets have separate saved local-currency rate inputs, prefilled only where a country-specific source anchor or a clearly identified provisional labor calculation is available; no Lebanon prices are copied or currency-converted. Remaining rates stay at zero until entered. The calculator shows a partial total and flags active items missing a required material/service or labor rate. These starter profiles are not complete or tender-ready.
 
 ## Comparable published benchmarks
 
@@ -197,9 +197,9 @@ Sources:
 | Market | Useful evidence found | Main limitation | App decision |
 |---|---|---|---|
 | Lebanon | Rolling supplier-derived index for core materials; existing USD planning allowances | Index is LBP and only covers five core materials; many app rates remain provisional | Keep Lebanon active; label defaults as planning allowances |
-| UAE | Recent Dubai manpower rates; 2025 T&T material benchmarks | Dubai vs Abu Dhabi variation; large-project procurement quantities; incomplete trades | Do not activate a complete total yet |
-| Saudi Arabia | Official GASTAT national material averages; recent Riyadh QS labor and installed rates | National materials and Riyadh installed rates have different geographic coverage | Build a separate Saudi profile after mapping all BOQ lines |
-| Qatar | Ashghal dated material schedule; current commercial material and labor listings; 2025 T&T benchmarks | Current installed labor/finishes coverage incomplete; mixed source quality | Build a separate Qatar profile after validation |
+| UAE | Recent Dubai manpower rates; 2025 T&T material benchmarks | Dubai vs Abu Dhabi variation; large-project procurement quantities; incomplete trades | Partial country profile; selected labor allowances provisional; missing active rates flagged |
+| Saudi Arabia | Official GASTAT national material averages; recent Riyadh QS labor and installed rates | National materials and Riyadh installed rates have different geographic coverage | Partial country profile; selected labor allowances provisional; missing active rates flagged |
+| Qatar | Ashghal dated material schedule; current commercial material and labor listings; 2025 T&T benchmarks | Current installed labor/finishes coverage incomplete; mixed source quality | Partial country profile; selected labor allowances provisional; missing active rates flagged |
 | Kuwait | 40+ category material index; whole-house cost-per-m² study; rolling material index description | Missing sufficiently detailed public labor and installed-trade rates | Keep totals incomplete until labor/installed coverage is built |
 | Oman | 40+ category material index; local block manufacturer rates; provisional trade wage guide | Wage guide is not official and installed-trade coverage remains incomplete | Keep totals incomplete until labor/installed coverage is validated |
 
@@ -232,4 +232,4 @@ Sources:
 - The rates are reference anchors, not a complete installed price book. In particular, the same published concrete benchmark is currently used as a planning material anchor across the structural concrete lines; actual grade, mix design, pump, delivery distance and project volume must be confirmed before quotation.
 - Published market benchmarks remain displayed separately from editable itemized rates. They are not silently treated as installed rates.
 
-**Remaining work:** extend the country rate cards to more catalogue materials and independently sourced labor rates, particularly Kuwait and Oman; add per-rate provenance and confidence labels in the editable itemized section; review composite/installed work items so material and labor are not double-counted; then run type/build validation and calculation checks for all six markets. Keep totals incomplete wherever an active line lacks a required rate.
+**Remaining work:** extend the country rate cards to more catalogue materials and independently sourced labor rates, particularly Kuwait and Oman; add per-rate provenance and confidence labels beside each editable itemized rate; review composite/installed work items so material and labor are not double-counted; and perform runtime calculation checks for representative projects in all six markets. The current branch passes TypeScript, Firebase Functions build and web export checks, but those checks do not prove rate accuracy or complete BOQ coverage. Keep totals incomplete wherever an active line lacks a required rate.
