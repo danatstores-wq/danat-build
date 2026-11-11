@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { estimateBuildingQuantities } from './buildingQuantityEstimator';
 import {
   View,
   Text,
@@ -638,6 +639,7 @@ export default function BuildingCalculatorScreen({
   const [detailedValues, setDetailedValues] = useState<DetailedValues>(
     createDetailedCostValues
   );
+  const manuallyEditedQuantities = useRef<Set<string>>(new Set());
   const [result, setResult] = useState<Record<string, any> | null>(null);
   const [error, setError] = useState('');
   const previousUnits = useRef<'metric' | 'imperial'>('metric');
@@ -675,9 +677,30 @@ export default function BuildingCalculatorScreen({
   };
 
   const updateDetailedValue = (key: string, value: string) => {
+    if (key.endsWith('Qty')) {
+      manuallyEditedQuantities.current.add(key);
+    }
     setDetailedValues(old => ({ ...old, [key]: value }));
     setResult(null);
   };
+
+  const automaticQuantities = useMemo(
+    () => estimateBuildingQuantities(floors, values, units),
+    [floors, values, units]
+  );
+
+  useEffect(() => {
+    setDetailedValues(old => {
+      const next = { ...old };
+      Object.entries(automaticQuantities).forEach(([key, estimate]) => {
+        if (!manuallyEditedQuantities.current.has(key)) {
+          next[key] = estimate;
+        }
+      });
+      return next;
+    });
+    setResult(null);
+  }, [automaticQuantities]);
 
   const updateFloor = (id: number, key: keyof FloorData, value: string) => {
     setFloors(old =>
