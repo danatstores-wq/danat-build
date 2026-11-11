@@ -79,6 +79,8 @@ const NOTE_LABELS: Record<string, [string, string]> = {
   'Dubai indicative index, October 2026, excluding VAT.': ['مؤشر استرشادي لدبي، أكتوبر 2026، غير شامل ضريبة القيمة المضافة.', 'Indice indicatif de Dubaï, octobre 2026, hors TVA.'],
   'Emirates Steel delivered-to-Dubai indicative benchmark; ex-works and retail quotes differ.': ['سعر استرشادي من حديد الإمارات مع التوصيل إلى دبي؛ تختلف أسعار المصنع والتجزئة.', 'Référence indicative d’Emirates Steel livrée à Dubaï ; les prix départ usine et de détail diffèrent.'],
   'Dubai indicative index, excluding VAT.': ['مؤشر استرشادي لدبي، غير شامل ضريبة القيمة المضافة.', 'Indice indicatif de Dubaï, hors TVA.'],
+  'Dubai labour survey; AED 208 per 8-hour working day.': ['مسح أجور في دبي؛ 208 دراهم عن يوم عمل مدته 8 ساعات.', 'Enquête salariale à Dubaï ; 208 AED pour une journée de 8 heures.'],
+  'Dubai labour survey; AED 190 per 8-hour working day.': ['مسح أجور في دبي؛ 190 درهماً عن يوم عمل مدته 8 ساعات.', 'Enquête salariale à Dubaï ; 190 AED pour une journée de 8 heures.'],
   'Dubai labor survey; do not treat as a per-m² installed rate.': ['مسح أجور في دبي؛ لا يُعتمد كسعر تنفيذ للمتر المربع.', 'Enquête salariale à Dubaï ; ne pas considérer comme un prix posé au m².'],
   'Dubai labor survey; supplier-provided accommodation/transport assumptions apply.': ['مسح أجور في دبي؛ يفترض توفير السكن والنقل من جهة صاحب العمل.', 'Enquête salariale à Dubaï ; suppose que le logement et le transport sont fournis par l’employeur.'],
   'Dubai 2025 measured rate; large-project reference, excludes unrelated earthworks.': ['سعر مقاس في دبي لعام 2025؛ مرجع للمشاريع الكبيرة ولا يشمل أعمالاً ترابية أخرى.', 'Prix mesuré à Dubaï en 2025 ; référence pour grands projets, hors autres travaux de terrassement.'],
