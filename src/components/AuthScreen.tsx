@@ -15,10 +15,12 @@ import {
 } from 'firebase/firestore';
 import { auth } from '../firebase';
 import { db } from '../firestore';
+import { getThemedStyles } from '../theme';
 
 type Props = {
   language: 'en' | 'ar' | 'fr';
   onAuthenticated: () => void;
+  theme: 'dark' | 'light';
 };
 
 type AuthMode = 'login' | 'register' | 'forgot';
@@ -42,7 +44,8 @@ async function ensureUserProfile(user: {
   }
 }
 
-export default function AuthScreen({ language, onAuthenticated }: Props) {
+export default function AuthScreen({ language, theme, onAuthenticated }: Props) {
+  const ui = getThemedStyles(styles, theme);
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -173,11 +176,11 @@ export default function AuthScreen({ language, onAuthenticated }: Props) {
     : t('Welcome Back', 'مرحباً بعودتك', 'Bon retour');
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.brand}>DANAT BUILD</Text>
-      <Text style={styles.heading}>{heading}</Text>
+    <View style={ui.container}>
+      <Text style={ui.brand}>DANAT BUILD</Text>
+      <Text style={ui.heading}>{heading}</Text>
 
-      <Text style={styles.subtitle}>
+      <Text style={ui.subtitle}>
         {mode === 'register'
           ? t(
               'Create your account to get started.',
@@ -198,7 +201,7 @@ export default function AuthScreen({ language, onAuthenticated }: Props) {
       </Text>
 
       <TextInput
-        style={styles.input}
+        style={ui.input}
         placeholder={t('Email address', 'البريد الإلكتروني', 'Adresse e-mail')}
         placeholderTextColor="#92979d"
         value={email}
@@ -210,7 +213,7 @@ export default function AuthScreen({ language, onAuthenticated }: Props) {
 
       {mode !== 'forgot' && (
         <TextInput
-          style={styles.input}
+          style={ui.input}
           placeholder={t(
             'Password (minimum 6 characters)',
             'كلمة المرور (6 أحرف على الأقل)',
@@ -224,17 +227,17 @@ export default function AuthScreen({ language, onAuthenticated }: Props) {
         />
       )}
 
-      {!!error && <Text style={styles.error}>{error}</Text>}
-      {!!message && <Text style={styles.success}>{message}</Text>}
+      {!!error && <Text style={ui.error}>{error}</Text>}
+      {!!message && <Text style={ui.success}>{message}</Text>}
 
       <Pressable
-        style={[styles.button, loading && styles.disabled]}
+        style={[ui.button, loading && ui.disabled]}
         onPress={submit}
         disabled={loading}
       >
         {loading
           ? <ActivityIndicator color="#17110a" />
-          : <Text style={styles.buttonText}>
+          : <Text style={ui.buttonText}>
               {mode === 'register'
                 ? t('CREATE ACCOUNT', 'إنشاء الحساب', 'CRÉER UN COMPTE')
                 : mode === 'forgot'
@@ -249,7 +252,7 @@ export default function AuthScreen({ language, onAuthenticated }: Props) {
           setError('');
           setMessage('');
         }}>
-          <Text style={styles.link}>
+          <Text style={ui.link}>
             {t('Forgot password?', 'نسيت كلمة المرور؟', 'Mot de passe oublié ?')}
           </Text>
         </Pressable>
@@ -261,7 +264,7 @@ export default function AuthScreen({ language, onAuthenticated }: Props) {
           setError('');
           setMessage('');
         }}>
-          <Text style={styles.link}>
+          <Text style={ui.link}>
             {mode === 'login'
               ? t(
                   "Don't have an account? Register",
@@ -281,7 +284,7 @@ export default function AuthScreen({ language, onAuthenticated }: Props) {
           setError('');
           setMessage('');
         }}>
-          <Text style={styles.link}>
+          <Text style={ui.link}>
             {t('Back to sign in', 'العودة لتسجيل الدخول', 'Retour à la connexion')}
           </Text>
         </Pressable>
