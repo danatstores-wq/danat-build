@@ -465,8 +465,57 @@ const COST_ITEMS: CostItem[] = [
   { id: 'miscellaneous', category: 'other', names: ['Miscellaneous expenses', 'مصاريف متنوعة', 'Dépenses diverses'], unit: 'job' },
 ];
 
+// Lebanon USD planning benchmarks (November 2026). These are editable
+// starting allowances, not binding supplier quotations. Publicly listed local
+// prices anchor cement, tiles, waterproofing products, paint and aluminium;
+// unquoted trades use conservative local estimating allowances and require
+// project-specific contractor confirmation.
 const DEFAULT_MATERIAL_RATES: Record<string, string> = {
-  cementMasonry: '8.50',
+  excavation: '8', soilRemoval: '7', backfilling: '5', soilCompaction: '1.5', sitePreparation: '2',
+  leanConcrete: '125', footingConcrete: '135', foundationSteel: '0.68', foundationFormwork: '5', foundationWaterproofing: '12',
+  columnConcrete: '135', stairConcrete: '135', beamConcrete: '135', slabConcrete: '135', structuralSteel: '0.68',
+  columnFormwork: '5', beamFormwork: '5', slabFormwork: '5', scaffolding: '4',
+  externalBlocks: '14.7', internalBlocks: '9', cementMasonry: '8.5', sandMasonry: '25', lintels: '18',
+  roofThermalInsulation: '12', roofWaterproofing: '12', roofScreed: '5', roofProtection: '4', roofDrainage: '15',
+  internalPlaster: '3.5', externalPlaster: '4', ceilingPlaster: '3.5', plasterMesh: '1.5', plasterMaterials: '75',
+  lightingPoints: '18', singleSockets: '8', doubleSockets: '12', acPoints: '20', waterHeaterPoints: '15',
+  tvPoints: '8', internetPoints: '8', switchPoints: '5', distributionBoard: '80', electricalCables: '1.2',
+  electricalConduits: '0.35', grounding: '100',
+  coldWaterPoints: '15', hotWaterPoints: '18', toiletConnections: '20', showerConnections: '20',
+  basinConnections: '15', kitchenConnections: '20', drainagePipes: '4', waterPipes: '3',
+  waterTank: '250', waterPump: '180',
+  toilets: '180', washBasins: '80', showers: '150', faucets: '45', sanitaryAccessories: '50',
+  elevatorCabin: '4000', elevatorMotor: '2500', elevatorController: '1800', elevatorRails: '1000',
+  elevatorLandingDoors: '500', elevatorCables: '700', elevatorSafety: '900',
+  floorTiles: '8', wallTiles: '5', tileAdhesive: '20', tileGrout: '12', skirting: '4',
+  internalDoors: '150', externalDoors: '500', aluminumWindows: '65', glassWork: '20', doorHardware: '30',
+  wallPrimer: '1.2', wallPutty: '1.5', interiorPaint: '2.5', exteriorPaint: '3.5', metalWoodPaint: '3',
+  falseCeiling: '15', ceilingFrame: '6', ceilingInsulation: '4', ceilingAccessPanels: '25', ceilingFinishing: '5',
+  facadeFinish: '25', externalPaving: '12', balustrades: '60', externalStairs: '35', landscaping: '15',
+  transport: '250', wasteDisposal: '300', permits: '1000', miscellaneous: '500',
+};
+
+const DEFAULT_LABOR_RATES: Record<string, string> = {
+  leanConcrete: '25', footingConcrete: '28', foundationSteel: '0.18', foundationFormwork: '8', foundationWaterproofing: '5',
+  columnConcrete: '28', stairConcrete: '32', beamConcrete: '28', slabConcrete: '25', structuralSteel: '0.18',
+  columnFormwork: '8', beamFormwork: '8', slabFormwork: '7',
+  externalBlocks: '8', internalBlocks: '7', lintels: '6',
+  roofThermalInsulation: '4', roofWaterproofing: '6', roofScreed: '6', roofProtection: '3', roofDrainage: '10',
+  internalPlaster: '4.5', externalPlaster: '5.5', ceilingPlaster: '5', plasterMesh: '0.5',
+  lightingPoints: '15', singleSockets: '8', doubleSockets: '10', acPoints: '15', waterHeaterPoints: '12',
+  tvPoints: '8', internetPoints: '8', switchPoints: '5', distributionBoard: '40', electricalCables: '0.35',
+  electricalConduits: '0.25', grounding: '40',
+  coldWaterPoints: '12', hotWaterPoints: '14', toiletConnections: '15', showerConnections: '15',
+  basinConnections: '12', kitchenConnections: '15', drainagePipes: '1.5', waterPipes: '1.25',
+  waterTank: '50', waterPump: '50',
+  toilets: '35', washBasins: '25', showers: '40', faucets: '15', sanitaryAccessories: '20',
+  elevatorInstallation: '2500',
+  floorTiles: '10', wallTiles: '12', skirting: '3',
+  internalDoors: '50', externalDoors: '100', aluminumWindows: '10', glassWork: '3', doorHardware: '20',
+  wallPrimer: '0.5', wallPutty: '2', interiorPaint: '2.5', exteriorPaint: '3', metalWoodPaint: '4',
+  falseCeiling: '8', ceilingFrame: '4', ceilingInsulation: '2', ceilingAccessPanels: '10', ceilingFinishing: '4',
+  facadeFinish: '15', externalPaving: '8', balustrades: '25', externalStairs: '25', landscaping: '8',
+  siteManagement: '2000',
 };
 
 function createDetailedCostValues(): DetailedValues {
@@ -474,7 +523,7 @@ function createDetailedCostValues(): DetailedValues {
   COST_ITEMS.forEach(item => {
     values[`${item.id}Qty`] = '0';
     values[`${item.id}Material`] = DEFAULT_MATERIAL_RATES[item.id] ?? '0';
-    values[`${item.id}Labor`] = '0';
+    values[`${item.id}Labor`] = DEFAULT_LABOR_RATES[item.id] ?? '0';
   });
   return values;
 }
