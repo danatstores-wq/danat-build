@@ -92,6 +92,8 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
     benchmarks: [
       { item: 'deformed rebar Y8-Y32', value: 245, unit: 'tonne', status: 'market-survey', source: 'https://www.gccpricing.com/kuwait-construction-prices', checkedAt: '2026-11-11', note: 'Indicative GCCPricing benchmark; verify grade, delivery and supplier quote.' },
       { item: 'cement', value: 3, unit: '50 kg bag', status: 'market-survey', source: 'https://www.gccpricing.com/kuwait-construction-prices', checkedAt: '2026-11-11', note: 'Indicative GCCPricing benchmark.' },
+      { item: 'ready-mix concrete C30/37', value: 24.85, unit: 'm³', status: 'market-survey', source: 'https://www.gccpricing.com/materials/ready-mix-concrete-c30-price-kuwait', checkedAt: '2026-11-11', note: 'Delivered KWD 24.85/m³ reference-parity benchmark updated 26 Oct 2026; GCCPricing labels Kuwait as calibrated parity rather than a direct local merchant submission.' },
+      { item: 'CMU hollow block 200 mm', value: 0.59, unit: 'piece', status: 'market-survey', source: 'https://www.gccpricing.com/materials/cmu-hollow-block-200mm-price-kuwait', checkedAt: '2026-11-11', note: 'Local-origin 400×200×200 mm hollow CMU, supply-only; updated 5 days ago. 12.5 pieces/m² before waste; verify local supplier quote.' },
       { item: '17 cm limestone block', value: 0.431, unit: 'piece', status: 'published', source: 'https://online.nicbm.com/en/item/block-17', checkedAt: '2026-11-11', note: 'NIC Kuwait online retail listing, 390×190×190 mm; page states 12 pieces/m². Sandlime block, not a generic concrete-block rate.' },
       { item: '9 cm hollow cement block', value: 0.202, unit: 'piece', status: 'published', source: 'https://online.nicbm.com/en/item/hollow-blocks-39x19x09-cm-3-n-mm2', checkedAt: '2026-11-11', note: 'NIC Kuwait online retail listing, 390×190×90 mm; page states 25 pieces/m². Check stated coverage against actual laying pattern before BOQ conversion.' },
       { item: 'electrician basic wage', value: 185, unit: 'month', status: 'market-survey', source: 'https://tajhrservices.com/salary-guide/kuwait', checkedAt: '2026-11-11', note: 'KWD 150-250 range; KWD 185 overseas-intake basic median. Housing/transport and employer costs are separate.' },
@@ -106,7 +108,8 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
       { item: '16 mm rebar', value: 246.1, unit: 'tonne', status: 'market-survey', source: 'https://madaar.om/', checkedAt: '2026-11-11', note: 'Indicative supplier gateway price; confirm stock and delivery.' },
       { item: 'Raysut cement (Al Wusta field survey)', value: 1.6, unit: '50 kg bag', status: 'published', source: 'https://shabiba.com/article/212280-%D9%84%D9%84%D9%85%D9%82%D8%A8%D9%84%D9%8A%D9%86-%D8%A8%D8%A7%D9%84%D8%A8%D9%86%D8%A7-%D8%A8%D8%A7%D9%84%D9%88%D8%B3%D8%B7%D9%89-%D9%83%D9%85-%D8%A8%D9%84%D8%BA%D8%AA-%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1-%D8%A7%D9%84%D8%A3%D8%B3%D9%85%D9%86%D8%AA-%D9%88%D8%A7%D9%84%D8%AD%D8%AF%D9%8A%D8%AF-%D9%81%D9%8A-%D9%85%D9%86%D8%A7%D9%81%D8%B0-%D8%A7%D9%84%D8%A8%D9%8A%D8%B9', checkedAt: '2026-11-11', note: 'Indicative midpoint of OMR 1.45–1.75 observed across named brands in Al Wusta on 8 Oct 2026; regional supplier survey, not a national average.' },
       { item: 'OPC/SRC cement (GCCPricing index)', value: 3, unit: '50 kg bag', status: 'market-survey', source: 'https://www.gccpricing.com/oman-construction-prices', checkedAt: '2026-11-11', note: 'Separate portal benchmark; differs materially from the October Al Wusta field observations and needs supplier verification.' },
-      { item: 'ready-mix concrete C25-C40', value: 24, unit: 'm³', status: 'market-survey', source: 'https://binaasouq.com/', checkedAt: '2026-11-11', note: 'Lower end of listed OMR 24-38/m³ range; mix grade and delivery change price.' },
+      { item: 'ready-mix concrete C30/37', value: 31.15, unit: 'm³', status: 'market-survey', source: 'https://www.gccpricing.com/materials/ready-mix-concrete-c30-price-kuwait', checkedAt: '2026-11-11', note: 'Delivered OMR 31.15/m³ GCCPricing reference-parity benchmark updated 26 Oct 2026; not a direct local merchant submission. Retains BinaaSouq OMR 24–38/m³ range as an independent local supplier cross-check.' },
+      { item: 'CMU hollow block 200 mm', value: 0.74, unit: 'piece', status: 'market-survey', source: 'https://www.gccpricing.com/materials/cmu-hollow-block-200mm-price-kuwait', checkedAt: '2026-11-11', note: 'Local-origin 400×200×200 mm hollow CMU, supply-only; updated 5 days ago. Materially higher than Al Madina manufacturer OMR 0.165–0.175 listing, so not used as the starter block rate pending supplier reconciliation.' },
       { item: 'hollow block', value: 0.22, unit: 'piece', status: 'market-survey', source: 'https://binaasouq.com/', checkedAt: '2026-11-11', note: 'Lower end of listed OMR 0.22-0.38 per block range.' },
       { item: 'regular 20 cm hollow block', value: 0.17, unit: 'piece', status: 'published', source: 'https://www.mcp.om/en/cement-blocks', checkedAt: '2026-11-11', note: 'Omani manufacturer published OMR 0.165-0.175 per piece; delivery area changes price.' },
       { item: '20 cm solid block', value: 0.215, unit: 'piece', status: 'published', source: 'https://www.mcp.om/en/cement-blocks', checkedAt: '2026-11-11', note: 'Omani manufacturer published OMR 0.210-0.220 per piece; delivery area changes price.' },
@@ -228,16 +231,22 @@ export const COUNTRY_ITEM_RATE_DEFAULTS: Partial<
     exteriorPaint: { material: 0, labor: 4.21 },
   },
   KW: {
+    footingConcrete: { material: 24.85, labor: 0 }, // GCCPricing C30/37 delivered reference parity, KWD/m³; verify local supplier quote
+    columnConcrete: { material: 24.85, labor: 0 },
+    stairConcrete: { material: 24.85, labor: 0 },
+    beamConcrete: { material: 24.85, labor: 0 },
+    slabConcrete: { material: 24.85, labor: 0 },
     foundationSteel: { material: 0.245, labor: 0 }, // GCCPricing KWD245/t converted to kg
     structuralSteel: { material: 0.245, labor: 0 },
+    externalBlocks: { material: 7.375, labor: 0 }, // KWD0.59 × 12.5 blocks/m², 200 mm hollow CMU, supply-only
     cementMasonry: { material: 3, labor: 0 }, // GCCPricing KWD/50 kg bag
   },
   OM: {
-    footingConcrete: { material: 24, labor: 0 }, // BinaaSouq lower bound C25–C40 ready-mix, OMR/m³
-    columnConcrete: { material: 24, labor: 0 },
-    stairConcrete: { material: 24, labor: 0 },
-    beamConcrete: { material: 24, labor: 0 },
-    slabConcrete: { material: 24, labor: 0 },
+    footingConcrete: { material: 31.15, labor: 0 }, // GCCPricing C30/37 delivered reference parity, OMR/m³; verify local supplier quote
+    columnConcrete: { material: 31.15, labor: 0 },
+    stairConcrete: { material: 31.15, labor: 0 },
+    beamConcrete: { material: 31.15, labor: 0 },
+    slabConcrete: { material: 31.15, labor: 0 },
     foundationSteel: { material: 0.307, labor: 0 }, // GCCPricing OMR307/t converted to kg
     structuralSteel: { material: 0.307, labor: 0 },
     externalBlocks: { material: 2.13, labor: 0 }, // MCP 20 cm hollow block OMR0.17 each × 12.5 blocks/m²
