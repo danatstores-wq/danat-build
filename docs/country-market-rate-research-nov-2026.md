@@ -254,13 +254,13 @@ Sources:
 
 A representative coverage check was run against the calculator's current default two-floor example: two 15 m × 12 m floors, 3 m storey height, 12 m² openings and 30 m² internal partitions per floor (360 m² total floor area). The calculator's automatic quantity rules produce 66 non-zero cost catalogue lines for this scenario. A line is counted as fully rated only when every rate type required by its catalogue definition is greater than zero; a material-only or labour-only line is still incomplete when the other rate type is required.
 
-| GCC market | Fully rated active lines | Active lines missing at least one required rate |
-|---|---:|---:|
-| UAE | 9 / 66 | 57 |
-| Saudi Arabia | 12 / 66 | 54 |
-| Qatar | 8 / 66 | 58 |
-| Kuwait | 1 / 66 | 65 |
-| Oman | 1 / 66 | 65 |
+| GCC market | Active material/service rates present | Active required labour rates present | Fully rated active lines | Lines missing a required rate |
+|---|---:|---:|---:|---:|
+| UAE | 10 / 66 | 34 / required lines | 9 / 66 | 57 |
+| Saudi Arabia | 12 / 66 | 18 / required lines | 12 / 66 | 54 |
+| Qatar | 10 / 66 | 32 / required lines | 8 / 66 | 58 |
+| Kuwait | 9 / 66 | 0 / required lines | 1 / 66 | 65 |
+| Oman | 9 / 66 | 0 / required lines | 1 / 66 | 65 |
 
 This is a rate-coverage audit, not a contractor estimate or runtime end-to-end test. It confirms that the GCC starter profiles remain partial and that their displayed totals must remain explicitly labelled partial. The build pipeline validates TypeScript, Firebase Functions and web export; it does not prove the accuracy of the market rates or execute a scenario-level estimate test.
 
