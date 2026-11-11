@@ -102,7 +102,7 @@ export default function ProfileScreen({
             </Text>
             <Text style={ui.value}>
               {mode === 'professional'
-                ? t('Professional', 'مهني', 'Professionnel')
+                ? t('Professional', 'محترف', 'Professionnel')
                 : t('Homeowner', 'صاحب منزل', 'Propriétaire')}
             </Text>
 

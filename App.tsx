@@ -391,7 +391,7 @@ export default function App() {
                           <Text style={ui.modeText}>
                         {tr(
                           'Professional',
-                          'المهني',
+                          'المحترف',
                           'Professionnel'
                         )}
                       </Text>
