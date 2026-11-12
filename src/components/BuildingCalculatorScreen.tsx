@@ -6,6 +6,7 @@ import {
   MARKET_RATE_LABELS,
 } from '../data/constructionMarketBenchmarks';
 import { marketBenchmarkLabel, marketBenchmarkSourceLabel } from '../data/marketBenchmarkTranslations';
+import { getPublishedMarketBenchmarks, PublishedMarketBenchmarks } from '../data/marketBenchmarkRepository';
 import { getThemedStyles } from '../theme';
 import { saveLocalCalculation, SavedCalculation } from '../storage/localProjects';
 import {
@@ -759,6 +760,18 @@ export default function BuildingCalculatorScreen({
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>('LB');
   const selectedCurrency = COUNTRY_OPTIONS.find(country => country.id === selectedCountry)?.currency ?? 'USD';
 
+  const [publishedBenchmarks, setPublishedBenchmarks] = useState<PublishedMarketBenchmarks | null>(null);
+  useEffect(() => {
+    let active = true;
+    getPublishedMarketBenchmarks().then(data => {
+      if (active) setPublishedBenchmarks(data);
+    });
+    return () => { active = false; };
+  }, []);
+  const benchmarkSet = publishedBenchmarks?.countries ?? CONSTRUCTION_MARKET_BENCHMARKS;
+  const selectedBenchmarks = benchmarkSet[selectedCountry] ?? CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry];
+
+
   const [floors, setFloors] = useState<FloorData[]>([
     initialFloor(1),
     initialFloor(2),
@@ -1377,7 +1390,7 @@ export default function BuildingCalculatorScreen({
             <Text style={ui.marketBenchmarksTitle}>
               {language === 'ar' ? 'مؤشرات أسعار السوق' : language === 'fr' ? 'Repères de prix du marché' : 'Market price benchmarks'}
             </Text>
-            {CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].benchmarks.length === 0 ? (
+            {selectedBenchmarks.benchmarks.length === 0 ? (
               <Text style={ui.marketBenchmarkNote}>
                 {language === 'ar'
                   ? 'لم تُضف بعد أسعار سوق محلية موثقة لهذا البلد. لا تُستخدم أسعار لبنان ولا نعرض أسعاراً غير متحقق منها.'
@@ -1385,7 +1398,7 @@ export default function BuildingCalculatorScreen({
                   ? 'Aucun tarif de marché local vérifié n’a encore été ajouté pour ce pays. Les prix libanais ne sont pas réutilisés et aucun prix non vérifié n’est affiché.'
                   : 'No verified local market benchmarks have been added for this country yet. Lebanon prices are not reused, and no unverified prices are displayed.'}
               </Text>
-            ) : CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].benchmarks.map((benchmark, index) => (
+            ) : selectedBenchmarks.benchmarks.map((benchmark, index) => (
               <View key={`${benchmark.item}-${index}`} style={ui.marketBenchmarkRow}>
                 <View style={ui.marketBenchmarkText}>
                   <Text style={ui.marketBenchmarkItem}>{marketBenchmarkLabel(benchmark.item, language)}</Text>
@@ -1400,7 +1413,7 @@ export default function BuildingCalculatorScreen({
                 </View>
                 <View style={ui.marketBenchmarkValueWrap}>
                   <Text style={ui.marketBenchmarkValue}>
-                    {new Intl.NumberFormat(undefined, { style: 'currency', currency: CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry].currency }).format(benchmark.value)}
+                    {new Intl.NumberFormat(undefined, { style: 'currency', currency: selectedBenchmarks.currency }).format(benchmark.value)}
                   </Text>
                   <Text style={ui.marketBenchmarkUnit}>{marketBenchmarkLabel(benchmark.unit, language)}</Text>
                   <Text style={ui.marketBenchmarkStatus}>
@@ -1711,7 +1724,7 @@ export default function BuildingCalculatorScreen({
         <View style={{ marginTop: 16, padding: 14, borderRadius: 12, backgroundColor: '#171c22', borderWidth: 1, borderColor: '#6c5938' }}>
           <Text style={{ color: GOLD, fontWeight: '800', marginBottom: 8 }}>{language === 'ar' ? 'اسم المشروع للحفظ' : language === 'fr' ? 'Nom du projet' : 'PROJECT NAME'}</Text>
           <TextInput value={projectName} onChangeText={setProjectName} placeholder="e.g. My Villa – Beirut" placeholderTextColor="#888" style={{ backgroundColor: '#292f36', color: '#fff', borderRadius: 9, padding: 12, marginBottom: 10 }} />
-          <Pressable style={ui.calculateButton} onPress={async () => { try { await saveLocalCalculation(userId, projectName, { title: t.title, kind: 'building', payload: { selectedCountry, selectedCurrency, units, floors, values, detailedValues, result } }); setSaveMessage(language === 'ar' ? 'تم الحفظ على هذا الجهاز' : language === 'fr' ? 'Enregistré sur cet appareil' : 'Saved on this device'); } catch (error) { setSaveMessage(error instanceof Error ? error.message : 'Could not save'); } }}>
+          <Pressable style={ui.calculateButton} onPress={async () => { try { await saveLocalCalculation(userId, projectName, { title: t.title, kind: 'building', payload: { selectedCountry, selectedCurrency, units, floors, values, detailedValues, result, benchmarkSnapshot: { version: publishedBenchmarks?.version ?? 'bundled-2026-11-11', publishedAt: publishedBenchmarks?.publishedAt ?? '2026-11-11', currency: selectedBenchmarks.currency, benchmarks: selectedBenchmarks.benchmarks } } }); setSaveMessage(language === 'ar' ? 'تم الحفظ على هذا الجهاز' : language === 'fr' ? 'Enregistré sur cet appareil' : 'Saved on this device'); } catch (error) { setSaveMessage(error instanceof Error ? error.message : 'Could not save'); } }}>
             <Text style={ui.calculateButtonText}>{language === 'ar' ? 'حفظ في المشروع' : language === 'fr' ? 'ENREGISTRER DANS LE PROJET' : 'SAVE TO PROJECT'}</Text>
           </Pressable>
           {!!saveMessage && <Text style={{ color: GOLD, marginTop: 8, textAlign: 'center' }}>{saveMessage}</Text>}
