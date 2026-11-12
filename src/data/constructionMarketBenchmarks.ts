@@ -23,7 +23,7 @@ export type ConstructionMarketBenchmarks = {
 };
 
 export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
-  'LB' | 'AE' | 'SA' | 'QA' | 'KW' | 'OM' | 'BH',
+  'LB' | 'AE' | 'SA' | 'QA' | 'KW' | 'OM' | 'BH' | 'EG',
   ConstructionMarketBenchmarks
 > = {
   LB: {
@@ -134,6 +134,27 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
       { item: 'formwork carpenter basic wage', value: 190, unit: 'month', status: 'market-survey', source: 'https://tajhrservices.com/salary-guide/oman', checkedAt: '2026-11-11', note: 'OMR 160-270 range; OMR 190 overseas-intake basic median. Not a contractor charge-out rate.' },
     ],
   },
+  EG: {
+    currency: 'EGP',
+    // Greater Cairo market observations checked 11 November 2026.
+    // Supplier basis, VAT and delivery conditions are preserved per item.
+    benchmarks: [
+      { item: 'CEM I 42.5N cement (Suez)', value: 3880, unit: 'tonne', status: 'market-survey', source: 'https://prices.qsmind.app/en/egypt', checkedAt: '2026-11-11', note: 'Greater Cairo factory/distributor observation dated 10 Nov 2026; VAT basis not stated. Confirm brand, delivery and tax on supplier quotation.' },
+      { item: 'Misr Steel reinforcement rebar', value: 36000, unit: 'tonne', status: 'market-survey', source: 'https://prices.qsmind.app/en/egypt', checkedAt: '2026-11-11', note: 'Mill list price dated 9 Nov 2026, ex-works; excludes transport and dealer margin. VAT not stated.' },
+      { item: 'Ready-mix concrete C30 (300 kg/cm²)', value: 3900, unit: 'm³', status: 'market-survey', source: 'https://prices.qsmind.app/en/egypt/concrete', checkedAt: '2026-11-11', note: 'Greater Cairo supplier list price dated 10 Oct 2026; delivered within Greater Cairo, pumping priced separately. Confirm current quote.' },
+      { item: 'Washed special aggregate', value: 430, unit: 'm³', status: 'market-survey', source: 'https://prices.qsmind.app/ar/egypt/aggregates', checkedAt: '2026-11-11', note: 'Greater Cairo washed, graded natural aggregate for higher-strength/exposed concrete; market observation dated 1 Nov 2026, full-load delivered basis, VAT included.' },
+      { item: 'Coarse sand', value: 210, unit: 'm³', status: 'market-survey', source: 'https://prices.qsmind.app/ar/egypt/aggregates', checkedAt: '2026-11-11', note: 'Greater Cairo coarse sand observation dated 16 Oct 2026; marked stale by source, VAT included, transport excluded. Do not treat as a current delivered rate.' },
+      { item: 'Solid cement bricks 25×12×6 cm', value: 2500, unit: '1,000 bricks', status: 'market-survey', source: 'https://prices.qsmind.app/en/egypt', checkedAt: '2026-11-11', note: 'Greater Cairo ex-factory observation dated 21 Oct 2026; transport excluded. Confirm brick strength and current factory price.' },
+      { item: 'Ceramic floor tile 60×60 first grade', value: 264, unit: 'm²', status: 'market-survey', source: 'https://prices.qsmind.app/en/egypt/finishes', checkedAt: '2026-11-11', note: 'Cleopatra first-grade ceramic, Cairo retailer supply-only price dated 21 Oct 2026; installation and delivery excluded.' },
+      { item: 'Porcelain floor tile 60×60 first grade', value: 424, unit: 'm²', status: 'market-survey', source: 'https://prices.qsmind.app/en/egypt/finishes', checkedAt: '2026-11-11', note: 'Egyptian-made first-grade porcelain, Cairo retailer supply-only price dated 21 Oct 2026; installation and delivery excluded.' },
+      { item: 'Tile adhesive CMB Cetox U', value: 175, unit: '25 kg bag', status: 'market-survey', source: 'https://prices.qsmind.app/en/egypt/finishes', checkedAt: '2026-11-11', note: 'Retail price dated 3 Nov 2026 for standard grey cementitious adhesive; confirm coverage and suitability for tile type.' },
+      { item: 'Interior plastic paint Sipes 700', value: 1165, unit: '9 L pail', status: 'market-survey', source: 'https://prices.qsmind.app/en/egypt/finishes', checkedAt: '2026-11-11', note: 'Greater Cairo retail price dated 3 Nov 2026; white interior matt emulsion, approx. 14 kg. Coverage depends on substrate and coats.' },
+      { item: 'Interior painting labour', value: 59, unit: 'm²', status: 'market-survey', source: 'https://prices.qsmind.app/en/egypt/finishes', checkedAt: '2026-11-11', note: 'Cairo plastic-paint labour-only rate dated 9 Nov 2026; materials excluded.' },
+      { item: 'Tiling labour', value: 112, unit: 'm²', status: 'market-survey', source: 'https://prices.qsmind.app/en/egypt/finishes', checkedAt: '2026-11-11', note: 'Cairo floor and wall tiling labour-only rate dated 9 Nov 2026; tiles, adhesive and grout excluded.' },
+      { item: 'Hydraulic excavator rental (about 20 t)', value: 3650, unit: 'day', status: 'market-survey', source: 'https://prices.qsmind.app/en/egypt/equipment', checkedAt: '2026-11-11', note: 'Greater Cairo daily rate derived from monthly rental ÷ 26 working days; observation dated 28 Oct 2026. Operator, fuel and mobilisation are not stated/included.' },
+      { item: 'Wheel loader rental', value: 2750, unit: '8-hour day', status: 'market-survey', source: 'https://prices.qsmind.app/en/egypt/equipment', checkedAt: '2026-11-11', note: 'Greater Cairo one-day rental observation dated 9 Jun 2026; operator/fuel inclusion not stated and transport to site excluded.' },
+    ],
+  },
   BH: {
     currency: 'BHD',
     benchmarks: [
@@ -159,7 +180,7 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
 // intentionally sparse: unsupported items remain zero and are flagged by the
 // calculator rather than being filled with Lebanon rates or an FX multiplier.
 export const COUNTRY_ITEM_RATE_DEFAULTS: Partial<
-  Record<'AE' | 'SA' | 'QA' | 'KW' | 'OM' | 'BH', Record<string, { material: number; labor: number }>>
+  Record<'AE' | 'SA' | 'QA' | 'KW' | 'OM' | 'BH' | 'EG', Record<string, { material: number; labor: number }>>
 > = {
   AE: {
     excavation: { material: 25, labor: 0 }, // T&T 2025 measured excavation service, AED/m³
@@ -285,6 +306,19 @@ export const COUNTRY_ITEM_RATE_DEFAULTS: Partial<
     structuralSteel: { material: 0.307, labor: 0 },
     externalBlocks: { material: 2.13, labor: 0 }, // MCP 20 cm hollow block OMR0.17 each × 12.5 blocks/m²
     cementMasonry: { material: 1.6, labor: 0 }, // Al Wusta Oct 2026 field-survey midpoint, OMR/50 kg bag; regional provisional anchor
+  },
+  EG: {
+    footingConcrete: { material: 3900, labor: 0 }, // QSMind C30 delivered Greater Cairo, pumping extra
+    columnConcrete: { material: 3900, labor: 0 },
+    stairConcrete: { material: 3900, labor: 0 },
+    beamConcrete: { material: 3900, labor: 0 },
+    slabConcrete: { material: 3900, labor: 0 },
+    foundationSteel: { material: 36, labor: 0 }, // Misr Steel EGP36,000/t ex-works, converted to kg
+    structuralSteel: { material: 36, labor: 0 },
+    cementMasonry: { material: 194, labor: 0 }, // Suez CEM I 42.5N EGP3,880/t converted to 50 kg bag
+    sandMasonry: { material: 210, labor: 0 }, // coarse sand; stale Oct 16 observation, transport excluded
+    floorTiles: { material: 264, labor: 112 }, // first-grade 60x60 ceramic + Cairo tiling labour-only
+    interiorPaint: { material: 0, labor: 59 }, // Cairo plastic-paint labour-only; paint material quoted separately
   },
   BH: {
     footingConcrete: { material: 30.54, labor: 0 }, // Bahrain observed C30 delivered reference, BHD/m³; confirm mix and quote
