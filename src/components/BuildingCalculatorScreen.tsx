@@ -6,7 +6,7 @@ import {
   MARKET_RATE_LABELS,
 } from '../data/constructionMarketBenchmarks';
 import { marketBenchmarkLabel, marketBenchmarkSourceLabel } from '../data/marketBenchmarkTranslations';
-import { getPublishedMarketBenchmarks, PublishedMarketBenchmarks } from '../data/marketBenchmarkRepository';
+import { PUBLISHED_MARKET_BENCHMARKS } from '../data/publishedMarketBenchmarks';
 import { getThemedStyles } from '../theme';
 import { saveLocalCalculation, SavedCalculation } from '../storage/localProjects';
 import {
@@ -760,15 +760,10 @@ export default function BuildingCalculatorScreen({
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>('LB');
   const selectedCurrency = COUNTRY_OPTIONS.find(country => country.id === selectedCountry)?.currency ?? 'USD';
 
-  const [publishedBenchmarks, setPublishedBenchmarks] = useState<PublishedMarketBenchmarks | null>(null);
-  useEffect(() => {
-    let active = true;
-    getPublishedMarketBenchmarks().then(data => {
-      if (active) setPublishedBenchmarks(data);
-    });
-    return () => { active = false; };
-  }, []);
-  const benchmarkSet = publishedBenchmarks?.countries ?? CONSTRUCTION_MARKET_BENCHMARKS;
+  // Benchmark prices are bundled into the published app at build time.
+  // The client does not read benchmark documents from Firebase.
+  const publishedBenchmarks = PUBLISHED_MARKET_BENCHMARKS;
+  const benchmarkSet = publishedBenchmarks.countries;
   const selectedBenchmarks = benchmarkSet[selectedCountry] ?? CONSTRUCTION_MARKET_BENCHMARKS[selectedCountry];
 
 
@@ -1724,7 +1719,7 @@ export default function BuildingCalculatorScreen({
         <View style={{ marginTop: 16, padding: 14, borderRadius: 12, backgroundColor: '#171c22', borderWidth: 1, borderColor: '#6c5938' }}>
           <Text style={{ color: GOLD, fontWeight: '800', marginBottom: 8 }}>{language === 'ar' ? 'اسم المشروع للحفظ' : language === 'fr' ? 'Nom du projet' : 'PROJECT NAME'}</Text>
           <TextInput value={projectName} onChangeText={setProjectName} placeholder="e.g. My Villa – Beirut" placeholderTextColor="#888" style={{ backgroundColor: '#292f36', color: '#fff', borderRadius: 9, padding: 12, marginBottom: 10 }} />
-          <Pressable style={ui.calculateButton} onPress={async () => { try { await saveLocalCalculation(userId, projectName, { title: t.title, kind: 'building', payload: { selectedCountry, selectedCurrency, units, floors, values, detailedValues, result, benchmarkSnapshot: { version: publishedBenchmarks?.version ?? 'bundled-2026-11-11', publishedAt: publishedBenchmarks?.publishedAt ?? '2026-11-11', currency: selectedBenchmarks.currency, benchmarks: selectedBenchmarks.benchmarks } } }); setSaveMessage(language === 'ar' ? 'تم الحفظ على هذا الجهاز' : language === 'fr' ? 'Enregistré sur cet appareil' : 'Saved on this device'); } catch (error) { setSaveMessage(error instanceof Error ? error.message : 'Could not save'); } }}>
+          <Pressable style={ui.calculateButton} onPress={async () => { try { await saveLocalCalculation(userId, projectName, { title: t.title, kind: 'building', payload: { selectedCountry, selectedCurrency, units, floors, values, detailedValues, result, benchmarkSnapshot: { version: publishedBenchmarks.version, publishedAt: publishedBenchmarks.publishedAt, currency: selectedBenchmarks.currency, benchmarks: selectedBenchmarks.benchmarks } } }); setSaveMessage(language === 'ar' ? 'تم الحفظ على هذا الجهاز' : language === 'fr' ? 'Enregistré sur cet appareil' : 'Saved on this device'); } catch (error) { setSaveMessage(error instanceof Error ? error.message : 'Could not save'); } }}>
             <Text style={ui.calculateButtonText}>{language === 'ar' ? 'حفظ في المشروع' : language === 'fr' ? 'ENREGISTRER DANS LE PROJET' : 'SAVE TO PROJECT'}</Text>
           </Pressable>
           {!!saveMessage && <Text style={{ color: GOLD, marginTop: 8, textAlign: 'center' }}>{saveMessage}</Text>}
