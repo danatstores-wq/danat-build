@@ -19,7 +19,7 @@ import {
 } from 'react-native';
 
 type Language = 'en' | 'ar' | 'fr';
-type CountryCode = 'LB' | 'AE' | 'SA' | 'QA' | 'KW' | 'OM' | 'BH';
+type CountryCode = 'LB' | 'AE' | 'SA' | 'QA' | 'KW' | 'OM' | 'BH' | 'EG';
 
 type FloorData = {
   id: number;
@@ -86,6 +86,7 @@ const COUNTRY_OPTIONS: {
   { id: 'OM', currency: 'OMR', names: ['Oman', 'عُمان', 'Oman'] },
   { id: 'BH', currency: 'BHD', names: ['Bahrain', 'البحرين', 'Bahreïn'] },
   { id: 'LB', currency: 'USD', names: ['Lebanon', 'لبنان', 'Liban'] },
+  { id: 'EG', currency: 'EGP', names: ['Egypt', 'مصر', 'Égypte'] },
 ];
 
 const translations = {
@@ -770,6 +771,7 @@ export default function BuildingCalculatorScreen({
     KW: createCountryCostValues('KW'),
     OM: createCountryCostValues('OM'),
     BH: createCountryCostValues('BH'),
+    EG: createCountryCostValues('EG'),
   });
   const detailedValues = detailedValuesByCountry[selectedCountry];
   const setDetailedValues = (updater: (old: DetailedValues) => DetailedValues) => {
@@ -786,6 +788,7 @@ export default function BuildingCalculatorScreen({
     KW: new Set(),
     OM: new Set(),
     BH: new Set(),
+    EG: new Set(),
   });
   const manuallyEditedRates = useRef<Record<CountryCode, Set<string>>>({
     LB: new Set(),
@@ -795,6 +798,7 @@ export default function BuildingCalculatorScreen({
     KW: new Set(),
     OM: new Set(),
     BH: new Set(),
+    EG: new Set(),
   });
   const [result, setResult] = useState<Record<string, any> | null>(null);
   const [error, setError] = useState('');
@@ -1259,7 +1263,12 @@ export default function BuildingCalculatorScreen({
         ? 'Tarif saisi manuellement — à vérifier avec le devis'
         : 'User-entered rate — verify against quotation';
     }
-    if (rateType === 'Labor') return MARKET_RATE_LABELS.provisional[language];
+    if (rateType === 'Labor') {
+      if (selectedCountry === 'EG' && ['floorTiles', 'interiorPaint'].includes(itemId)) {
+        return MARKET_RATE_LABELS['market-survey'][language];
+      }
+      return MARKET_RATE_LABELS.provisional[language];
+    }
     if (REGIONAL_REFERENCE_MATERIAL_RATE_IDS[selectedCountry as 'KW' | 'OM']?.includes(itemId)) {
       return MARKET_RATE_LABELS['regional-reference'][language];
     }
