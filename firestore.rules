@@ -1,10 +1,9 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /constructionMarketBenchmarks/current {
-      allow read: if true;
-      allow write: if false;
-    }
+    // Benchmark prices are copied into the published app at release time.
+    // The client does not need Firestore access to read benchmark prices.
+    // Firebase Admin SDK publishing runs bypass these client security rules.
     match /{document=**} {
       allow read, write: if false;
     }
