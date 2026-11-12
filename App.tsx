@@ -424,7 +424,7 @@ export default function App() {
                           <Text style={ui.modeText}>
                         {tr(
                           'Homeowner',
-                          'صاحب المنزل',
+                          'مالك المنزل',
                           'Propriétaire'
                         )}
                       </Text>
@@ -819,7 +819,7 @@ export default function App() {
                         <Text style={[ui.langText, mode === option && ui.langTextOn]}>
                           {option === 'professional'
                             ? tr('Professional', 'احترافي', 'Professionnel')
-                            : tr('Homeowner', 'صاحب المنزل', 'Propriétaire')}
+                            : tr('Homeowner', 'مالك المنزل', 'Propriétaire')}
                         </Text>
                       </Pressable>
                     ))}
