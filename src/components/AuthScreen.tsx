@@ -49,6 +49,7 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -212,19 +213,35 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
       />
 
       {mode !== 'forgot' && (
-        <TextInput
-          style={ui.input}
-          placeholder={t(
-            'Password (minimum 6 characters)',
-            'كلمة المرور (6 أحرف على الأقل)',
-            'Mot de passe (6 caractères minimum)'
-          )}
-          placeholderTextColor="#92979d"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          autoCapitalize="none"
-        />
+        <View>
+          <TextInput
+            style={[ui.input, ui.passwordInput]}
+            placeholder={t(
+              'Password (minimum 6 characters)',
+              'كلمة المرور (6 أحرف على الأقل)',
+              'Mot de passe (6 caractères minimum)'
+            )}
+            placeholderTextColor="#92979d"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            autoCapitalize="none"
+          />
+          <Pressable
+            style={ui.passwordToggle}
+            onPress={() => setShowPassword((visible) => !visible)}
+            accessibilityRole="button"
+            accessibilityLabel={showPassword
+              ? t('Hide password', 'إخفاء كلمة المرور', 'Masquer le mot de passe')
+              : t('Show password', 'إظهار كلمة المرور', 'Afficher le mot de passe')}
+          >
+            <Text style={ui.passwordToggleText}>
+              {showPassword
+                ? t('HIDE', 'إخفاء', 'MASQUER')
+                : t('SHOW', 'إظهار', 'AFFICHER')}
+            </Text>
+          </Pressable>
+        </View>
       )}
 
       {!!error && <Text style={ui.error}>{error}</Text>}
@@ -332,6 +349,22 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     marginBottom: 13,
+  },
+  passwordInput: {
+    paddingRight: 88,
+  },
+  passwordToggle: {
+    position: 'absolute',
+    right: 14,
+    top: 15,
+    paddingVertical: 4,
+    paddingHorizontal: 5,
+  },
+  passwordToggleText: {
+    color: GOLD,
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 0.5,
   },
   button: {
     backgroundColor: GOLD,
