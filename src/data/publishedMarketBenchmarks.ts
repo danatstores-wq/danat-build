@@ -12,530 +12,337 @@ export const PUBLISHED_MARKET_BENCHMARKS: PublishedMarketBenchmarks = {
   "version": "2026-11-11",
   "publishedAt": "2026-11-11",
   "countries": {
-    "LB": {
-      "currency": "USD",
+    "BH": {
+      "currency": "BHD",
       "benchmarks": [
         {
-          "item": "black cement factory-gate ceiling",
-          "value": 96,
-          "unit": "tonne",
-          "status": "published",
-          "source": "https://www.mtv.com.lb/news/محليات/1712965/عيسى-الخوري-يحدّد-سعر-طن-الاسمنت-الأسود",
-          "checkedAt": "2026-11-11",
-          "note": "Ministry of Industry Decision 52/1, 1 July 2026; factory-gate maximum, excluding VAT. Not a delivered retail price."
-        },
-        {
-          "item": "Portland cement CEM I 42.5N",
-          "value": 8.5,
-          "unit": "50 kg bag",
-          "status": "published",
-          "source": "https://ayass-boutique.store/en/product/portland-cement-50kg",
-          "checkedAt": "2026-11-11",
-          "note": "Beirut retailer online listing; stock could not be independently reconfirmed on 11 November 2026. Supply-only; confirm current stock, delivery and checkout price."
-        },
-        {
-          "item": "12 mm reinforcement steel",
-          "value": 970,
+          "value": 301,
           "unit": "tonne",
           "status": "market-survey",
-          "source": "https://lebanoneconomy.net/الترميم-يواجه-تحدّي-ضبط-الأسعار/",
+          "item": "12 mm reinforcement steel (market average)",
           "checkedAt": "2026-11-11",
-          "note": "Lebanon market report, 2026; reported market level around USD 970/tonne. Verify grade, delivery and current supplier quotation."
+          "note": "Bahrain country page reports BHD 301/tonne average steel price; confirm grade, delivery and supplier quotation.",
+          "source": "https://www.gccpricing.com/bahrain-construction-prices"
         },
         {
-          "item": "general construction worker wage",
-          "value": 50,
-          "unit": "day",
           "status": "market-survey",
-          "source": "https://lebanoneconomy.net/الترميم-يواجه-تحدّي-ضبط-الأسعار/",
           "checkedAt": "2026-11-11",
-          "note": "Lebanon market report, 2026; reported daily labour cost from USD 50. Not a skilled-trade wage schedule or contractor charge-out rate."
-        },
-        {
-          "item": "building stone",
-          "value": 65,
-          "unit": "100 pieces",
-          "status": "market-survey",
-          "source": "https://lebanoneconomy.net/الترميم-يواجه-تحدّي-ضبط-الأسعار/",
-          "checkedAt": "2026-11-11",
-          "note": "Midpoint of reported USD 60–70 per 100 stones; size, quarry and delivery affect price."
-        },
-        {
-          "item": "porcelain floor tile 60x60",
-          "value": 18.5,
-          "unit": "m²",
-          "status": "published",
-          "source": "https://ayass-boutique.store/en/product/porcelain-floor-tile-60x60",
-          "checkedAt": "2026-11-11",
-          "note": "Beirut retailer online listing; 600×600 mm, 9 mm, R10 matt porcelain; material only, installation excluded. Stock could not be independently reconfirmed on 11 November 2026; confirm stock, delivery and checkout price."
-        },
-        {
-          "item": "ceramic wall tile 30x60",
-          "value": 11,
-          "unit": "m²",
-          "status": "published",
-          "source": "https://ayass-boutique.store/en/product/ceramic-wall-tile-30x60",
-          "checkedAt": "2026-11-11",
-          "note": "Beirut retailer online listing; 300×600 mm glazed wall tile; material only, installation excluded. Stock could not be independently reconfirmed on 11 November 2026; confirm stock, delivery and checkout price."
-        },
-        {
-          "item": "tile adhesive C2TE 25kg",
-          "value": 13,
-          "unit": "25 kg bag",
-          "status": "published",
-          "source": "https://ayass-boutique.store/en",
-          "checkedAt": "2026-11-11",
-          "note": "Beirut retailer online listing; one 25 kg bag; coverage depends on trowel size and substrate. Stock could not be independently reconfirmed on 11 November 2026; confirm stock, delivery and checkout price."
-        },
-        {
-          "item": "white cement",
-          "value": 16,
-          "unit": "50 kg bag",
-          "status": "published",
-          "source": "https://ayass-boutique.store/en/product/white-cement-50kg",
-          "checkedAt": "2026-11-11",
-          "note": "Beirut retailer online listing; white cement for decorative/rendering use, not interchangeable with black structural cement. Stock could not be independently reconfirmed on 11 November 2026; confirm stock, delivery and checkout price."
-        }
-      ]
-    },
-    "AE": {
-      "currency": "AED",
-      "benchmarks": [
-        {
-          "item": "cement",
-          "value": 13.13,
-          "unit": "50 kg bag",
-          "status": "published",
-          "source": "https://quantohq.com/price-index.html",
-          "checkedAt": "2026-11-11",
-          "note": "Dubai indicative index, October 2026, excluding VAT."
-        },
-        {
-          "item": "rebar",
-          "value": 2936,
+          "note": "Bahrain supplier-sector report dated 30 Apr 2026; reported market price BHD 24/tonne. Older observation; obtain a current supplier quote.",
           "unit": "tonne",
-          "status": "published",
-          "source": "https://quantohq.com/price-index.html",
-          "checkedAt": "2026-11-11",
-          "note": "Emirates Steel delivered-to-Dubai indicative benchmark; ex-works and retail quotes differ."
+          "source": "https://www.albiladpress.com/news/2026/6407/finance/995340.html",
+          "value": 24,
+          "item": "Portland cement"
         },
         {
-          "item": "C40 ready-mix concrete",
-          "value": 261,
           "unit": "m³",
-          "status": "published",
-          "source": "https://quantohq.com/price-index.html",
-          "checkedAt": "2026-11-11",
-          "note": "Dubai indicative index, excluding VAT."
-        },
-        {
-          "item": "formwork carpenter",
-          "value": 206,
-          "unit": "9-hour day",
+          "source": "https://www.albiladpress.com/news/2026/6407/finance/995340.html",
+          "item": "Washed sand",
+          "value": 10.7,
           "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/uae/labour",
-          "checkedAt": "2026-11-11",
-          "note": "Dubai labor survey; do not treat as a per-m² installed rate."
-        },
-        {
-          "item": "plasterer",
-          "value": 164,
-          "unit": "8-hour day",
-          "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/uae/labour",
-          "checkedAt": "2026-11-11",
-          "note": "Dubai labor survey; supplier-provided accommodation/transport assumptions apply."
-        },
-        {
-          "item": "electrician",
-          "value": 208,
-          "unit": "8-hour day",
-          "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/uae/labour",
+          "note": "Calculated from the reported BHD 107 per 10 m³ shipment on 30 Apr 2026. Delivery and grade may vary; refresh with supplier quotes.",
           "checkedAt": "2026-11-11"
         },
         {
-          "item": "plumber",
-          "value": 208,
-          "unit": "8-hour day",
           "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/uae/labour",
+          "unit": "m³",
           "checkedAt": "2026-11-11",
-          "note": "Dubai labour survey; AED 208 per 8-hour working day."
+          "item": "Ready-mix concrete (reported market average)",
+          "value": 33,
+          "source": "https://www.albiladpress.com/news/2026/6407/finance/995340.html",
+          "note": "Bahrain supplier-sector average reported on 30 Apr 2026; mix grade and delivery specification were not stated. Do not substitute for a specified mix quote."
         },
         {
-          "item": "painter",
-          "value": 190,
-          "unit": "8-hour day",
+          "source": "https://www.albiladpress.com/news/2026/6407/finance/995340.html",
+          "item": "Concrete block (reported market price)",
+          "unit": "piece",
           "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/uae/labour",
-          "checkedAt": "2026-11-11",
-          "note": "Dubai labour survey; AED 190 per 8-hour working day."
+          "value": 0.24,
+          "note": "BHD 0.240 per block reported on 30 Apr 2026; block dimensions/type were not stated. Confirm specification and current price.",
+          "checkedAt": "2026-11-11"
         },
         {
-          "item": "footing excavation",
-          "value": 25,
-          "unit": "m³ installed",
+          "value": 26.4,
+          "unit": "m³",
           "status": "market-survey",
-          "source": "https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance",
+          "item": "C20/25 ready-mix concrete, 75 mm slump",
           "checkedAt": "2026-11-11",
-          "note": "Dubai 2025 measured rate; large-project reference, excludes unrelated earthworks."
+          "note": "Bahrain local observed rate, delivered basis; specification C20/25 and 75 mm slump. Obtain project-specific quote.",
+          "source": "https://www.gccpricing.com/materials/ready-mix-concrete-c20-price-bahrain"
         },
         {
-          "item": "reinforcement",
-          "value": 5000,
-          "unit": "tonne installed",
-          "status": "market-survey",
-          "source": "https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance",
+          "source": "https://www.gccpricing.com/materials/ready-mix-concrete-c40-price-bahrain",
+          "item": "C40/50 ready-mix concrete, 100 mm slump",
           "checkedAt": "2026-11-11",
-          "note": "Dubai 2025 beam reinforcement measured rate; not steel supply price."
+          "unit": "m³",
+          "status": "market-survey",
+          "value": 34.16,
+          "note": "Bahrain local observed rate, delivered basis; specification C40/50 and 100 mm slump. Obtain project-specific quote."
         },
         {
-          "item": "blockwork",
-          "value": 180,
-          "unit": "m² installed",
+          "source": "https://tajhrservices.com/salary-guide/bahrain",
+          "item": "electrician basic wage",
+          "unit": "month",
           "status": "market-survey",
-          "source": "https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance",
           "checkedAt": "2026-11-11",
-          "note": "Dubai 2025, 200 mm solid concrete block wall, bulk project."
+          "note": "Median overseas-intake basic salary; BHD 170–280 observed span. Housing, transport, food and overtime are separate.",
+          "value": 200
         },
         {
-          "item": "ceramic floor tiles",
-          "value": 150,
-          "unit": "m² installed",
+          "value": 195,
+          "unit": "month",
           "status": "market-survey",
-          "source": "https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance",
+          "item": "plumber basic wage",
           "checkedAt": "2026-11-11",
-          "note": "Dubai 2025 standard ceramic tile, 1,000 m² project."
+          "source": "https://tajhrservices.com/salary-guide/bahrain",
+          "note": "Median overseas-intake basic salary; BHD 160–270 observed span. Housing, transport, food and overtime are separate."
         },
         {
-          "item": "single solid-core door",
-          "value": 4000,
-          "unit": "piece installed",
+          "value": 200,
+          "unit": "month",
           "status": "market-survey",
-          "source": "https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance",
+          "item": "formwork carpenter basic wage",
           "checkedAt": "2026-11-11",
-          "note": "Dubai 2025 including frame and hardware; 50-door project."
+          "note": "Median overseas-intake basic salary; BHD 170–280 observed span. Housing, transport, food and overtime are separate.",
+          "source": "https://tajhrservices.com/salary-guide/bahrain"
+        },
+        {
+          "source": "https://transportation.athletekart.com/",
+          "note": "Published starting price for local Bahrain transport; outside-city starting price BHD 22. Confirm route, waiting time and cargo.",
+          "checkedAt": "2026-11-11",
+          "unit": "trip",
+          "status": "market-survey",
+          "value": 15,
+          "item": "6-wheel truck transport (local city trip)"
+        },
+        {
+          "note": "Published Bahrain base price for an 8-hour hire; overtime is extra. Confirm availability, operator, lifting plan and site access.",
+          "value": 75,
+          "source": "https://transportation.athletekart.com/ar/hiab-rental",
+          "checkedAt": "2026-11-11",
+          "item": "HIAB 5-ton truck crane hire",
+          "unit": "8-hour booking",
+          "status": "market-survey"
+        },
+        {
+          "status": "market-survey",
+          "unit": "8-hour booking",
+          "item": "HIAB 10-ton truck crane hire",
+          "value": 85,
+          "source": "https://transportation.athletekart.com/ar/hiab-rental",
+          "checkedAt": "2026-11-11",
+          "note": "Published Bahrain base price for an 8-hour hire; overtime is extra. Confirm availability, operator, lifting plan and site access."
         }
       ]
     },
-    "SA": {
-      "currency": "SAR",
+    "LB": {
       "benchmarks": [
         {
-          "item": "black cement",
-          "value": 15.53,
+          "value": 96,
+          "note": "Ministry of Industry Decision 52/1, 1 July 2026; factory-gate maximum, excluding VAT. Not a delivered retail price.",
+          "source": "https://www.mtv.com.lb/news/محليات/1712965/عيسى-الخوري-يحدّد-سعر-طن-الاسمنت-الأسود",
+          "unit": "tonne",
+          "checkedAt": "2026-11-11",
+          "item": "black cement factory-gate ceiling",
+          "status": "published"
+        },
+        {
+          "item": "Portland cement CEM I 42.5N",
+          "source": "https://ayass-boutique.store/en/product/portland-cement-50kg",
           "unit": "50 kg bag",
           "status": "published",
-          "source": "https://ibuild.sa/material-prices",
-          "checkedAt": "2026-11-11",
-          "note": "GASTAT September 2026 national average; VAT included."
+          "note": "Beirut retailer online listing; stock could not be independently reconfirmed on 11 November 2026. Supply-only; confirm current stock, delivery and checkout price.",
+          "value": 8.5,
+          "checkedAt": "2026-11-11"
         },
         {
-          "item": "12 mm rebar",
-          "value": 3122.85,
+          "value": 970,
           "unit": "tonne",
-          "status": "published",
-          "source": "https://ibuild.sa/material-prices",
+          "status": "market-survey",
+          "item": "12 mm reinforcement steel",
           "checkedAt": "2026-11-11",
-          "note": "GASTAT September 2026 national average."
+          "source": "https://lebanoneconomy.net/الترميم-يواجه-تحدّي-ضبط-الأسعار/",
+          "note": "Lebanon market report, 2026; reported market level around USD 970/tonne. Verify grade, delivery and current supplier quotation."
         },
         {
-          "item": "350K normal ready-mix concrete",
-          "value": 212.52,
-          "unit": "m³",
-          "status": "published",
-          "source": "https://ibuild.sa/material-prices",
-          "checkedAt": "2026-11-11",
-          "note": "GASTAT September 2026 national average."
+          "source": "https://lebanoneconomy.net/الترميم-يواجه-تحدّي-ضبط-الأسعار/",
+          "item": "general construction worker wage",
+          "unit": "day",
+          "status": "market-survey",
+          "value": 50,
+          "note": "Lebanon market report, 2026; reported daily labour cost from USD 50. Not a skilled-trade wage schedule or contractor charge-out rate.",
+          "checkedAt": "2026-11-11"
         },
         {
-          "item": "15 cm block",
-          "value": 1.67778,
-          "unit": "piece",
-          "status": "published",
-          "source": "https://ibuild.sa/material-prices",
+          "value": 65,
+          "item": "building stone",
+          "status": "market-survey",
           "checkedAt": "2026-11-11",
-          "note": "Converted from SAR 1,677.78 per 1,000 pieces."
+          "unit": "100 pieces",
+          "note": "Midpoint of reported USD 60–70 per 100 stones; size, quarry and delivery affect price.",
+          "source": "https://lebanoneconomy.net/الترميم-يواجه-تحدّي-ضبط-الأسعار/"
         },
         {
-          "item": "white soft sand",
-          "value": 77.61,
-          "unit": "m³",
-          "status": "published",
-          "source": "https://ibuild.sa/material-prices",
+          "value": 18.5,
           "checkedAt": "2026-11-11",
-          "note": "GASTAT September 2026 national average."
+          "unit": "m²",
+          "status": "published",
+          "item": "porcelain floor tile 60x60",
+          "source": "https://ayass-boutique.store/en/product/porcelain-floor-tile-60x60",
+          "note": "Beirut retailer online listing; 600×600 mm, 9 mm, R10 matt porcelain; material only, installation excluded. Stock could not be independently reconfirmed on 11 November 2026; confirm stock, delivery and checkout price."
         },
         {
-          "item": "mason",
+          "checkedAt": "2026-11-11",
+          "note": "Beirut retailer online listing; 300×600 mm glazed wall tile; material only, installation excluded. Stock could not be independently reconfirmed on 11 November 2026; confirm stock, delivery and checkout price.",
+          "value": 11,
+          "status": "published",
+          "item": "ceramic wall tile 30x60",
+          "unit": "m²",
+          "source": "https://ayass-boutique.store/en/product/ceramic-wall-tile-30x60"
+        },
+        {
+          "unit": "25 kg bag",
+          "source": "https://ayass-boutique.store/en",
+          "checkedAt": "2026-11-11",
+          "item": "tile adhesive C2TE 25kg",
+          "value": 13,
+          "status": "published",
+          "note": "Beirut retailer online listing; one 25 kg bag; coverage depends on trowel size and substrate. Stock could not be independently reconfirmed on 11 November 2026; confirm stock, delivery and checkout price."
+        },
+        {
+          "source": "https://ayass-boutique.store/en/product/white-cement-50kg",
+          "note": "Beirut retailer online listing; white cement for decorative/rendering use, not interchangeable with black structural cement. Stock could not be independently reconfirmed on 11 November 2026; confirm stock, delivery and checkout price.",
+          "unit": "50 kg bag",
+          "checkedAt": "2026-11-11",
+          "status": "published",
           "value": 16,
-          "unit": "hour",
-          "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/saudi/labour",
-          "checkedAt": "2026-11-11",
-          "note": "Riyadh labor benchmark; unit productivity is not implied."
-        },
-        {
-          "item": "steel fixer",
-          "value": 16,
-          "unit": "hour",
-          "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/saudi/labour",
-          "checkedAt": "2026-11-11",
-          "note": "Riyadh labor benchmark; unit productivity is not implied."
-        },
-        {
-          "item": "tile mason",
-          "value": 18,
-          "unit": "hour",
-          "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/saudi/labour",
-          "checkedAt": "2026-11-11",
-          "note": "Riyadh labor benchmark; unit productivity is not implied."
-        },
-        {
-          "item": "plaster mason",
-          "value": 15,
-          "unit": "hour",
-          "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/saudi/labour",
-          "checkedAt": "2026-11-11",
-          "note": "Riyadh labor benchmark; unit productivity is not implied."
-        },
-        {
-          "item": "plumber",
-          "value": 15,
-          "unit": "hour",
-          "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/saudi/labour",
-          "checkedAt": "2026-11-11",
-          "note": "Riyadh labor benchmark; unit productivity is not implied."
-        },
-        {
-          "item": "machine excavation",
-          "value": 21.5,
-          "unit": "m³ installed",
-          "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/saudi/works",
-          "checkedAt": "2026-11-11",
-          "note": "Riyadh normal soil, machine/operator/fuel included; rock and off-site disposal excluded."
-        },
-        {
-          "item": "internal cement plaster",
-          "value": 26,
-          "unit": "m² installed",
-          "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/saudi/works",
-          "checkedAt": "2026-11-11",
-          "note": "Riyadh supply and apply, approx. 2 cm, June 2026 observation."
-        },
-        {
-          "item": "porcelain floor tiling",
-          "value": 67.5,
-          "unit": "m² installed",
-          "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/saudi/works",
-          "checkedAt": "2026-11-11",
-          "note": "Riyadh mid-range 60x60 cm including adhesive, grout and skirting."
-        },
-        {
-          "item": "internal emulsion painting",
-          "value": 22,
-          "unit": "m² installed",
-          "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/saudi/works",
-          "checkedAt": "2026-11-11",
-          "note": "Riyadh mid-range putty, sealer and two coats."
-        },
-        {
-          "item": "roof waterproofing",
-          "value": 35,
-          "unit": "m² installed",
-          "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/saudi/works",
-          "checkedAt": "2026-11-11",
-          "note": "Riyadh 4 mm torch-applied membrane system."
-        },
-        {
-          "item": "gypsum board ceiling",
-          "value": 82.5,
-          "unit": "m² installed",
-          "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/saudi/works",
-          "checkedAt": "2026-11-11",
-          "note": "Riyadh 12.5 mm board and galvanized frame, ready for paint."
-        },
-        {
-          "item": "lighting point",
-          "value": 85,
-          "unit": "point installed",
-          "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/saudi/works",
-          "checkedAt": "2026-11-11",
-          "note": "Riyadh conduit and wiring, light fitting excluded."
-        },
-        {
-          "item": "socket outlet point",
-          "value": 97.5,
-          "unit": "point installed",
-          "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/saudi/works",
-          "checkedAt": "2026-11-11",
-          "note": "Riyadh conduit, wiring and mid-range 13A outlet."
+          "item": "white cement"
         }
-      ]
+      ],
+      "currency": "USD"
     },
-    "QA": {
-      "currency": "QAR",
+    "OM": {
       "benchmarks": [
         {
-          "item": "crushed stone 0-32 mm",
-          "value": 62,
+          "value": 248.5,
+          "status": "market-survey",
+          "note": "Indicative supplier gateway price; confirm stock and delivery.",
+          "unit": "tonne",
+          "checkedAt": "2026-11-11",
+          "source": "https://madaar.om/",
+          "item": "12 mm rebar"
+        },
+        {
+          "item": "16 mm rebar",
+          "value": 246.1,
+          "unit": "tonne",
+          "status": "market-survey",
+          "checkedAt": "2026-11-11",
+          "note": "Indicative supplier gateway price; confirm stock and delivery.",
+          "source": "https://madaar.om/"
+        },
+        {
+          "note": "Indicative midpoint of OMR 1.45–1.75 observed across named brands in Al Wusta on 8 Oct 2026; regional supplier survey, not a national average.",
+          "value": 1.6,
+          "status": "published",
+          "checkedAt": "2026-11-11",
+          "item": "Raysut cement (Al Wusta field survey)",
+          "unit": "50 kg bag",
+          "source": "https://shabiba.com/article/212280-%D9%84%D9%84%D9%85%D9%82%D8%A8%D9%84%D9%8A%D9%86-%D8%A8%D8%A7%D9%84%D8%A8%D9%86%D8%A7-%D8%A8%D8%A7%D9%84%D9%88%D8%B3%D8%B7%D9%89-%D9%83%D9%85-%D8%A8%D9%84%D8%BA%D8%AA-%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1-%D8%A7%D9%84%D8%A3%D8%B3%D9%85%D9%86%D8%AA-%D9%88%D8%A7%D9%84%D8%AD%D8%AF%D9%8A%D8%AF-%D9%81%D9%8A-%D9%85%D9%86%D8%A7%D9%81%D8%B0-%D8%A7%D9%84%D8%A8%D9%8A%D8%B9"
+        },
+        {
+          "source": "https://www.gccpricing.com/oman-construction-prices",
+          "item": "OPC/SRC cement (GCCPricing index)",
+          "unit": "50 kg bag",
+          "status": "market-survey",
+          "note": "Separate portal benchmark; differs materially from the October Al Wusta field observations and needs supplier verification.",
+          "value": 3,
+          "checkedAt": "2026-11-11"
+        },
+        {
+          "note": "Delivered OMR 31.15/m³ GCCPricing reference-parity benchmark updated 26 Oct 2026; not a direct local merchant submission. Retains BinaaSouq OMR 24–38/m³ range as an independent local supplier cross-check.",
+          "value": 31.15,
+          "source": "https://www.gccpricing.com/materials/ready-mix-concrete-c30-price-kuwait",
+          "item": "ready-mix concrete C30/37",
           "unit": "m³",
-          "status": "market-survey",
-          "source": "https://boqcalc.com/countries/qatar",
           "checkedAt": "2026-11-11",
-          "note": "Commercial market estimate, not an official schedule."
+          "status": "market-survey"
         },
         {
-          "item": "sand 0-4 mm",
-          "value": 72,
-          "unit": "m³",
+          "source": "https://www.gccpricing.com/materials/cmu-hollow-block-200mm-price-kuwait",
+          "item": "CMU hollow block 200 mm",
+          "unit": "piece",
           "status": "market-survey",
-          "source": "https://boqcalc.com/countries/qatar",
+          "value": 0.74,
           "checkedAt": "2026-11-11",
-          "note": "Commercial market estimate, not an official schedule."
+          "note": "Local-origin 400×200×200 mm hollow CMU, supply-only; updated 5 days ago. Materially higher than Al Madina manufacturer OMR 0.165–0.175 listing, so not used as the starter block rate pending supplier reconciliation."
         },
         {
-          "item": "C25/30 ready-mix concrete",
-          "value": 270,
-          "unit": "m³",
           "status": "market-survey",
-          "source": "https://boqcalc.com/countries/qatar",
+          "item": "hollow block",
+          "unit": "piece",
           "checkedAt": "2026-11-11",
-          "note": "Commercial market estimate; delivery/pumping must be checked separately."
+          "note": "Lower end of listed OMR 0.22-0.38 per block range.",
+          "source": "https://binaasouq.com/",
+          "value": 0.22
         },
         {
-          "item": "cement",
-          "value": 17,
-          "unit": "25 kg bag",
-          "status": "market-survey",
-          "source": "https://boqcalc.com/countries/qatar",
           "checkedAt": "2026-11-11",
-          "note": "Commercial market estimate."
+          "value": 0.17,
+          "note": "Omani manufacturer published OMR 0.165-0.175 per piece; delivery area changes price.",
+          "source": "https://www.mcp.om/en/cement-blocks",
+          "unit": "piece",
+          "status": "published",
+          "item": "regular 20 cm hollow block"
         },
         {
-          "item": "concrete worker",
-          "value": 37.42,
-          "unit": "hour",
-          "status": "market-survey",
-          "source": "https://boqcalc.com/countries/qatar",
+          "note": "Omani manufacturer published OMR 0.210-0.220 per piece; delivery area changes price.",
+          "value": 0.215,
+          "status": "published",
+          "item": "20 cm solid block",
           "checkedAt": "2026-11-11",
-          "note": "Hourly labor benchmark; do not treat as a per-unit installed rate."
+          "unit": "piece",
+          "source": "https://www.mcp.om/en/cement-blocks"
         },
         {
-          "item": "electrician",
-          "value": 46.77,
-          "unit": "hour",
           "status": "market-survey",
-          "source": "https://boqcalc.com/countries/qatar",
+          "note": "OMR 180-280 range; OMR 210 overseas-intake basic median. Housing/transport and employer costs are separate.",
+          "unit": "month",
           "checkedAt": "2026-11-11",
-          "note": "Hourly labor benchmark; do not treat as a per-point installed rate."
+          "source": "https://tajhrservices.com/salary-guide/oman",
+          "value": 210,
+          "item": "electrician basic wage"
         },
         {
-          "item": "plumber",
-          "value": 46.77,
-          "unit": "hour",
+          "value": 190,
+          "unit": "month",
           "status": "market-survey",
-          "source": "https://boqcalc.com/countries/qatar",
+          "item": "plumber basic wage",
           "checkedAt": "2026-11-11",
-          "note": "Hourly labor benchmark; do not treat as a per-point installed rate."
+          "source": "https://tajhrservices.com/salary-guide/oman",
+          "note": "OMR 160-260 range; OMR 190 overseas-intake basic median. Not a contractor charge-out rate."
         },
         {
-          "item": "tiler",
-          "value": 42.09,
-          "unit": "hour",
+          "value": 190,
           "status": "market-survey",
-          "source": "https://boqcalc.com/countries/qatar",
+          "note": "OMR 160-270 range; OMR 190 overseas-intake basic median. Not a contractor charge-out rate.",
           "checkedAt": "2026-11-11",
-          "note": "Hourly labor benchmark; do not treat as a per-m² installed rate."
-        },
-        {
-          "item": "ordinary soil excavation",
-          "value": 28,
-          "unit": "m³ installed",
-          "status": "market-survey",
-          "source": "https://www.carbonblueglobal.com/services/quantity-surveying",
-          "checkedAt": "2026-11-11",
-          "note": "Illustrative Qatar BOQ sample rate; large measured quantity."
-        },
-        {
-          "item": "blinding concrete C15",
-          "value": 310,
-          "unit": "m³ installed",
-          "status": "market-survey",
-          "source": "https://www.carbonblueglobal.com/services/quantity-surveying",
-          "checkedAt": "2026-11-11",
-          "note": "Illustrative Qatar BOQ sample rate; specification-specific."
-        },
-        {
-          "item": "reinforced concrete C35 foundations",
-          "value": 395,
-          "unit": "m³ installed",
-          "status": "market-survey",
-          "source": "https://www.carbonblueglobal.com/services/quantity-surveying",
-          "checkedAt": "2026-11-11",
-          "note": "Illustrative Qatar BOQ sample rate; includes supply and installation."
-        },
-        {
-          "item": "hollow blockwork 200 mm",
-          "value": 62,
-          "unit": "m² installed",
-          "status": "market-survey",
-          "source": "https://www.carbonblueglobal.com/services/quantity-surveying",
-          "checkedAt": "2026-11-11",
-          "note": "Illustrative Qatar BOQ sample rate."
-        },
-        {
-          "item": "internal cement plaster",
-          "value": 34,
-          "unit": "m² installed",
-          "status": "market-survey",
-          "source": "https://www.carbonblueglobal.com/services/quantity-surveying",
-          "checkedAt": "2026-11-11",
-          "note": "Illustrative Qatar BOQ sample rate, 15 mm internal."
-        },
-        {
-          "item": "porcelain floor tiling",
-          "value": 145,
-          "unit": "m² installed",
-          "status": "market-survey",
-          "source": "https://www.carbonblueglobal.com/services/quantity-surveying",
-          "checkedAt": "2026-11-11",
-          "note": "Illustrative Qatar BOQ sample rate."
-        },
-        {
-          "item": "two-coat emulsion paint",
-          "value": 16,
-          "unit": "m² installed",
-          "status": "market-survey",
-          "source": "https://www.carbonblueglobal.com/services/quantity-surveying",
-          "checkedAt": "2026-11-11",
-          "note": "Illustrative Qatar BOQ sample rate."
+          "unit": "month",
+          "item": "formwork carpenter basic wage",
+          "source": "https://tajhrservices.com/salary-guide/oman"
         }
-      ]
+      ],
+      "currency": "OMR"
     },
     "KW": {
       "currency": "KWD",
       "benchmarks": [
         {
-          "item": "deformed rebar Y8-Y32",
           "value": 245,
           "unit": "tonne",
-          "status": "market-survey",
           "source": "https://www.gccpricing.com/kuwait-construction-prices",
+          "item": "deformed rebar Y8-Y32",
           "checkedAt": "2026-11-11",
+          "status": "market-survey",
           "note": "Indicative GCCPricing benchmark; verify grade, delivery and supplier quote."
         },
         {
@@ -543,185 +350,72 @@ export const PUBLISHED_MARKET_BENCHMARKS: PublishedMarketBenchmarks = {
           "value": 3,
           "unit": "50 kg bag",
           "status": "market-survey",
-          "source": "https://www.gccpricing.com/kuwait-construction-prices",
+          "note": "Indicative GCCPricing benchmark.",
           "checkedAt": "2026-11-11",
-          "note": "Indicative GCCPricing benchmark."
+          "source": "https://www.gccpricing.com/kuwait-construction-prices"
         },
         {
           "item": "ready-mix concrete C30/37",
-          "value": 24.85,
-          "unit": "m³",
-          "status": "market-survey",
           "source": "https://www.gccpricing.com/materials/ready-mix-concrete-c30-price-kuwait",
           "checkedAt": "2026-11-11",
-          "note": "Delivered KWD 24.85/m³ reference-parity benchmark updated 26 Oct 2026; GCCPricing labels Kuwait as calibrated parity rather than a direct local merchant submission."
+          "unit": "m³",
+          "status": "market-survey",
+          "note": "Delivered KWD 24.85/m³ reference-parity benchmark updated 26 Oct 2026; GCCPricing labels Kuwait as calibrated parity rather than a direct local merchant submission.",
+          "value": 24.85
         },
         {
-          "item": "CMU hollow block 200 mm",
+          "checkedAt": "2026-11-11",
+          "status": "market-survey",
+          "note": "Local-origin 400×200×200 mm hollow CMU, supply-only; updated 5 days ago. 12.5 pieces/m² before waste; verify local supplier quote.",
+          "unit": "piece",
+          "source": "https://www.gccpricing.com/materials/cmu-hollow-block-200mm-price-kuwait",
           "value": 0.59,
-          "unit": "piece",
-          "status": "market-survey",
-          "source": "https://www.gccpricing.com/materials/cmu-hollow-block-200mm-price-kuwait",
-          "checkedAt": "2026-11-11",
-          "note": "Local-origin 400×200×200 mm hollow CMU, supply-only; updated 5 days ago. 12.5 pieces/m² before waste; verify local supplier quote."
+          "item": "CMU hollow block 200 mm"
         },
         {
-          "item": "17 cm limestone block",
+          "note": "NIC Kuwait online retail listing, 390×190×190 mm; page states 12 pieces/m². Sandlime block, not a generic concrete-block rate.",
           "value": 0.431,
-          "unit": "piece",
-          "status": "published",
           "source": "https://online.nicbm.com/en/item/block-17",
+          "item": "17 cm limestone block",
           "checkedAt": "2026-11-11",
-          "note": "NIC Kuwait online retail listing, 390×190×190 mm; page states 12 pieces/m². Sandlime block, not a generic concrete-block rate."
+          "unit": "piece",
+          "status": "published"
         },
         {
-          "item": "9 cm hollow cement block",
           "value": 0.202,
-          "unit": "piece",
-          "status": "published",
+          "item": "9 cm hollow cement block",
           "source": "https://online.nicbm.com/en/item/hollow-blocks-39x19x09-cm-3-n-mm2",
-          "checkedAt": "2026-11-11",
-          "note": "NIC Kuwait online retail listing, 390×190×90 mm; page states 25 pieces/m². Check stated coverage against actual laying pattern before BOQ conversion."
+          "unit": "piece",
+          "note": "NIC Kuwait online retail listing, 390×190×90 mm; page states 25 pieces/m². Check stated coverage against actual laying pattern before BOQ conversion.",
+          "status": "published",
+          "checkedAt": "2026-11-11"
         },
         {
-          "item": "electrician basic wage",
+          "source": "https://tajhrservices.com/salary-guide/kuwait",
+          "note": "KWD 150-250 range; KWD 185 overseas-intake basic median. Housing/transport and employer costs are separate.",
+          "unit": "month",
+          "status": "market-survey",
           "value": 185,
-          "unit": "month",
-          "status": "market-survey",
-          "source": "https://tajhrservices.com/salary-guide/kuwait",
           "checkedAt": "2026-11-11",
-          "note": "KWD 150-250 range; KWD 185 overseas-intake basic median. Housing/transport and employer costs are separate."
+          "item": "electrician basic wage"
         },
         {
+          "note": "KWD 150-260 range; KWD 180 overseas-intake basic median. Not a contractor charge-out rate.",
+          "status": "market-survey",
+          "checkedAt": "2026-11-11",
           "item": "formwork carpenter basic wage",
-          "value": 180,
-          "unit": "month",
-          "status": "market-survey",
           "source": "https://tajhrservices.com/salary-guide/kuwait",
-          "checkedAt": "2026-11-11",
-          "note": "KWD 150-260 range; KWD 180 overseas-intake basic median. Not a contractor charge-out rate."
+          "unit": "month",
+          "value": 180
         },
         {
-          "item": "plumber basic wage",
-          "value": 170,
-          "unit": "month",
+          "note": "KWD 140-230 range; KWD 170 overseas-intake basic median. Not a contractor charge-out rate.",
           "status": "market-survey",
+          "checkedAt": "2026-11-11",
+          "item": "plumber basic wage",
           "source": "https://tajhrservices.com/salary-guide/kuwait",
-          "checkedAt": "2026-11-11",
-          "note": "KWD 140-230 range; KWD 170 overseas-intake basic median. Not a contractor charge-out rate."
-        }
-      ]
-    },
-    "OM": {
-      "currency": "OMR",
-      "benchmarks": [
-        {
-          "item": "12 mm rebar",
-          "value": 248.5,
-          "unit": "tonne",
-          "status": "market-survey",
-          "source": "https://madaar.om/",
-          "checkedAt": "2026-11-11",
-          "note": "Indicative supplier gateway price; confirm stock and delivery."
-        },
-        {
-          "item": "16 mm rebar",
-          "value": 246.1,
-          "unit": "tonne",
-          "status": "market-survey",
-          "source": "https://madaar.om/",
-          "checkedAt": "2026-11-11",
-          "note": "Indicative supplier gateway price; confirm stock and delivery."
-        },
-        {
-          "item": "Raysut cement (Al Wusta field survey)",
-          "value": 1.6,
-          "unit": "50 kg bag",
-          "status": "published",
-          "source": "https://shabiba.com/article/212280-%D9%84%D9%84%D9%85%D9%82%D8%A8%D9%84%D9%8A%D9%86-%D8%A8%D8%A7%D9%84%D8%A8%D9%86%D8%A7-%D8%A8%D8%A7%D9%84%D9%88%D8%B3%D8%B7%D9%89-%D9%83%D9%85-%D8%A8%D9%84%D8%BA%D8%AA-%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1-%D8%A7%D9%84%D8%A3%D8%B3%D9%85%D9%86%D8%AA-%D9%88%D8%A7%D9%84%D8%AD%D8%AF%D9%8A%D8%AF-%D9%81%D9%8A-%D9%85%D9%86%D8%A7%D9%81%D8%B0-%D8%A7%D9%84%D8%A8%D9%8A%D8%B9",
-          "checkedAt": "2026-11-11",
-          "note": "Indicative midpoint of OMR 1.45–1.75 observed across named brands in Al Wusta on 8 Oct 2026; regional supplier survey, not a national average."
-        },
-        {
-          "item": "OPC/SRC cement (GCCPricing index)",
-          "value": 3,
-          "unit": "50 kg bag",
-          "status": "market-survey",
-          "source": "https://www.gccpricing.com/oman-construction-prices",
-          "checkedAt": "2026-11-11",
-          "note": "Separate portal benchmark; differs materially from the October Al Wusta field observations and needs supplier verification."
-        },
-        {
-          "item": "ready-mix concrete C30/37",
-          "value": 31.15,
-          "unit": "m³",
-          "status": "market-survey",
-          "source": "https://www.gccpricing.com/materials/ready-mix-concrete-c30-price-kuwait",
-          "checkedAt": "2026-11-11",
-          "note": "Delivered OMR 31.15/m³ GCCPricing reference-parity benchmark updated 26 Oct 2026; not a direct local merchant submission. Retains BinaaSouq OMR 24–38/m³ range as an independent local supplier cross-check."
-        },
-        {
-          "item": "CMU hollow block 200 mm",
-          "value": 0.74,
-          "unit": "piece",
-          "status": "market-survey",
-          "source": "https://www.gccpricing.com/materials/cmu-hollow-block-200mm-price-kuwait",
-          "checkedAt": "2026-11-11",
-          "note": "Local-origin 400×200×200 mm hollow CMU, supply-only; updated 5 days ago. Materially higher than Al Madina manufacturer OMR 0.165–0.175 listing, so not used as the starter block rate pending supplier reconciliation."
-        },
-        {
-          "item": "hollow block",
-          "value": 0.22,
-          "unit": "piece",
-          "status": "market-survey",
-          "source": "https://binaasouq.com/",
-          "checkedAt": "2026-11-11",
-          "note": "Lower end of listed OMR 0.22-0.38 per block range."
-        },
-        {
-          "item": "regular 20 cm hollow block",
-          "value": 0.17,
-          "unit": "piece",
-          "status": "published",
-          "source": "https://www.mcp.om/en/cement-blocks",
-          "checkedAt": "2026-11-11",
-          "note": "Omani manufacturer published OMR 0.165-0.175 per piece; delivery area changes price."
-        },
-        {
-          "item": "20 cm solid block",
-          "value": 0.215,
-          "unit": "piece",
-          "status": "published",
-          "source": "https://www.mcp.om/en/cement-blocks",
-          "checkedAt": "2026-11-11",
-          "note": "Omani manufacturer published OMR 0.210-0.220 per piece; delivery area changes price."
-        },
-        {
-          "item": "electrician basic wage",
-          "value": 210,
           "unit": "month",
-          "status": "market-survey",
-          "source": "https://tajhrservices.com/salary-guide/oman",
-          "checkedAt": "2026-11-11",
-          "note": "OMR 180-280 range; OMR 210 overseas-intake basic median. Housing/transport and employer costs are separate."
-        },
-        {
-          "item": "plumber basic wage",
-          "value": 190,
-          "unit": "month",
-          "status": "market-survey",
-          "source": "https://tajhrservices.com/salary-guide/oman",
-          "checkedAt": "2026-11-11",
-          "note": "OMR 160-260 range; OMR 190 overseas-intake basic median. Not a contractor charge-out rate."
-        },
-        {
-          "item": "formwork carpenter basic wage",
-          "value": 190,
-          "unit": "month",
-          "status": "market-survey",
-          "source": "https://tajhrservices.com/salary-guide/oman",
-          "checkedAt": "2026-11-11",
-          "note": "OMR 160-270 range; OMR 190 overseas-intake basic median. Not a contractor charge-out rate."
+          "value": 170
         }
       ]
     },
@@ -729,130 +423,567 @@ export const PUBLISHED_MARKET_BENCHMARKS: PublishedMarketBenchmarks = {
       "currency": "EGP",
       "benchmarks": [
         {
-          "item": "CEM I 42.5N cement (Suez)",
           "value": 3880,
+          "checkedAt": "2026-11-11",
+          "note": "Greater Cairo factory/distributor observation dated 10 Nov 2026; VAT basis not stated. Confirm brand, delivery and tax on supplier quotation.",
+          "source": "https://prices.qsmind.app/en/egypt",
           "unit": "tonne",
           "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/egypt",
-          "checkedAt": "2026-11-11",
-          "note": "Greater Cairo factory/distributor observation dated 10 Nov 2026; VAT basis not stated. Confirm brand, delivery and tax on supplier quotation."
+          "item": "CEM I 42.5N cement (Suez)"
         },
         {
           "item": "Misr Steel reinforcement rebar",
           "value": 36000,
           "unit": "tonne",
           "status": "market-survey",
+          "note": "Mill list price dated 9 Nov 2026, ex-works; excludes transport and dealer margin. VAT not stated.",
           "source": "https://prices.qsmind.app/en/egypt",
-          "checkedAt": "2026-11-11",
-          "note": "Mill list price dated 9 Nov 2026, ex-works; excludes transport and dealer margin. VAT not stated."
+          "checkedAt": "2026-11-11"
         },
         {
-          "item": "Ready-mix concrete C30 (300 kg/cm²)",
           "value": 3900,
-          "unit": "m³",
-          "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/egypt/concrete",
           "checkedAt": "2026-11-11",
+          "unit": "m³",
+          "source": "https://prices.qsmind.app/en/egypt/concrete",
+          "item": "Ready-mix concrete C30 (300 kg/cm²)",
+          "status": "market-survey",
           "note": "Greater Cairo supplier list price dated 10 Oct 2026; delivered within Greater Cairo, pumping priced separately. Confirm current quote."
         },
         {
-          "item": "Washed special aggregate",
-          "value": 430,
-          "unit": "m³",
-          "status": "market-survey",
+          "note": "Greater Cairo washed, graded natural aggregate for higher-strength/exposed concrete; market observation dated 1 Nov 2026, full-load delivered basis, VAT included.",
           "source": "https://prices.qsmind.app/ar/egypt/aggregates",
           "checkedAt": "2026-11-11",
-          "note": "Greater Cairo washed, graded natural aggregate for higher-strength/exposed concrete; market observation dated 1 Nov 2026, full-load delivered basis, VAT included."
+          "item": "Washed special aggregate",
+          "status": "market-survey",
+          "unit": "m³",
+          "value": 430
         },
         {
-          "item": "Coarse sand",
           "value": 210,
           "unit": "m³",
-          "status": "market-survey",
-          "source": "https://prices.qsmind.app/ar/egypt/aggregates",
           "checkedAt": "2026-11-11",
+          "status": "market-survey",
+          "item": "Coarse sand",
+          "source": "https://prices.qsmind.app/ar/egypt/aggregates",
           "note": "Greater Cairo coarse sand observation dated 16 Oct 2026; marked stale by source, VAT included, transport excluded. Do not treat as a current delivered rate."
         },
         {
-          "item": "Solid cement bricks 25×12×6 cm",
           "value": 2500,
+          "checkedAt": "2026-11-11",
+          "source": "https://prices.qsmind.app/en/egypt",
+          "note": "Greater Cairo ex-factory observation dated 21 Oct 2026; transport excluded. Confirm brick strength and current factory price.",
           "unit": "1,000 bricks",
           "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/egypt",
-          "checkedAt": "2026-11-11",
-          "note": "Greater Cairo ex-factory observation dated 21 Oct 2026; transport excluded. Confirm brick strength and current factory price."
+          "item": "Solid cement bricks 25×12×6 cm"
         },
         {
-          "item": "Ceramic floor tile 60×60 first grade",
+          "note": "Cleopatra first-grade ceramic, Cairo retailer supply-only price dated 21 Oct 2026; installation and delivery excluded.",
           "value": 264,
-          "unit": "m²",
-          "status": "market-survey",
           "source": "https://prices.qsmind.app/en/egypt/finishes",
+          "item": "Ceramic floor tile 60×60 first grade",
           "checkedAt": "2026-11-11",
-          "note": "Cleopatra first-grade ceramic, Cairo retailer supply-only price dated 21 Oct 2026; installation and delivery excluded."
+          "unit": "m²",
+          "status": "market-survey"
         },
         {
-          "item": "Porcelain floor tile 60×60 first grade",
+          "checkedAt": "2026-11-11",
           "value": 424,
-          "unit": "m²",
-          "status": "market-survey",
+          "note": "Egyptian-made first-grade porcelain, Cairo retailer supply-only price dated 21 Oct 2026; installation and delivery excluded.",
           "source": "https://prices.qsmind.app/en/egypt/finishes",
-          "checkedAt": "2026-11-11",
-          "note": "Egyptian-made first-grade porcelain, Cairo retailer supply-only price dated 21 Oct 2026; installation and delivery excluded."
+          "unit": "m²",
+          "item": "Porcelain floor tile 60×60 first grade",
+          "status": "market-survey"
         },
         {
-          "item": "Tile adhesive CMB Cetox U",
+          "checkedAt": "2026-11-11",
+          "note": "Retail price dated 3 Nov 2026 for standard grey cementitious adhesive; confirm coverage and suitability for tile type.",
           "value": 175,
+          "status": "market-survey",
+          "item": "Tile adhesive CMB Cetox U",
           "unit": "25 kg bag",
-          "status": "market-survey",
-          "source": "https://prices.qsmind.app/en/egypt/finishes",
-          "checkedAt": "2026-11-11",
-          "note": "Retail price dated 3 Nov 2026 for standard grey cementitious adhesive; confirm coverage and suitability for tile type."
+          "source": "https://prices.qsmind.app/en/egypt/finishes"
         },
         {
-          "item": "Interior plastic paint Sipes 700",
           "value": 1165,
-          "unit": "9 L pail",
-          "status": "market-survey",
+          "note": "Greater Cairo retail price dated 3 Nov 2026; white interior matt emulsion, approx. 14 kg. Coverage depends on substrate and coats.",
           "source": "https://prices.qsmind.app/en/egypt/finishes",
+          "unit": "9 L pail",
           "checkedAt": "2026-11-11",
-          "note": "Greater Cairo retail price dated 3 Nov 2026; white interior matt emulsion, approx. 14 kg. Coverage depends on substrate and coats."
+          "item": "Interior plastic paint Sipes 700",
+          "status": "market-survey"
         },
         {
-          "item": "Interior painting labour",
-          "value": 59,
-          "unit": "m²",
+          "note": "Cairo plastic-paint labour-only rate dated 9 Nov 2026; materials excluded.",
           "status": "market-survey",
+          "item": "Interior painting labour",
           "source": "https://prices.qsmind.app/en/egypt/finishes",
-          "checkedAt": "2026-11-11",
-          "note": "Cairo plastic-paint labour-only rate dated 9 Nov 2026; materials excluded."
+          "unit": "m²",
+          "value": 59,
+          "checkedAt": "2026-11-11"
         },
         {
           "item": "Tiling labour",
           "value": 112,
           "unit": "m²",
           "status": "market-survey",
+          "note": "Cairo floor and wall tiling labour-only rate dated 9 Nov 2026; tiles, adhesive and grout excluded.",
           "source": "https://prices.qsmind.app/en/egypt/finishes",
-          "checkedAt": "2026-11-11",
-          "note": "Cairo floor and wall tiling labour-only rate dated 9 Nov 2026; tiles, adhesive and grout excluded."
+          "checkedAt": "2026-11-11"
         },
         {
-          "item": "Hydraulic excavator rental (about 20 t)",
           "value": 3650,
           "unit": "day",
-          "status": "market-survey",
+          "item": "Hydraulic excavator rental (about 20 t)",
           "source": "https://prices.qsmind.app/en/egypt/equipment",
+          "status": "market-survey",
           "checkedAt": "2026-11-11",
           "note": "Greater Cairo daily rate derived from monthly rental ÷ 26 working days; observation dated 28 Oct 2026. Operator, fuel and mobilisation are not stated/included."
         },
         {
-          "item": "Wheel loader rental",
-          "value": 2750,
-          "unit": "8-hour day",
-          "status": "market-survey",
           "source": "https://prices.qsmind.app/en/egypt/equipment",
           "checkedAt": "2026-11-11",
-          "note": "Greater Cairo one-day rental observation dated 9 Jun 2026; operator/fuel inclusion not stated and transport to site excluded."
+          "note": "Greater Cairo one-day rental observation dated 9 Jun 2026; operator/fuel inclusion not stated and transport to site excluded.",
+          "unit": "8-hour day",
+          "status": "market-survey",
+          "value": 2750,
+          "item": "Wheel loader rental"
+        }
+      ]
+    },
+    "AE": {
+      "currency": "AED",
+      "benchmarks": [
+        {
+          "status": "published",
+          "note": "Dubai indicative index, October 2026, excluding VAT.",
+          "unit": "50 kg bag",
+          "source": "https://quantohq.com/price-index.html",
+          "value": 15.75,
+          "checkedAt": "2026-11-11",
+          "item": "cement"
+        },
+        {
+          "status": "published",
+          "checkedAt": "2026-11-11",
+          "note": "Emirates Steel delivered-to-Dubai indicative benchmark; ex-works and retail quotes differ.",
+          "unit": "tonne",
+          "source": "https://quantohq.com/price-index.html",
+          "value": 2936,
+          "item": "rebar"
+        },
+        {
+          "unit": "m³",
+          "source": "https://quantohq.com/price-index.html",
+          "item": "C40 ready-mix concrete",
+          "value": 261,
+          "status": "published",
+          "checkedAt": "2026-11-11",
+          "note": "Dubai indicative index, excluding VAT."
+        },
+        {
+          "value": 206,
+          "unit": "9-hour day",
+          "source": "https://prices.qsmind.app/en/uae/labour",
+          "item": "formwork carpenter",
+          "checkedAt": "2026-11-11",
+          "status": "market-survey",
+          "note": "Dubai labor survey; do not treat as a per-m² installed rate."
+        },
+        {
+          "unit": "8-hour day",
+          "source": "https://prices.qsmind.app/en/uae/labour",
+          "item": "plasterer",
+          "value": 164,
+          "status": "market-survey",
+          "checkedAt": "2026-11-11",
+          "note": "Dubai labor survey; supplier-provided accommodation/transport assumptions apply."
+        },
+        {
+          "status": "market-survey",
+          "source": "https://prices.qsmind.app/en/uae/labour",
+          "item": "electrician",
+          "value": 208,
+          "unit": "8-hour day",
+          "checkedAt": "2026-11-11"
+        },
+        {
+          "item": "plumber",
+          "checkedAt": "2026-11-11",
+          "value": 208,
+          "unit": "8-hour day",
+          "source": "https://prices.qsmind.app/en/uae/labour",
+          "note": "Dubai labour survey; AED 208 per 8-hour working day.",
+          "status": "market-survey"
+        },
+        {
+          "status": "market-survey",
+          "note": "Dubai labour survey; AED 190 per 8-hour working day.",
+          "unit": "8-hour day",
+          "source": "https://prices.qsmind.app/en/uae/labour",
+          "value": 190,
+          "item": "painter",
+          "checkedAt": "2026-11-11"
+        },
+        {
+          "item": "footing excavation",
+          "source": "https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance",
+          "unit": "m³ installed",
+          "checkedAt": "2026-11-11",
+          "status": "market-survey",
+          "note": "Dubai 2025 measured rate; large-project reference, excludes unrelated earthworks.",
+          "value": 25
+        },
+        {
+          "value": 5000,
+          "unit": "tonne installed",
+          "status": "market-survey",
+          "item": "reinforcement",
+          "checkedAt": "2026-11-11",
+          "note": "Dubai 2025 beam reinforcement measured rate; not steel supply price.",
+          "source": "https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance"
+        },
+        {
+          "unit": "m² installed",
+          "status": "market-survey",
+          "checkedAt": "2026-11-11",
+          "item": "blockwork",
+          "value": 180,
+          "source": "https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance",
+          "note": "Dubai 2025, 200 mm solid concrete block wall, bulk project."
+        },
+        {
+          "source": "https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance",
+          "item": "ceramic floor tiles",
+          "unit": "m² installed",
+          "status": "market-survey",
+          "value": 150,
+          "note": "Dubai 2025 standard ceramic tile, 1,000 m² project.",
+          "checkedAt": "2026-11-11"
+        },
+        {
+          "status": "market-survey",
+          "checkedAt": "2026-11-11",
+          "note": "Dubai 2025 including frame and hardware; 50-door project.",
+          "unit": "piece installed",
+          "source": "https://marketintelligence.turnerandtownsend.com/uaemi-2025/construction-cost-performance",
+          "value": 4000,
+          "item": "single solid-core door"
+        }
+      ]
+    },
+    "QA": {
+      "benchmarks": [
+        {
+          "unit": "m³",
+          "status": "market-survey",
+          "item": "crushed stone 0-32 mm",
+          "value": 62,
+          "source": "https://boqcalc.com/countries/qatar",
+          "note": "Commercial market estimate, not an official schedule.",
+          "checkedAt": "2026-11-11"
+        },
+        {
+          "status": "market-survey",
+          "checkedAt": "2026-11-11",
+          "item": "sand 0-4 mm",
+          "unit": "m³",
+          "source": "https://boqcalc.com/countries/qatar",
+          "value": 72,
+          "note": "Commercial market estimate, not an official schedule."
+        },
+        {
+          "unit": "m³",
+          "source": "https://boqcalc.com/countries/qatar",
+          "item": "C25/30 ready-mix concrete",
+          "checkedAt": "2026-11-11",
+          "value": 270,
+          "status": "market-survey",
+          "note": "Commercial market estimate; delivery/pumping must be checked separately."
+        },
+        {
+          "status": "market-survey",
+          "note": "Commercial market estimate.",
+          "unit": "25 kg bag",
+          "checkedAt": "2026-11-11",
+          "source": "https://boqcalc.com/countries/qatar",
+          "value": 17,
+          "item": "cement"
+        },
+        {
+          "value": 37.42,
+          "unit": "hour",
+          "status": "market-survey",
+          "item": "concrete worker",
+          "source": "https://boqcalc.com/countries/qatar",
+          "note": "Hourly labor benchmark; do not treat as a per-unit installed rate.",
+          "checkedAt": "2026-11-11"
+        },
+        {
+          "source": "https://boqcalc.com/countries/qatar",
+          "checkedAt": "2026-11-11",
+          "note": "Hourly labor benchmark; do not treat as a per-point installed rate.",
+          "unit": "hour",
+          "status": "market-survey",
+          "value": 46.77,
+          "item": "electrician"
+        },
+        {
+          "source": "https://boqcalc.com/countries/qatar",
+          "item": "plumber",
+          "unit": "hour",
+          "status": "market-survey",
+          "note": "Hourly labor benchmark; do not treat as a per-point installed rate.",
+          "value": 46.77,
+          "checkedAt": "2026-11-11"
+        },
+        {
+          "value": 42.09,
+          "unit": "hour",
+          "checkedAt": "2026-11-11",
+          "source": "https://boqcalc.com/countries/qatar",
+          "item": "tiler",
+          "status": "market-survey",
+          "note": "Hourly labor benchmark; do not treat as a per-m² installed rate."
+        },
+        {
+          "source": "https://www.carbonblueglobal.com/services/quantity-surveying",
+          "item": "ordinary soil excavation",
+          "unit": "m³ installed",
+          "checkedAt": "2026-11-11",
+          "status": "market-survey",
+          "note": "Illustrative Qatar BOQ sample rate; large measured quantity.",
+          "value": 28
+        },
+        {
+          "source": "https://www.carbonblueglobal.com/services/quantity-surveying",
+          "note": "Illustrative Qatar BOQ sample rate; specification-specific.",
+          "checkedAt": "2026-11-11",
+          "unit": "m³ installed",
+          "status": "market-survey",
+          "value": 310,
+          "item": "blinding concrete C15"
+        },
+        {
+          "value": 395,
+          "checkedAt": "2026-11-11",
+          "item": "reinforced concrete C35 foundations",
+          "source": "https://www.carbonblueglobal.com/services/quantity-surveying",
+          "unit": "m³ installed",
+          "note": "Illustrative Qatar BOQ sample rate; includes supply and installation.",
+          "status": "market-survey"
+        },
+        {
+          "source": "https://www.carbonblueglobal.com/services/quantity-surveying",
+          "unit": "m² installed",
+          "item": "hollow blockwork 200 mm",
+          "checkedAt": "2026-11-11",
+          "value": 62,
+          "status": "market-survey",
+          "note": "Illustrative Qatar BOQ sample rate."
+        },
+        {
+          "source": "https://www.carbonblueglobal.com/services/quantity-surveying",
+          "note": "Illustrative Qatar BOQ sample rate, 15 mm internal.",
+          "checkedAt": "2026-11-11",
+          "status": "market-survey",
+          "item": "internal cement plaster",
+          "value": 34,
+          "unit": "m² installed"
+        },
+        {
+          "status": "market-survey",
+          "item": "porcelain floor tiling",
+          "unit": "m² installed",
+          "checkedAt": "2026-11-11",
+          "source": "https://www.carbonblueglobal.com/services/quantity-surveying",
+          "value": 145,
+          "note": "Illustrative Qatar BOQ sample rate."
+        },
+        {
+          "checkedAt": "2026-11-11",
+          "status": "market-survey",
+          "note": "Illustrative Qatar BOQ sample rate.",
+          "source": "https://www.carbonblueglobal.com/services/quantity-surveying",
+          "item": "two-coat emulsion paint",
+          "value": 16,
+          "unit": "m² installed"
+        },
+        {
+          "source": "https://www.ashghal.gov.qa/en/Services/Pages/PriceList.aspx",
+          "unit": "tonne",
+          "item": "bitumen 60/70",
+          "checkedAt": "2026-11-12",
+          "value": 2925,
+          "status": "published",
+          "note": "Ashghal official published price for November 2026; valid 1–30 November 2026."
+        }
+      ],
+      "currency": "QAR"
+    },
+    "SA": {
+      "currency": "SAR",
+      "benchmarks": [
+        {
+          "value": 15.53,
+          "note": "GASTAT September 2026 national average; VAT included.",
+          "checkedAt": "2026-11-11",
+          "source": "https://ibuild.sa/material-prices",
+          "unit": "50 kg bag",
+          "item": "black cement",
+          "status": "published"
+        },
+        {
+          "status": "published",
+          "item": "12 mm rebar",
+          "unit": "tonne",
+          "source": "https://ibuild.sa/material-prices",
+          "value": 3122.85,
+          "note": "GASTAT September 2026 national average.",
+          "checkedAt": "2026-11-11"
+        },
+        {
+          "status": "published",
+          "note": "GASTAT September 2026 national average.",
+          "checkedAt": "2026-11-11",
+          "item": "350K normal ready-mix concrete",
+          "source": "https://ibuild.sa/material-prices",
+          "value": 212.52,
+          "unit": "m³"
+        },
+        {
+          "item": "15 cm block",
+          "source": "https://ibuild.sa/material-prices",
+          "unit": "piece",
+          "status": "published",
+          "note": "Converted from SAR 1,677.78 per 1,000 pieces.",
+          "value": 1.67778,
+          "checkedAt": "2026-11-11"
+        },
+        {
+          "status": "published",
+          "note": "GASTAT September 2026 national average.",
+          "checkedAt": "2026-11-11",
+          "unit": "m³",
+          "source": "https://ibuild.sa/material-prices",
+          "value": 77.61,
+          "item": "white soft sand"
+        },
+        {
+          "note": "Riyadh labor benchmark; unit productivity is not implied.",
+          "source": "https://prices.qsmind.app/en/saudi/labour",
+          "status": "market-survey",
+          "item": "mason",
+          "checkedAt": "2026-11-11",
+          "value": 16,
+          "unit": "hour"
+        },
+        {
+          "item": "steel fixer",
+          "value": 16,
+          "unit": "hour",
+          "status": "market-survey",
+          "checkedAt": "2026-11-11",
+          "note": "Riyadh labor benchmark; unit productivity is not implied.",
+          "source": "https://prices.qsmind.app/en/saudi/labour"
+        },
+        {
+          "status": "market-survey",
+          "note": "Riyadh labor benchmark; unit productivity is not implied.",
+          "item": "tile mason",
+          "source": "https://prices.qsmind.app/en/saudi/labour",
+          "value": 18,
+          "unit": "hour",
+          "checkedAt": "2026-11-11"
+        },
+        {
+          "checkedAt": "2026-11-11",
+          "item": "plaster mason",
+          "value": 15,
+          "unit": "hour",
+          "source": "https://prices.qsmind.app/en/saudi/labour",
+          "note": "Riyadh labor benchmark; unit productivity is not implied.",
+          "status": "market-survey"
+        },
+        {
+          "item": "plumber",
+          "value": 15,
+          "unit": "hour",
+          "source": "https://prices.qsmind.app/en/saudi/labour",
+          "checkedAt": "2026-11-11",
+          "note": "Riyadh labor benchmark; unit productivity is not implied.",
+          "status": "market-survey"
+        },
+        {
+          "status": "market-survey",
+          "item": "machine excavation",
+          "unit": "m³ installed",
+          "source": "https://prices.qsmind.app/en/saudi/works",
+          "value": 21.5,
+          "note": "Riyadh normal soil, machine/operator/fuel included; rock and off-site disposal excluded.",
+          "checkedAt": "2026-11-11"
+        },
+        {
+          "status": "market-survey",
+          "item": "internal cement plaster",
+          "unit": "m² installed",
+          "checkedAt": "2026-11-11",
+          "source": "https://prices.qsmind.app/en/saudi/works",
+          "note": "Riyadh supply and apply, approx. 2 cm, June 2026 observation.",
+          "value": 26
+        },
+        {
+          "value": 67.5,
+          "unit": "m² installed",
+          "item": "porcelain floor tiling",
+          "source": "https://prices.qsmind.app/en/saudi/works",
+          "checkedAt": "2026-11-11",
+          "status": "market-survey",
+          "note": "Riyadh mid-range 60x60 cm including adhesive, grout and skirting."
+        },
+        {
+          "item": "internal emulsion painting",
+          "value": 22,
+          "unit": "m² installed",
+          "status": "market-survey",
+          "note": "Riyadh mid-range putty, sealer and two coats.",
+          "checkedAt": "2026-11-11",
+          "source": "https://prices.qsmind.app/en/saudi/works"
+        },
+        {
+          "source": "https://prices.qsmind.app/en/saudi/works",
+          "note": "Riyadh 4 mm torch-applied membrane system.",
+          "status": "market-survey",
+          "checkedAt": "2026-11-11",
+          "item": "roof waterproofing",
+          "value": 35,
+          "unit": "m² installed"
+        },
+        {
+          "status": "market-survey",
+          "item": "gypsum board ceiling",
+          "unit": "m² installed",
+          "checkedAt": "2026-11-11",
+          "note": "Riyadh 12.5 mm board and galvanized frame, ready for paint.",
+          "source": "https://prices.qsmind.app/en/saudi/works",
+          "value": 82.5
+        },
+        {
+          "note": "Riyadh conduit and wiring, light fitting excluded.",
+          "value": 85,
+          "status": "market-survey",
+          "item": "lighting point",
+          "unit": "point installed",
+          "checkedAt": "2026-11-11",
+          "source": "https://prices.qsmind.app/en/saudi/works"
+        },
+        {
+          "source": "https://prices.qsmind.app/en/saudi/works",
+          "note": "Riyadh conduit, wiring and mid-range 13A outlet.",
+          "unit": "point installed",
+          "status": "market-survey",
+          "value": 97.5,
+          "checkedAt": "2026-11-11",
+          "item": "socket outlet point"
         }
       ]
     },
@@ -860,234 +991,112 @@ export const PUBLISHED_MARKET_BENCHMARKS: PublishedMarketBenchmarks = {
       "currency": "IQD",
       "benchmarks": [
         {
-          "item": "Ordinary cement (Iraqi origin)",
           "value": 105000,
           "unit": "tonne",
           "status": "published",
-          "source": "https://cosit.gov.iq/documents/buildings/Employees%20wages/2026/%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%D8%A7%D9%84%D8%A7%D9%86%D8%B4%D8%A7%D8%A6%D9%8A%D8%A9%20%D9%84%D8%B4%D9%87%D8%B1%20%D8%B4%D8%A8%D8%A7%D8%B7%202026.pdf",
+          "item": "Ordinary cement (Iraqi origin)",
+          "note": "COSIT February 2026 local-origin market observation; IQD 105 thousand per tonne. Origin-specific, not a delivered project quote.",
           "checkedAt": "2026-11-11",
-          "note": "COSIT February 2026 local-origin market observation; IQD 105 thousand per tonne. Origin-specific, not a delivered project quote."
+          "source": "https://cosit.gov.iq/documents/buildings/Employees%20wages/2026/%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%D8%A7%D9%84%D8%A7%D9%86%D8%B4%D8%A7%D8%A6%D9%8A%D8%A9%20%D9%84%D8%B4%D9%87%D8%B1%20%D8%B4%D8%A8%D8%A7%D8%B7%202026.pdf"
         },
         {
-          "item": "Reinforcement steel (Iraqi origin)",
           "value": 972000,
           "unit": "tonne",
           "status": "published",
-          "source": "https://cosit.gov.iq/documents/buildings/Employees%20wages/2026/%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%D8%A7%D9%84%D8%A7%D9%86%D8%B4%D8%A7%D8%A6%D9%8A%D8%A9%20%D9%84%D8%B4%D9%87%D8%B1%20%D8%B4%D8%A8%D8%A7%D8%B7%202026.pdf",
           "checkedAt": "2026-11-11",
-          "note": "COSIT February 2026 local-origin market observation; IQD 972 thousand per tonne. Confirm steel grade, diameter, mill origin, delivery and VAT."
+          "item": "Reinforcement steel (Iraqi origin)",
+          "note": "COSIT February 2026 local-origin market observation; IQD 972 thousand per tonne. Confirm steel grade, diameter, mill origin, delivery and VAT.",
+          "source": "https://cosit.gov.iq/documents/buildings/Employees%20wages/2026/%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%D8%A7%D9%84%D8%A7%D9%86%D8%B4%D8%A7%D8%A6%D9%8A%D8%A9%20%D9%84%D8%B4%D9%87%D8%B1%20%D8%B4%D8%A8%D8%A7%D8%B7%202026.pdf"
         },
         {
-          "item": "Ceramic tile",
           "value": 10000,
-          "unit": "m²",
           "status": "published",
-          "source": "https://cosit.gov.iq/documents/buildings/Employees%20wages/2026/%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%D8%A7%D9%84%D8%A7%D9%86%D8%B4%D8%A7%D8%A6%D9%8A%D8%A9%20%D9%84%D8%B4%D9%87%D8%B1%20%D8%B4%D8%A8%D8%A7%D8%B7%202026.pdf",
+          "note": "COSIT February 2026 Iraqi-origin observation; IQD 10 thousand/m². Tile grade, size and finish are not specified in this aggregate series.",
+          "unit": "m²",
           "checkedAt": "2026-11-11",
-          "note": "COSIT February 2026 Iraqi-origin observation; IQD 10 thousand/m². Tile grade, size and finish are not specified in this aggregate series."
+          "item": "Ceramic tile",
+          "source": "https://cosit.gov.iq/documents/buildings/Employees%20wages/2026/%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%D8%A7%D9%84%D8%A7%D9%86%D8%B4%D8%A7%D8%A6%D9%8A%D8%A9%20%D9%84%D8%B4%D9%87%D8%B1%20%D8%B4%D8%A8%D8%A7%D8%B7%202026.pdf"
         },
         {
-          "item": "Ordinary brick",
-          "value": 158000,
-          "unit": "1,000 pieces",
           "status": "published",
+          "note": "COSIT 2025 average across reporting governorates; IQD 158 thousand per 1,000 pieces. Annual average, not a current city quotation.",
+          "item": "Ordinary brick",
           "source": "https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf",
           "checkedAt": "2026-11-11",
-          "note": "COSIT 2025 average across reporting governorates; IQD 158 thousand per 1,000 pieces. Annual average, not a current city quotation."
+          "value": 158000,
+          "unit": "1,000 pieces"
         },
         {
-          "item": "Republic brick",
           "value": 203000,
           "unit": "1,000 pieces",
           "status": "published",
+          "item": "Republic brick",
           "source": "https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf",
           "checkedAt": "2026-11-11",
           "note": "COSIT 2025 average across reporting governorates; IQD 203 thousand per 1,000 pieces. Annual average, not a current city quotation."
         },
         {
+          "unit": "1,000 pieces",
+          "source": "https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf",
           "item": "Medium-size concrete block",
           "value": 538000,
-          "unit": "1,000 pieces",
           "status": "published",
-          "source": "https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf",
           "checkedAt": "2026-11-11",
           "note": "COSIT 2025 average across reporting governorates; IQD 538 thousand per 1,000 blocks. Dimensions and hollow/solid specification must be confirmed."
         },
         {
+          "status": "published",
+          "unit": "m³",
           "item": "Black sand",
           "value": 16000,
-          "unit": "m³",
-          "status": "published",
           "source": "https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf",
           "checkedAt": "2026-11-11",
           "note": "COSIT 2025 governorate-average observation; IQD 16 thousand/m³. Confirm grading, source and transport."
         },
         {
-          "item": "Red sand",
           "value": 19000,
           "unit": "m³",
-          "status": "published",
           "source": "https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf",
+          "item": "Red sand",
           "checkedAt": "2026-11-11",
+          "status": "published",
           "note": "COSIT 2025 governorate-average observation; IQD 19 thousand/m³. Confirm grading, source and transport."
         },
         {
-          "item": "Engineer daily wage",
+          "note": "COSIT 2025 annual average wage observation; IQD/day. This is a wage benchmark, not a contractor charge-out rate.",
           "value": 50634,
-          "unit": "day",
-          "status": "published",
           "source": "https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf",
           "checkedAt": "2026-11-11",
-          "note": "COSIT 2025 annual average wage observation; IQD/day. This is a wage benchmark, not a contractor charge-out rate."
+          "item": "Engineer daily wage",
+          "unit": "day",
+          "status": "published"
         },
         {
+          "checkedAt": "2026-11-11",
+          "status": "published",
+          "note": "COSIT 2025 annual average wage observation; IQD/day. Housing, transport, employer contributions and contractor overhead are not added.",
           "item": "Skilled worker daily wage",
+          "source": "https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf",
           "value": 63806,
-          "unit": "day",
-          "status": "published",
-          "source": "https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf",
-          "checkedAt": "2026-11-11",
-          "note": "COSIT 2025 annual average wage observation; IQD/day. Housing, transport, employer contributions and contractor overhead are not added."
+          "unit": "day"
         },
         {
-          "item": "Semi-skilled worker daily wage",
+          "note": "COSIT 2025 annual average wage observation; IQD/day. Not a contractor charge-out rate.",
+          "checkedAt": "2026-11-11",
           "value": 32968,
-          "unit": "day",
-          "status": "published",
           "source": "https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf",
-          "checkedAt": "2026-11-11",
-          "note": "COSIT 2025 annual average wage observation; IQD/day. Not a contractor charge-out rate."
+          "item": "Semi-skilled worker daily wage",
+          "unit": "day",
+          "status": "published"
         },
         {
-          "item": "Unskilled worker daily wage",
+          "note": "COSIT 2025 annual average wage observation; IQD/day. Not a contractor charge-out rate.",
           "value": 24283,
-          "unit": "day",
           "status": "published",
-          "source": "https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf",
           "checkedAt": "2026-11-11",
-          "note": "COSIT 2025 annual average wage observation; IQD/day. Not a contractor charge-out rate."
-        }
-      ]
-    },
-    "BH": {
-      "currency": "BHD",
-      "benchmarks": [
-        {
-          "item": "12 mm reinforcement steel (market average)",
-          "value": 301,
-          "unit": "tonne",
-          "status": "market-survey",
-          "source": "https://www.gccpricing.com/bahrain-construction-prices",
-          "checkedAt": "2026-11-11",
-          "note": "Bahrain country page reports BHD 301/tonne average steel price; confirm grade, delivery and supplier quotation."
-        },
-        {
-          "item": "Portland cement",
-          "value": 24,
-          "unit": "tonne",
-          "status": "market-survey",
-          "source": "https://www.albiladpress.com/news/2026/6407/finance/995340.html",
-          "checkedAt": "2026-11-11",
-          "note": "Bahrain supplier-sector report dated 30 Apr 2026; reported market price BHD 24/tonne. Older observation; obtain a current supplier quote."
-        },
-        {
-          "item": "Washed sand",
-          "value": 10.7,
-          "unit": "m³",
-          "status": "market-survey",
-          "source": "https://www.albiladpress.com/news/2026/6407/finance/995340.html",
-          "checkedAt": "2026-11-11",
-          "note": "Calculated from the reported BHD 107 per 10 m³ shipment on 30 Apr 2026. Delivery and grade may vary; refresh with supplier quotes."
-        },
-        {
-          "item": "Ready-mix concrete (reported market average)",
-          "value": 33,
-          "unit": "m³",
-          "status": "market-survey",
-          "source": "https://www.albiladpress.com/news/2026/6407/finance/995340.html",
-          "checkedAt": "2026-11-11",
-          "note": "Bahrain supplier-sector average reported on 30 Apr 2026; mix grade and delivery specification were not stated. Do not substitute for a specified mix quote."
-        },
-        {
-          "item": "Concrete block (reported market price)",
-          "value": 0.24,
-          "unit": "piece",
-          "status": "market-survey",
-          "source": "https://www.albiladpress.com/news/2026/6407/finance/995340.html",
-          "checkedAt": "2026-11-11",
-          "note": "BHD 0.240 per block reported on 30 Apr 2026; block dimensions/type were not stated. Confirm specification and current price."
-        },
-        {
-          "item": "C20/25 ready-mix concrete, 75 mm slump",
-          "value": 26.4,
-          "unit": "m³",
-          "status": "market-survey",
-          "source": "https://www.gccpricing.com/materials/ready-mix-concrete-c20-price-bahrain",
-          "checkedAt": "2026-11-11",
-          "note": "Bahrain local observed rate, delivered basis; specification C20/25 and 75 mm slump. Obtain project-specific quote."
-        },
-        {
-          "item": "C40/50 ready-mix concrete, 100 mm slump",
-          "value": 34.16,
-          "unit": "m³",
-          "status": "market-survey",
-          "source": "https://www.gccpricing.com/materials/ready-mix-concrete-c40-price-bahrain",
-          "checkedAt": "2026-11-11",
-          "note": "Bahrain local observed rate, delivered basis; specification C40/50 and 100 mm slump. Obtain project-specific quote."
-        },
-        {
-          "item": "electrician basic wage",
-          "value": 200,
-          "unit": "month",
-          "status": "market-survey",
-          "source": "https://tajhrservices.com/salary-guide/bahrain",
-          "checkedAt": "2026-11-11",
-          "note": "Median overseas-intake basic salary; BHD 170–280 observed span. Housing, transport, food and overtime are separate."
-        },
-        {
-          "item": "plumber basic wage",
-          "value": 195,
-          "unit": "month",
-          "status": "market-survey",
-          "source": "https://tajhrservices.com/salary-guide/bahrain",
-          "checkedAt": "2026-11-11",
-          "note": "Median overseas-intake basic salary; BHD 160–270 observed span. Housing, transport, food and overtime are separate."
-        },
-        {
-          "item": "formwork carpenter basic wage",
-          "value": 200,
-          "unit": "month",
-          "status": "market-survey",
-          "source": "https://tajhrservices.com/salary-guide/bahrain",
-          "checkedAt": "2026-11-11",
-          "note": "Median overseas-intake basic salary; BHD 170–280 observed span. Housing, transport, food and overtime are separate."
-        },
-        {
-          "item": "6-wheel truck transport (local city trip)",
-          "value": 15,
-          "unit": "trip",
-          "status": "market-survey",
-          "source": "https://transportation.athletekart.com/",
-          "checkedAt": "2026-11-11",
-          "note": "Published starting price for local Bahrain transport; outside-city starting price BHD 22. Confirm route, waiting time and cargo."
-        },
-        {
-          "item": "HIAB 5-ton truck crane hire",
-          "value": 75,
-          "unit": "8-hour booking",
-          "status": "market-survey",
-          "source": "https://transportation.athletekart.com/ar/hiab-rental",
-          "checkedAt": "2026-11-11",
-          "note": "Published Bahrain base price for an 8-hour hire; overtime is extra. Confirm availability, operator, lifting plan and site access."
-        },
-        {
-          "item": "HIAB 10-ton truck crane hire",
-          "value": 85,
-          "unit": "8-hour booking",
-          "status": "market-survey",
-          "source": "https://transportation.athletekart.com/ar/hiab-rental",
-          "checkedAt": "2026-11-11",
-          "note": "Published Bahrain base price for an 8-hour hire; overtime is extra. Confirm availability, operator, lifting plan and site access."
+          "item": "Unskilled worker daily wage",
+          "unit": "day",
+          "source": "https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf"
         }
       ]
     }
