@@ -13,7 +13,7 @@ export type MarketBenchmark = {
   unit: string;
   status: 'published' | 'market-survey';
   source: string;
-  checkedAt: '2026-11-11';
+  checkedAt: string;
   note?: string;
 };
 
