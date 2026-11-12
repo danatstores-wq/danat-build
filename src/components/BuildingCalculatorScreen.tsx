@@ -800,6 +800,8 @@ export default function BuildingCalculatorScreen({
   const [error, setError] = useState('');
   const [projectName, setProjectName] = useState('');
   const [saveMessage, setSaveMessage] = useState('');
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  const [expandedCostCategories, setExpandedCostCategories] = useState<Record<string, boolean>>({});
   useEffect(() => {
     if (!savedCalculation || savedCalculation.kind !== 'building') return;
     const payload = savedCalculation.payload as {
@@ -1176,14 +1178,25 @@ export default function BuildingCalculatorScreen({
     </View>
   );
 
-  const section = (heading: string, children: React.ReactNode) => (
-    <View style={ui.sectionCard}>
-      <Text style={[ui.sectionTitle, isArabic && ui.rtl]}>
-        {heading}
-      </Text>
-      {children}
-    </View>
-  );
+  const section = (heading: string, children: React.ReactNode) => {
+    const expanded = !!expandedSections[heading];
+    return (
+      <View style={ui.sectionCard}>
+        <Pressable
+          onPress={() => setExpandedSections(old => ({ ...old, [heading]: !old[heading] }))}
+          style={ui.collapsibleSectionHeader}
+          accessibilityRole="button"
+          accessibilityState={{ expanded }}
+        >
+          <Text style={[ui.sectionTitle, isArabic && ui.rtl, { marginBottom: 0, flex: 1 }]}>
+            {heading}
+          </Text>
+          <Text style={ui.collapseChevron}>{expanded ? '−' : '+'}</Text>
+        </Pressable>
+        {expanded && <View style={ui.collapsibleSectionBody}>{children}</View>}
+      </View>
+    );
+  };
 
   const resultRow = (
     label: string,
@@ -1497,15 +1510,22 @@ export default function BuildingCalculatorScreen({
 
             return (
               <View key={category.id} style={ui.detailedCategory}>
-                <View style={ui.detailedCategoryHeader}>
+                <Pressable
+                  onPress={() => setExpandedCostCategories(old => ({ ...old, [category.id]: !old[category.id] }))}
+                  style={ui.detailedCategoryHeader}
+                  accessibilityRole="button"
+                  accessibilityState={{ expanded: !!expandedCostCategories[category.id] }}
+                >
                   <Text style={ui.detailedCategoryTitle}>
                     {category.names[language === 'ar' ? 1 : language === 'fr' ? 2 : 0]}
                   </Text>
                   <Text style={ui.detailedCategoryTotal}>
                     {money(categoryTotal, selectedCurrency)}
                   </Text>
-                </View>
+                  <Text style={ui.collapseChevron}>{expandedCostCategories[category.id] ? '−' : '+'}</Text>
+                </Pressable>
 
+                {expandedCostCategories[category.id] && <View>
                 {items.map(item => {
                   const qty = Number(detailedValues[`${item.id}Qty`] || 0);
                   const material = Number(detailedValues[`${item.id}Material`] || 0);
@@ -1563,6 +1583,7 @@ export default function BuildingCalculatorScreen({
                     {money(categoryTotal, selectedCurrency)}
                   </Text>
                 </View>
+                </View>}
               </View>
             );
           })}
@@ -1713,6 +1734,22 @@ const styles = StyleSheet.create({
     color: '#e7d2a7',
     fontSize: 12,
     lineHeight: 19,
+  },
+  collapsibleSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+    minHeight: 28,
+  },
+  collapsibleSectionBody: {
+    marginTop: 14,
+  },
+  collapseChevron: {
+    color: GOLD,
+    fontSize: 22,
+    fontWeight: '800',
+    paddingHorizontal: 5,
   },
   sectionCard: {
     backgroundColor: '#171c22',
