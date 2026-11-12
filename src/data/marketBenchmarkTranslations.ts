@@ -90,8 +90,6 @@ const UNIT_LABELS: Record<string, [string, string]> = {
   '50 kg bag': ['كيس 50 كغ', 'Sac de 50 kg'],
   'day': ['يوم عمل', 'jour'],
   '100 pieces': ['100 قطعة', '100 pièces'],
-  '25 kg bag': ['كيس 25 كغ', 'Sac de 25 kg'],
-  'tonne': ['طن', 'tonne'],
   'm³': ['م³', 'm³'],
   'm² installed': ['م² شامل التوريد والتركيب', 'm² fourni et posé'],
   'm³ installed': ['م³ شامل التوريد والتنفيذ', 'm³ fourni et exécuté'],
@@ -101,7 +99,6 @@ const UNIT_LABELS: Record<string, [string, string]> = {
   'hour': ['ساعة', 'heure'],
   'month': ['شهر', 'mois'],
   '9-hour day': ['يوم عمل 9 ساعات', 'journée de 9 heures'],
-  '8-hour day': ['يوم عمل 8 ساعات', 'journée de 8 heures'],
   'point installed': ['نقطة منفّذة', 'point installé'],
 };
 
