@@ -1,6 +1,18 @@
 export type MarketBenchmarkLanguage = 'en' | 'ar' | 'fr';
 
 const ITEM_LABELS: Record<string, [string, string]> = {
+  "Ordinary cement (Iraqi origin)": ["إسمنت عادي (منشأ عراقي)", "Ciment ordinaire (origine irakienne)"],
+  "Reinforcement steel (Iraqi origin)": ["حديد تسليح (منشأ عراقي)", "Acier d’armature (origine irakienne)"],
+  "Ceramic tile": ["سيراميك", "Carrelage céramique"],
+  "Ordinary brick": ["طابوق عادي", "Brique ordinaire"],
+  "Republic brick": ["طابوق جمهوري", "Brique républicaine"],
+  "Medium-size concrete block": ["بلوك متوسط الحجم", "Bloc de béton de taille moyenne"],
+  "Black sand": ["رمل أسود", "Sable noir"],
+  "Red sand": ["رمل أحمر", "Sable rouge"],
+  "Engineer daily wage": ["الأجر اليومي للمهندس", "Salaire journalier d’un ingénieur"],
+  "Skilled worker daily wage": ["الأجر اليومي للعامل الماهر", "Salaire journalier d’un ouvrier qualifié"],
+  "Semi-skilled worker daily wage": ["الأجر اليومي للعامل شبه الماهر", "Salaire journalier d’un ouvrier semi-qualifié"],
+  "Unskilled worker daily wage": ["الأجر اليومي للعامل غير الماهر", "Salaire journalier d’un ouvrier non qualifié"],
   'CEM I 42.5N cement (Suez)': ['أسمنت السويس بورتلاندي CEM I 42.5N', 'Ciment Portland CEM I 42.5N (Suez)'],
   'Misr Steel reinforcement rebar': ['حديد تسليح مصر للصلب', 'Acier d’armature Misr Steel'],
   'Ready-mix concrete C30 (300 kg/cm²)': ['خرسانة جاهزة C30 (300 كغ/سم²)', 'Béton prêt à l’emploi C30 (300 kg/cm²)'],
@@ -82,6 +94,7 @@ const ITEM_LABELS: Record<string, [string, string]> = {
 };
 
 const UNIT_LABELS: Record<string, [string, string]> = {
+  '1,000 pieces': ['1,000 قطعة', '1 000 pièces'],
   'tonne': ['طن', 'tonne'],
   '1,000 bricks': ['1,000 طوبة', '1 000 briques'],
   '25 kg bag': ['كيس 25 كغ', 'sac de 25 kg'],
@@ -103,6 +116,18 @@ const UNIT_LABELS: Record<string, [string, string]> = {
 };
 
 const NOTE_LABELS: Record<string, [string, string]> = {
+  "COSIT February 2026 local-origin market observation; IQD 105 thousand per tonne. Origin-specific, not a delivered project quote.": ["رصد هيئة الإحصاء لشهر شباط 2026 للمنتج المحلي؛ 105 آلاف دينار للطن. السعر بحسب المنشأ وليس عرض توريد للمشروع.", "Observation COSIT de février 2026 pour le produit local ; 105 000 IQD par tonne. Prix selon l’origine, et non devis livré au chantier."],
+  "COSIT February 2026 local-origin market observation; IQD 972 thousand per tonne. Confirm steel grade, diameter, mill origin, delivery and VAT.": ["رصد هيئة الإحصاء لشهر شباط 2026 للمنتج المحلي؛ 972 ألف دينار للطن. يجب تأكيد درجة الحديد وقطره ومنشأ المصنع والتوصيل والضريبة.", "Observation COSIT de février 2026 pour le produit local ; 972 000 IQD par tonne. Confirmer la nuance, le diamètre, l’origine de l’usine, la livraison et la TVA."],
+  "COSIT February 2026 Iraqi-origin observation; IQD 10 thousand/m². Tile grade, size and finish are not specified in this aggregate series.": ["رصد هيئة الإحصاء لشهر شباط 2026 للسيراميك العراقي؛ 10 آلاف دينار/م². لا يحدد هذا المؤشر الفرز أو المقاس أو التشطيب.", "Observation COSIT de février 2026 pour le carrelage d’origine irakienne ; 10 000 IQD/m². Le classement, le format et la finition ne sont pas précisés."],
+  "COSIT 2025 average across reporting governorates; IQD 158 thousand per 1,000 pieces. Annual average, not a current city quotation.": ["متوسط هيئة الإحصاء لعام 2025 عبر المحافظات المشمولة؛ 158 ألف دينار لكل 1,000 قطعة. متوسط سنوي وليس عرض سعر حديثاً لمدينة محددة.", "Moyenne COSIT 2025 des gouvernorats déclarants ; 158 000 IQD pour 1 000 pièces. Moyenne annuelle, pas un devis urbain actuel."],
+  "COSIT 2025 average across reporting governorates; IQD 203 thousand per 1,000 pieces. Annual average, not a current city quotation.": ["متوسط هيئة الإحصاء لعام 2025 عبر المحافظات المشمولة؛ 203 آلاف دينار لكل 1,000 قطعة. متوسط سنوي وليس عرض سعر حديثاً لمدينة محددة.", "Moyenne COSIT 2025 des gouvernorats déclarants ; 203 000 IQD pour 1 000 pièces. Moyenne annuelle, pas un devis urbain actuel."],
+  "COSIT 2025 average across reporting governorates; IQD 538 thousand per 1,000 blocks. Dimensions and hollow/solid specification must be confirmed.": ["متوسط هيئة الإحصاء لعام 2025 عبر المحافظات المشمولة؛ 538 ألف دينار لكل 1,000 بلوكة. يجب تأكيد الأبعاد وما إذا كان البلوك مجوفاً أو مصمتاً.", "Moyenne COSIT 2025 des gouvernorats déclarants ; 538 000 IQD pour 1 000 blocs. Confirmer les dimensions et le caractère creux ou plein."],
+  "COSIT 2025 governorate-average observation; IQD 16 thousand/m³. Confirm grading, source and transport.": ["متوسط هيئة الإحصاء لعام 2025 حسب المحافظات؛ 16 ألف دينار/م³. يجب تأكيد التدرج والمصدر والنقل.", "Observation moyenne COSIT 2025 par gouvernorat ; 16 000 IQD/m³. Confirmer la granulométrie, la provenance et le transport."],
+  "COSIT 2025 governorate-average observation; IQD 19 thousand/m³. Confirm grading, source and transport.": ["متوسط هيئة الإحصاء لعام 2025 حسب المحافظات؛ 19 ألف دينار/م³. يجب تأكيد التدرج والمصدر والنقل.", "Observation moyenne COSIT 2025 par gouvernorat ; 19 000 IQD/m³. Confirmer la granulométrie, la provenance et le transport."],
+  "COSIT 2025 annual average wage observation; IQD/day. This is a wage benchmark, not a contractor charge-out rate.": ["متوسط الأجر السنوي لدى هيئة الإحصاء لعام 2025؛ دينار/يوم. هذا مرجع للأجر وليس سعراً يومياً مفروضاً من مقاول.", "Salaire moyen annuel COSIT 2025 ; IQD/jour. Il s’agit d’un salaire de référence, pas d’un tarif facturé par un entrepreneur."],
+  "COSIT 2025 annual average wage observation; IQD/day. Housing, transport, employer contributions and contractor overhead are not added.": ["متوسط الأجر السنوي لدى هيئة الإحصاء لعام 2025؛ دينار/يوم. لا يشمل السكن والنقل ومساهمات صاحب العمل أو مصاريف المقاول.", "Salaire moyen annuel COSIT 2025 ; IQD/jour. Logement, transport, charges employeur et frais généraux de l’entrepreneur non inclus."],
+  "COSIT 2025 annual average wage observation; IQD/day. Not a contractor charge-out rate.": ["متوسط الأجر السنوي لدى هيئة الإحصاء لعام 2025؛ دينار/يوم. ليس سعراً يومياً مفروضاً من مقاول.", "Salaire moyen annuel COSIT 2025 ; IQD/jour. Ce n’est pas un tarif journalier facturé par un entrepreneur."],
+  "COSIT 2025 annual average wage observation; IQD/day. Not a contractor charge-out rate.": ["متوسط الأجر السنوي لدى هيئة الإحصاء لعام 2025؛ دينار/يوم. ليس سعراً يومياً مفروضاً من مقاول.", "Salaire moyen annuel COSIT 2025 ; IQD/jour. Ce n’est pas un tarif journalier facturé par un entrepreneur."],
   'Greater Cairo factory/distributor observation dated 10 Nov 2026; VAT basis not stated. Confirm brand, delivery and tax on supplier quotation.': ['رصد من المصنع/الموزع في القاهرة الكبرى بتاريخ 10 نوفمبر 2026؛ أساس ضريبة القيمة المضافة غير محدد. يجب تأكيد العلامة التجارية والتوصيل والضريبة في عرض المورد.', 'Observation usine/distributeur au Grand Caire datée du 10 novembre 2026 ; TVA non précisée. Confirmer la marque, la livraison et la taxe sur le devis fournisseur.'],
   'Mill list price dated 9 Nov 2026, ex-works; excludes transport and dealer margin. VAT not stated.': ['سعر قائمة المصنع بتاريخ 9 نوفمبر 2026، تسليم من المصنع؛ لا يشمل النقل أو هامش التاجر. الضريبة غير محددة.', 'Prix catalogue usine du 9 novembre 2026, départ usine ; transport et marge du négociant exclus. TVA non précisée.'],
   'Greater Cairo supplier list price dated 10 Oct 2026; delivered within Greater Cairo, pumping priced separately. Confirm current quote.': ['سعر قائمة المورد في القاهرة الكبرى بتاريخ 10 أكتوبر 2026؛ يشمل التوصيل داخل القاهرة الكبرى، وتُسعّر المضخة بشكل منفصل. يجب تأكيد السعر الحالي.', 'Prix catalogue fournisseur au Grand Caire daté du 10 octobre 2026 ; livré dans le Grand Caire, pompage facturé séparément. Confirmer le devis actuel.'],
@@ -198,6 +223,7 @@ export function marketBenchmarkLabel(value: string, language: MarketBenchmarkLan
 
 
 const SOURCE_LABELS: Record<string, [string, string]> = {
+  'cosit.gov.iq': ['هيأة الإحصاء العراقية – أسعار مواد البناء والأجور', 'COSIT Irak – prix des matériaux et salaires du bâtiment'],
   'prices.qsmind.app': ['QSMind – أسعار سوق البناء', 'QSMind – prix du marché de la construction'],
   'quantohq.com': ['QuantoHQ – مؤشر أسعار الإمارات', 'QuantoHQ – indice des prix des Émirats'],
   'marketintelligence.turnerandtownsend.com': ['Turner & Townsend – بيانات تكاليف البناء', 'Turner & Townsend – données de coûts de construction'],
@@ -223,6 +249,7 @@ export function marketBenchmarkSourceLabel(source: string, language: MarketBench
   if (!key) return language === 'ar' ? 'عرض المصدر' : language === 'fr' ? 'Consulter la source' : 'Open source';
   if (language === 'en') {
     const labels: Record<string, string> = {
+      'cosit.gov.iq': 'Iraq Central Statistical Organization – construction prices and wages',
       'prices.qsmind.app': 'QSMind – construction market prices',
       'quantohq.com': 'QuantoHQ – UAE price index',
       'marketintelligence.turnerandtownsend.com': 'Turner & Townsend – construction cost data',

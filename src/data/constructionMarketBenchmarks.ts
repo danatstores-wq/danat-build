@@ -23,7 +23,7 @@ export type ConstructionMarketBenchmarks = {
 };
 
 export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
-  'LB' | 'AE' | 'SA' | 'QA' | 'KW' | 'OM' | 'BH' | 'EG',
+  'LB' | 'AE' | 'SA' | 'QA' | 'KW' | 'OM' | 'BH' | 'EG' | 'IQ',
   ConstructionMarketBenchmarks
 > = {
   LB: {
@@ -155,6 +155,24 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
       { item: 'Wheel loader rental', value: 2750, unit: '8-hour day', status: 'market-survey', source: 'https://prices.qsmind.app/en/egypt/equipment', checkedAt: '2026-11-11', note: 'Greater Cairo one-day rental observation dated 9 Jun 2026; operator/fuel inclusion not stated and transport to site excluded.' },
     ],
   },
+  IQ: {
+    currency: 'IQD',
+    // COSIT February 2026 origin-based bulletin and 2025 provincial annual averages/wages.
+    benchmarks: [
+      { item: "Ordinary cement (Iraqi origin)", value: 105000, unit: "tonne", status: 'published', source: 'https://cosit.gov.iq/documents/buildings/Employees%20wages/2026/%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%D8%A7%D9%84%D8%A7%D9%86%D8%B4%D8%A7%D8%A6%D9%8A%D8%A9%20%D9%84%D8%B4%D9%87%D8%B1%20%D8%B4%D8%A8%D8%A7%D8%B7%202026.pdf', checkedAt: '2026-11-11', note: "COSIT February 2026 local-origin market observation; IQD 105 thousand per tonne. Origin-specific, not a delivered project quote." },
+      { item: "Reinforcement steel (Iraqi origin)", value: 972000, unit: "tonne", status: 'published', source: 'https://cosit.gov.iq/documents/buildings/Employees%20wages/2026/%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%D8%A7%D9%84%D8%A7%D9%86%D8%B4%D8%A7%D8%A6%D9%8A%D8%A9%20%D9%84%D8%B4%D9%87%D8%B1%20%D8%B4%D8%A8%D8%A7%D8%B7%202026.pdf', checkedAt: '2026-11-11', note: "COSIT February 2026 local-origin market observation; IQD 972 thousand per tonne. Confirm steel grade, diameter, mill origin, delivery and VAT." },
+      { item: "Ceramic tile", value: 10000, unit: "m²", status: 'published', source: 'https://cosit.gov.iq/documents/buildings/Employees%20wages/2026/%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%D8%A7%D9%84%D8%A7%D9%86%D8%B4%D8%A7%D8%A6%D9%8A%D8%A9%20%D9%84%D8%B4%D9%87%D8%B1%20%D8%B4%D8%A8%D8%A7%D8%B7%202026.pdf', checkedAt: '2026-11-11', note: "COSIT February 2026 Iraqi-origin observation; IQD 10 thousand/m². Tile grade, size and finish are not specified in this aggregate series." },
+      { item: "Ordinary brick", value: 158000, unit: "1,000 pieces", status: 'published', source: 'https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf', checkedAt: '2026-11-11', note: "COSIT 2025 average across reporting governorates; IQD 158 thousand per 1,000 pieces. Annual average, not a current city quotation." },
+      { item: "Republic brick", value: 203000, unit: "1,000 pieces", status: 'published', source: 'https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf', checkedAt: '2026-11-11', note: "COSIT 2025 average across reporting governorates; IQD 203 thousand per 1,000 pieces. Annual average, not a current city quotation." },
+      { item: "Medium-size concrete block", value: 538000, unit: "1,000 pieces", status: 'published', source: 'https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf', checkedAt: '2026-11-11', note: "COSIT 2025 average across reporting governorates; IQD 538 thousand per 1,000 blocks. Dimensions and hollow/solid specification must be confirmed." },
+      { item: "Black sand", value: 16000, unit: "m³", status: 'published', source: 'https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf', checkedAt: '2026-11-11', note: "COSIT 2025 governorate-average observation; IQD 16 thousand/m³. Confirm grading, source and transport." },
+      { item: "Red sand", value: 19000, unit: "m³", status: 'published', source: 'https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf', checkedAt: '2026-11-11', note: "COSIT 2025 governorate-average observation; IQD 19 thousand/m³. Confirm grading, source and transport." },
+      { item: "Engineer daily wage", value: 50634, unit: "day", status: 'published', source: 'https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf', checkedAt: '2026-11-11', note: "COSIT 2025 annual average wage observation; IQD/day. This is a wage benchmark, not a contractor charge-out rate." },
+      { item: "Skilled worker daily wage", value: 63806, unit: "day", status: 'published', source: 'https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf', checkedAt: '2026-11-11', note: "COSIT 2025 annual average wage observation; IQD/day. Housing, transport, employer contributions and contractor overhead are not added." },
+      { item: "Semi-skilled worker daily wage", value: 32968, unit: "day", status: 'published', source: 'https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf', checkedAt: '2026-11-11', note: "COSIT 2025 annual average wage observation; IQD/day. Not a contractor charge-out rate." },
+      { item: "Unskilled worker daily wage", value: 24283, unit: "day", status: 'published', source: 'https://cosit.gov.iq/documents/buildings/Employees%20wages/2025/2025%D9%86%D8%B4%D8%B1%D8%A9%20%D8%A7%D8%B3%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%20%D9%88%D8%A7%D8%AC%D9%88%D8%B1%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%D8%A9.pdf', checkedAt: '2026-11-11', note: "COSIT 2025 annual average wage observation; IQD/day. Not a contractor charge-out rate." },
+    ],
+  },
   BH: {
     currency: 'BHD',
     benchmarks: [
@@ -180,7 +198,7 @@ export const CONSTRUCTION_MARKET_BENCHMARKS: Record<
 // intentionally sparse: unsupported items remain zero and are flagged by the
 // calculator rather than being filled with Lebanon rates or an FX multiplier.
 export const COUNTRY_ITEM_RATE_DEFAULTS: Partial<
-  Record<'AE' | 'SA' | 'QA' | 'KW' | 'OM' | 'BH' | 'EG', Record<string, { material: number; labor: number }>>
+  Record<'AE' | 'SA' | 'QA' | 'KW' | 'OM' | 'BH' | 'EG' | 'IQ', Record<string, { material: number; labor: number }>>
 > = {
   AE: {
     excavation: { material: 25, labor: 0 }, // T&T 2025 measured excavation service, AED/m³
@@ -319,6 +337,13 @@ export const COUNTRY_ITEM_RATE_DEFAULTS: Partial<
     sandMasonry: { material: 210, labor: 0 }, // coarse sand; stale Oct 16 observation, transport excluded
     floorTiles: { material: 264, labor: 112 }, // first-grade 60x60 ceramic + Cairo tiling labour-only
     interiorPaint: { material: 0, labor: 59 }, // Cairo plastic-paint labour-only; paint material quoted separately
+  },
+  IQ: {
+    foundationSteel: { material: 972, labor: 0 }, // COSIT Feb 2026 IQD972,000/t converted to kg
+    structuralSteel: { material: 972, labor: 0 },
+    cementMasonry: { material: 5250, labor: 0 }, // COSIT Feb 2026 IQD105,000/t converted to 50 kg bag
+    sandMasonry: { material: 16000, labor: 0 }, // COSIT 2025 annual governorate average, IQD/m³; black sand
+    floorTiles: { material: 10000, labor: 0 }, // COSIT Feb 2026 ceramic observation; specification not stated
   },
   BH: {
     footingConcrete: { material: 30.54, labor: 0 }, // Bahrain observed C30 delivered reference, BHD/m³; confirm mix and quote

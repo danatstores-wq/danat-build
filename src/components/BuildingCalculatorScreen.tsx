@@ -19,7 +19,7 @@ import {
 } from 'react-native';
 
 type Language = 'en' | 'ar' | 'fr';
-type CountryCode = 'LB' | 'AE' | 'SA' | 'QA' | 'KW' | 'OM' | 'BH' | 'EG';
+type CountryCode = 'LB' | 'AE' | 'SA' | 'QA' | 'KW' | 'OM' | 'BH' | 'EG' | 'IQ';
 
 type FloorData = {
   id: number;
@@ -63,6 +63,7 @@ const PUBLISHED_MATERIAL_RATE_IDS: Partial<Record<Exclude<CountryCode, 'LB'>, st
     'foundationSteel', 'structuralSteel', 'externalBlocks', 'cementMasonry', 'sandMasonry', 'floorTiles',
   ],
   QA: ['foundationSteel', 'structuralSteel'],
+  IQ: ['foundationSteel', 'structuralSteel', 'cementMasonry', 'floorTiles'],
 };
 
 // These concrete defaults use GCCPricing's calibrated regional parity values,
@@ -87,6 +88,7 @@ const COUNTRY_OPTIONS: {
   { id: 'BH', currency: 'BHD', names: ['Bahrain', 'البحرين', 'Bahreïn'] },
   { id: 'LB', currency: 'USD', names: ['Lebanon', 'لبنان', 'Liban'] },
   { id: 'EG', currency: 'EGP', names: ['Egypt', 'مصر', 'Égypte'] },
+  { id: 'IQ', currency: 'IQD', names: ['Iraq', 'العراق', 'Irak'] },
 ];
 
 const translations = {
@@ -772,6 +774,7 @@ export default function BuildingCalculatorScreen({
     OM: createCountryCostValues('OM'),
     BH: createCountryCostValues('BH'),
     EG: createCountryCostValues('EG'),
+    IQ: createCountryCostValues('IQ'),
   });
   const detailedValues = detailedValuesByCountry[selectedCountry];
   const setDetailedValues = (updater: (old: DetailedValues) => DetailedValues) => {
@@ -789,6 +792,7 @@ export default function BuildingCalculatorScreen({
     OM: new Set(),
     BH: new Set(),
     EG: new Set(),
+    IQ: new Set(),
   });
   const manuallyEditedRates = useRef<Record<CountryCode, Set<string>>>({
     LB: new Set(),
@@ -799,6 +803,7 @@ export default function BuildingCalculatorScreen({
     OM: new Set(),
     BH: new Set(),
     EG: new Set(),
+    IQ: new Set(),
   });
   const [result, setResult] = useState<Record<string, any> | null>(null);
   const [error, setError] = useState('');
