@@ -51,7 +51,18 @@ jobs:
             echo "No benchmark changes to publish."
           else
             git commit -m "Publish monthly Firebase construction benchmarks"
-            git push origin HEAD:main
+            # Rebase the generated benchmark commit onto the latest main branch.
+            # This safely handles a concurrent deployment or an earlier publish run.
+            for attempt in 1 2 3; do
+              git fetch origin main
+              git rebase origin/main
+              if git push origin HEAD:main; then
+                exit 0
+              fi
+              echo "Push attempt $attempt failed; refreshing main and retrying."
+            done
+            echo "Could not push benchmark update after 3 attempts."
+            exit 1
           fi
       - name: Run regression tests
         run: npm run test:quantities
