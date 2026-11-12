@@ -247,6 +247,18 @@ export function marketBenchmarkSourceLabel(source: string, language: MarketBench
   if (host.startsWith('www.')) host = host.slice(4);
   const key = Object.keys(SOURCE_LABELS).find(domain => host === domain || host.endsWith('.' + domain));
   if (!key) return language === 'ar' ? 'عرض المصدر' : language === 'fr' ? 'Consulter la source' : 'Open source';
+
+  // QSMind has distinct material-price and labour-survey pages. Keep the
+  // source label specific to the actual page rather than the domain alone.
+  const pathname = (() => {
+    try { return new URL(source).pathname.toLowerCase(); }
+    catch { return source.toLowerCase(); }
+  })();
+  if (key === 'prices.qsmind.app' && /(?:^|\\/)labou?r(?:\\/|$)/.test(pathname)) {
+    if (language === 'en') return 'QSMind – labour market survey';
+    if (language === 'ar') return 'QSMind – مسح سوق العمالة';
+    return 'QSMind – enquête sur le marché du travail';
+  }
   if (language === 'en') {
     const labels: Record<string, string> = {
       'cosit.gov.iq': 'Iraq Central Statistical Organization – construction prices and wages',
