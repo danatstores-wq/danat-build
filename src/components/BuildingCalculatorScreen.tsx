@@ -1179,6 +1179,15 @@ export default function BuildingCalculatorScreen({
   );
 
   const section = (heading: string, children: React.ReactNode) => {
+    if (mode !== 'professional') {
+      return (
+        <View style={ui.sectionCard}>
+          <Text style={[ui.sectionTitle, isArabic && ui.rtl]}>{heading}</Text>
+          {children}
+        </View>
+      );
+    }
+
     const expanded = !!expandedSections[heading];
     return (
       <View style={ui.sectionCard}>
