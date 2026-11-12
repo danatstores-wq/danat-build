@@ -1,6 +1,20 @@
 export type MarketBenchmarkLanguage = 'en' | 'ar' | 'fr';
 
 const ITEM_LABELS: Record<string, [string, string]> = {
+  'CEM I 42.5N cement (Suez)': ['أسمنت السويس بورتلاندي CEM I 42.5N', 'Ciment Portland CEM I 42.5N (Suez)'],
+  'Misr Steel reinforcement rebar': ['حديد تسليح مصر للصلب', 'Acier d’armature Misr Steel'],
+  'Ready-mix concrete C30 (300 kg/cm²)': ['خرسانة جاهزة C30 (300 كغ/سم²)', 'Béton prêt à l’emploi C30 (300 kg/cm²)'],
+  'Washed special aggregate': ['زلط مخصوص مغسول', 'Granulat spécial lavé'],
+  'Coarse sand': ['رمل خشن', 'Sable grossier'],
+  'Solid cement bricks 25×12×6 cm': ['طوب أسمنتي مصمت 25×12×6 سم', 'Briques pleines en ciment 25×12×6 cm'],
+  'Ceramic floor tile 60×60 first grade': ['بلاط سيراميك أرضيات 60×60 فرز أول', 'Carrelage de sol céramique 60×60, premier choix'],
+  'Porcelain floor tile 60×60 first grade': ['بلاط بورسلان أرضيات 60×60 فرز أول', 'Carrelage de sol en porcelaine 60×60, premier choix'],
+  'Tile adhesive CMB Cetox U': ['لاصق بلاط CMB Cetox U', 'Mortier-colle CMB Cetox U'],
+  'Interior plastic paint Sipes 700': ['دهان بلاستيك داخلي Sipes 700', 'Peinture plastique intérieure Sipes 700'],
+  'Interior painting labour': ['مصنعية الدهان الداخلي', 'Main-d’œuvre de peinture intérieure'],
+  'Tiling labour': ['مصنعية تركيب البلاط', 'Main-d’œuvre de pose du carrelage'],
+  'Hydraulic excavator rental (about 20 t)': ['إيجار حفارة هيدروليكية (نحو 20 طن)', 'Location d’une pelle hydraulique (environ 20 t)'],
+  'Wheel loader rental': ['إيجار لودر', 'Location d’une chargeuse'],
   'cement': ['الأسمنت', 'Ciment'],
   'black cement factory-gate ceiling': ['السعر الأقصى للإسمنت الأسود من أرض المصنع', 'Plafond du prix départ usine du ciment noir'],
   'Portland cement CEM I 42.5N': ['إسمنت بورتلاندي CEM I 42.5N', 'Ciment Portland CEM I 42.5N'],
@@ -68,6 +82,11 @@ const ITEM_LABELS: Record<string, [string, string]> = {
 };
 
 const UNIT_LABELS: Record<string, [string, string]> = {
+  'tonne': ['طن', 'tonne'],
+  '1,000 bricks': ['1,000 طوبة', '1 000 briques'],
+  '25 kg bag': ['كيس 25 كغ', 'sac de 25 kg'],
+  '9 L pail': ['عبوة 9 لترات', 'seau de 9 L'],
+  '8-hour day': ['يوم عمل 8 ساعات', 'journée de 8 heures'],
   '50 kg bag': ['كيس 50 كغ', 'Sac de 50 kg'],
   'day': ['يوم عمل', 'jour'],
   '100 pieces': ['100 قطعة', '100 pièces'],
@@ -87,6 +106,20 @@ const UNIT_LABELS: Record<string, [string, string]> = {
 };
 
 const NOTE_LABELS: Record<string, [string, string]> = {
+  'Greater Cairo factory/distributor observation dated 10 Nov 2026; VAT basis not stated. Confirm brand, delivery and tax on supplier quotation.': ['رصد من المصنع/الموزع في القاهرة الكبرى بتاريخ 10 نوفمبر 2026؛ أساس ضريبة القيمة المضافة غير محدد. يجب تأكيد العلامة التجارية والتوصيل والضريبة في عرض المورد.', 'Observation usine/distributeur au Grand Caire datée du 10 novembre 2026 ; TVA non précisée. Confirmer la marque, la livraison et la taxe sur le devis fournisseur.'],
+  'Mill list price dated 9 Nov 2026, ex-works; excludes transport and dealer margin. VAT not stated.': ['سعر قائمة المصنع بتاريخ 9 نوفمبر 2026، تسليم من المصنع؛ لا يشمل النقل أو هامش التاجر. الضريبة غير محددة.', 'Prix catalogue usine du 9 novembre 2026, départ usine ; transport et marge du négociant exclus. TVA non précisée.'],
+  'Greater Cairo supplier list price dated 10 Oct 2026; delivered within Greater Cairo, pumping priced separately. Confirm current quote.': ['سعر قائمة المورد في القاهرة الكبرى بتاريخ 10 أكتوبر 2026؛ يشمل التوصيل داخل القاهرة الكبرى، وتُسعّر المضخة بشكل منفصل. يجب تأكيد السعر الحالي.', 'Prix catalogue fournisseur au Grand Caire daté du 10 octobre 2026 ; livré dans le Grand Caire, pompage facturé séparément. Confirmer le devis actuel.'],
+  'Greater Cairo washed, graded natural aggregate for higher-strength/exposed concrete; market observation dated 1 Nov 2026, full-load delivered basis, VAT included.': ['ركام طبيعي مغسول ومتدرج في القاهرة الكبرى للخرسانة عالية المقاومة أو الظاهرة؛ رصد السوق بتاريخ 1 نوفمبر 2026، تسليم حمولة كاملة، شامل الضريبة.', 'Granulat naturel lavé et calibré au Grand Caire pour béton haute résistance ou apparent ; observation du 1er novembre 2026, livré en camion complet, TVA incluse.'],
+  'Greater Cairo coarse sand observation dated 16 Oct 2026; marked stale by source, VAT included, transport excluded. Do not treat as a current delivered rate.': ['رصد الرمل الخشن في القاهرة الكبرى بتاريخ 16 أكتوبر 2026؛ المصدر يصنفه قديماً، شامل الضريبة وغير شامل النقل. لا يُعامل كسعر توصيل حالي.', 'Observation du sable grossier au Grand Caire datée du 16 octobre 2026 ; signalée comme ancienne par la source, TVA incluse, transport exclu. Ne pas la considérer comme un tarif livré actuel.'],
+  'Greater Cairo ex-factory observation dated 21 Oct 2026; transport excluded. Confirm brick strength and current factory price.': ['رصد من المصنع في القاهرة الكبرى بتاريخ 21 أكتوبر 2026؛ النقل غير مشمول. يجب تأكيد مقاومة الطوب وسعر المصنع الحالي.', 'Observation départ usine au Grand Caire datée du 21 octobre 2026 ; transport exclu. Confirmer la résistance des briques et le prix usine actuel.'],
+  'Cleopatra first-grade ceramic, Cairo retailer supply-only price dated 21 Oct 2026; installation and delivery excluded.': ['سيراميك كليوباترا فرز أول، سعر بيع بالتجزئة في القاهرة بتاريخ 21 أكتوبر 2026، توريد فقط؛ التركيب والتوصيل غير مشمولين.', 'Céramique Cleopatra premier choix, prix détaillant au Caire daté du 21 octobre 2026, fourniture seule ; pose et livraison exclues.'],
+  'Egyptian-made first-grade porcelain, Cairo retailer supply-only price dated 21 Oct 2026; installation and delivery excluded.': ['بورسلان مصري الصنع فرز أول، سعر بيع بالتجزئة في القاهرة بتاريخ 21 أكتوبر 2026، توريد فقط؛ التركيب والتوصيل غير مشمولين.', 'Porcelaine égyptienne premier choix, prix détaillant au Caire daté du 21 octobre 2026, fourniture seule ; pose et livraison exclues.'],
+  'Retail price dated 3 Nov 2026 for standard grey cementitious adhesive; confirm coverage and suitability for tile type.': ['سعر تجزئة بتاريخ 3 نوفمبر 2026 للاصق إسمنتي رمادي عادي؛ يجب تأكيد التغطية وملاءمته لنوع البلاط.', 'Prix de détail du 3 novembre 2026 pour une colle cimentaire grise standard ; vérifier le rendement et l’adéquation au type de carrelage.'],
+  'Greater Cairo retail price dated 3 Nov 2026; white interior matt emulsion, approx. 14 kg. Coverage depends on substrate and coats.': ['سعر تجزئة في القاهرة الكبرى بتاريخ 3 نوفمبر 2026؛ دهان مستحلب داخلي أبيض مطفي، نحو 14 كغ. التغطية تعتمد على السطح وعدد الطبقات.', 'Prix de détail au Grand Caire daté du 3 novembre 2026 ; peinture intérieure blanche mate en émulsion, environ 14 kg. Le rendement dépend du support et du nombre de couches.'],
+  'Cairo plastic-paint labour-only rate dated 9 Nov 2026; materials excluded.': ['سعر مصنعية دهان بلاستيك في القاهرة بتاريخ 9 نوفمبر 2026؛ المواد غير مشمولة.', 'Tarif de main-d’œuvre pour peinture plastique au Caire daté du 9 novembre 2026 ; matériaux exclus.'],
+  'Cairo floor and wall tiling labour-only rate dated 9 Nov 2026; tiles, adhesive and grout excluded.': ['سعر مصنعية تركيب بلاط الأرضيات والجدران في القاهرة بتاريخ 9 نوفمبر 2026؛ البلاط واللاصق والترويبة غير مشمولة.', 'Tarif de main-d’œuvre de pose de carrelage au sol et au mur au Caire daté du 9 novembre 2026 ; carrelage, colle et joint exclus.'],
+  'Greater Cairo daily rate derived from monthly rental ÷ 26 working days; observation dated 28 Oct 2026. Operator, fuel and mobilisation are not stated/included.': ['سعر يومي في القاهرة الكبرى محسوب من الإيجار الشهري ÷ 26 يوم عمل؛ الرصد بتاريخ 28 أكتوبر 2026. لم يحدد المصدر شمول المشغل أو الوقود أو نقل المعدة.', 'Tarif journalier au Grand Caire calculé à partir du loyer mensuel ÷ 26 jours ouvrés ; observation du 28 octobre 2026. Opérateur, carburant et mobilisation non précisés/inclus.'],
+  'Greater Cairo one-day rental observation dated 9 Jun 2026; operator/fuel inclusion not stated and transport to site excluded.': ['رصد إيجار ليوم واحد في القاهرة الكبرى بتاريخ 9 يونيو 2026؛ لم يحدد شمول المشغل والوقود، والنقل إلى الموقع غير مشمول.', 'Observation de location d’une journée au Grand Caire datée du 9 juin 2026 ; opérateur/carburant non précisés et transport au chantier exclu.'],
   "Beirut retailer online listing; white cement for decorative/rendering use, not interchangeable with black structural cement. Stock could not be independently reconfirmed on 11 November 2026; confirm stock, delivery and checkout price.": ["سعر منشور إلكترونياً لدى متجر في بيروت؛ إسمنت أبيض للزخرفة والقصارة، ولا يُستبدل بالإسمنت الأسود الإنشائي. تعذّر التحقق المستقل من المخزون في 11 تشرين الثاني 2026؛ يجب تأكيد المخزون والتوصيل والسعر النهائي.", "Annonce en ligne d’un détaillant de Beyrouth ; ciment blanc pour décoration et enduits, non interchangeable avec le ciment noir structurel. Le stock n’a pas pu être confirmé indépendamment le 11 novembre 2026 ; confirmer le stock, la livraison et le prix final."],
   "Beirut retailer online listing; one 25 kg bag; coverage depends on trowel size and substrate. Stock could not be independently reconfirmed on 11 November 2026; confirm stock, delivery and checkout price.": ["سعر منشور إلكترونياً لدى متجر في بيروت لكيس 25 كغ؛ تتوقف التغطية على مقاس المالج وحالة السطح. تعذّر التحقق المستقل من المخزون في 11 تشرين الثاني 2026؛ يجب تأكيد المخزون والتوصيل والسعر النهائي.", "Annonce en ligne d’un détaillant de Beyrouth pour un sac de 25 kg ; la couverture dépend de la taloche et du support. Le stock n’a pas pu être confirmé indépendamment le 11 novembre 2026 ; confirmer le stock, la livraison et le prix final."],
   "Beirut retailer online listing; 300×600 mm glazed wall tile; material only, installation excluded. Stock could not be independently reconfirmed on 11 November 2026; confirm stock, delivery and checkout price.": ["سعر منشور إلكترونياً لدى متجر في بيروت؛ بلاط جدران مزجج 300×600 مم؛ مواد فقط دون التركيب. تعذّر التحقق المستقل من المخزون في 11 تشرين الثاني 2026؛ يجب تأكيد المخزون والتوصيل والسعر النهائي.", "Annonce en ligne d’un détaillant de Beyrouth ; carreau mural émaillé 300×600 mm ; matériau seul, pose exclue. Le stock n’a pas pu être confirmé indépendamment le 11 novembre 2026 ; confirmer le stock, la livraison et le prix final."],
@@ -168,7 +201,7 @@ export function marketBenchmarkLabel(value: string, language: MarketBenchmarkLan
 
 
 const SOURCE_LABELS: Record<string, [string, string]> = {
-  'prices.qsmind.app': ['QSMind – مسح أجور السوق', 'QSMind – enquête salariale'],
+  'prices.qsmind.app': ['QSMind – أسعار سوق البناء', 'QSMind – prix du marché de la construction'],
   'quantohq.com': ['QuantoHQ – مؤشر أسعار الإمارات', 'QuantoHQ – indice des prix des Émirats'],
   'marketintelligence.turnerandtownsend.com': ['Turner & Townsend – بيانات تكاليف البناء', 'Turner & Townsend – données de coûts de construction'],
   'ibuild.sa': ['iBuild / GASTAT – أسعار المواد', 'iBuild / GASTAT – prix des matériaux'],
@@ -193,7 +226,7 @@ export function marketBenchmarkSourceLabel(source: string, language: MarketBench
   if (!key) return language === 'ar' ? 'عرض المصدر' : language === 'fr' ? 'Consulter la source' : 'Open source';
   if (language === 'en') {
     const labels: Record<string, string> = {
-      'prices.qsmind.app': 'QSMind – labour market survey',
+      'prices.qsmind.app': 'QSMind – construction market prices',
       'quantohq.com': 'QuantoHQ – UAE price index',
       'marketintelligence.turnerandtownsend.com': 'Turner & Townsend – construction cost data',
       'ibuild.sa': 'iBuild / GASTAT – material prices',
