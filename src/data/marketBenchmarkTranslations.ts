@@ -254,7 +254,7 @@ export function marketBenchmarkSourceLabel(source: string, language: MarketBench
     try { return new URL(source).pathname.toLowerCase(); }
     catch { return source.toLowerCase(); }
   })();
-  if (key === 'prices.qsmind.app' && /(?:^|\\/)labou?r(?:\\/|$)/.test(pathname)) {
+  if (key === 'prices.qsmind.app' && pathname.split('/').some(segment => segment === 'labour' || segment === 'labor')) {
     if (language === 'en') return 'QSMind – labour market survey';
     if (language === 'ar') return 'QSMind – مسح سوق العمالة';
     return 'QSMind – enquête sur le marché du travail';
