@@ -208,7 +208,7 @@ export default function App() {
         }
         style={ui.toolImageBackground}
         imageStyle={ui.toolBackgroundImage}
-        resizeMode="cover"
+        resizeMode="stretch"
       >
         <View style={ui.toolTextOverlay}>
           <Text style={ui.toolTitle}>{title(tool)}</Text>
@@ -1190,7 +1190,8 @@ const styles = StyleSheet.create({
   },
   toolCard: {
     width: '48%',
-    minHeight: 125,
+    height: 140,
+    minHeight: 140,
     backgroundColor: '#191e24',
     borderWidth: 1,
     borderColor: '#5b5142',
@@ -1203,11 +1204,14 @@ const styles = StyleSheet.create({
   },
   toolImageBackground: {
     flex: 1,
-    minHeight: 125,
+    height: '100%',
+    minHeight: 140,
     width: '100%',
     justifyContent: 'flex-end',
   },
   toolBackgroundImage: {
+    width: '100%',
+    height: '100%',
     opacity: 0.88,
     borderRadius: 14,
   },
