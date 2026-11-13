@@ -192,7 +192,7 @@ export default function App() {
       onPress={() => openTool(tool.id)}
       style={ui.toolCard}
     >
-      <Image
+      <ImageBackground
         source={
           tool.id === 'concrete'
             ? require('./assets/icons/concrete.png')
@@ -206,23 +206,25 @@ export default function App() {
             ? require('./assets/icons/sand-cement.png')
             : require('./assets/icons/project-cost.png')
         }
-        style={ui.toolImage}
-        resizeMode="contain"
-      />
-
-      <Text style={ui.toolTitle}>{title(tool)}</Text>
-
-      <Text style={ui.toolDesc}>
-        {tr(
-          tool.desc,
-          tool.id === 'concrete'
-            ? 'الحجم والهدر'
-            : tool.id === 'tiles'
-            ? 'مساحة الأرض والجدران'
-            : 'تقدير الكميات',
-          tool.desc
-        )}
-      </Text>
+        style={ui.toolImageBackground}
+        imageStyle={ui.toolBackgroundImage}
+        resizeMode="cover"
+      >
+        <View style={ui.toolTextOverlay}>
+          <Text style={ui.toolTitle}>{title(tool)}</Text>
+          <Text style={ui.toolDesc}>
+            {tr(
+              tool.desc,
+              tool.id === 'concrete'
+                ? 'الحجم والهدر'
+                : tool.id === 'tiles'
+                ? 'مساحة الأرض والجدران'
+                : 'تقدير الكميات',
+              tool.desc
+            )}
+          </Text>
+        </View>
+      </ImageBackground>
 
       <Pressable
         onPress={() => toggleFavourite(tool.id)}
@@ -1193,15 +1195,29 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#5b5142',
     borderRadius: 15,
+    alignItems: 'stretch',
+    justifyContent: 'stretch',
+    padding: 0,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  toolImageBackground: {
+    flex: 1,
+    minHeight: 125,
+    width: '100%',
+    justifyContent: 'flex-end',
+  },
+  toolBackgroundImage: {
+    opacity: 0.88,
+    borderRadius: 14,
+  },
+  toolTextOverlay: {
+    width: '100%',
+    paddingHorizontal: 9,
+    paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 12,
-    position: 'relative',
-  },
-  toolImage: {
-    width: 58,
-    height: 58,
-    marginBottom: 7,
+    backgroundColor: 'rgba(8, 11, 14, 0.68)',
   },
   toolEmoji: {
     fontSize: 31,
