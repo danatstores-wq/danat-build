@@ -11,6 +11,7 @@ import {
   ScrollView,
   StyleSheet,
   Platform,
+  ImageStyle,
 } from 'react-native';
 
 import CalculatorScreen from './src/components/CalculatorScreen';
@@ -207,7 +208,7 @@ export default function App() {
             : require('./assets/icons/project-cost.png')
         }
         style={ui.toolImageBackground}
-        imageStyle={ui.toolBackgroundImage}
+        imageStyle={ui.toolBackgroundImage as ImageStyle}
         resizeMode="stretch"
       >
         <View style={ui.toolTextOverlay}>
@@ -253,7 +254,7 @@ export default function App() {
           >
             <Image
               source={require('./assets/branding/danat-build-brand.png')}
-              style={ui.welcomeLogo}
+              style={ui.welcomeLogo as ImageStyle}
               resizeMode="contain"
             />
 
@@ -340,7 +341,7 @@ export default function App() {
                 <View style={{ flex: 1, alignItems: 'center' }}>
                   <Image
                     source={require('./assets/branding/danat-build-brand.png')}
-                    style={ui.innerBrandLogo}
+                    style={ui.innerBrandLogo as ImageStyle}
                     resizeMode="contain"
                   />
 
@@ -386,7 +387,7 @@ export default function App() {
                       <ImageBackground
                         source={require("./assets/icons/professional.png")}
                         style={ui.modeBackground}
-                        imageStyle={ui.modeBackgroundImage}
+                        imageStyle={ui.modeBackgroundImage as ImageStyle}
                         resizeMode="cover"
                       >
                         <View style={ui.modeTextOverlay}>
@@ -419,7 +420,7 @@ export default function App() {
                       <ImageBackground
                         source={require("./assets/icons/homeowner.png")}
                         style={ui.modeBackground}
-                        imageStyle={ui.modeBackgroundImage}
+                        imageStyle={ui.modeBackgroundImage as ImageStyle}
                         resizeMode="cover"
                       >
                         <View style={ui.modeTextOverlay}>
@@ -451,7 +452,7 @@ export default function App() {
                     <ImageBackground
                       source={require("./assets/icons/full-building-calculator.png")}
                       style={ui.buildingBackground}
-                      imageStyle={ui.buildingBackgroundImage}
+                      imageStyle={ui.buildingBackgroundImage as ImageStyle}
                       resizeMode="cover"
                     >
                       <View style={ui.buildingOverlay}>
@@ -1197,7 +1198,7 @@ const styles = StyleSheet.create({
     borderColor: '#5b5142',
     borderRadius: 15,
     alignItems: 'stretch',
-    justifyContent: 'stretch',
+    justifyContent: 'flex-start',
     padding: 0,
     position: 'relative',
     overflow: 'hidden',
