@@ -20,7 +20,7 @@ module.exports = ({ config }) => {
 
   return {
     ...config,
-    newArchEnabled: true, // ViroReact ARCore/ARKit requires Fabric
+    newArchEnabled: true, // ViroReact ARCore/ARKit requires Fabric and a native development build
     plugins: [
       ...plugins,
       [
