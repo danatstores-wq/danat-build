@@ -12,3 +12,22 @@ export async function saveLocalCalculation(userId:string,projectName:string,calc
  await AsyncStorage.setItem(storageKey(userId),JSON.stringify(updated));return updated;
 }
 export async function deleteLocalProject(userId:string,projectId:string):Promise<LocalProject[]>{const next=(await getLocalProjects(userId)).filter(project=>project.id!==projectId);await AsyncStorage.setItem(storageKey(userId),JSON.stringify(next));return next;}
+
+export async function renameLocalProject(userId:string,projectId:string,name:string):Promise<LocalProject[]>{
+ const cleanName=name.trim();
+ if(!cleanName)throw new Error('Enter a project name first.');
+ const projects=await getLocalProjects(userId);
+ if(projects.some(project=>project.id!==projectId&&project.name.toLowerCase()===cleanName.toLowerCase())){
+  throw new Error('A project with this name already exists.');
+ }
+ const next=projects.map(project=>project.id===projectId?{...project,name:cleanName}:project);
+ await AsyncStorage.setItem(storageKey(userId),JSON.stringify(next));
+ return next;
+}
+export async function deleteLocalCalculation(userId:string,projectId:string,calculationId:string):Promise<LocalProject[]>{
+ const projects=await getLocalProjects(userId);
+ const next=projects.map(project=>project.id===projectId?{...project,calculations:project.calculations.filter(item=>item.id!==calculationId)}:project)
+  .filter(project=>project.calculations.length>0);
+ await AsyncStorage.setItem(storageKey(userId),JSON.stringify(next));
+ return next;
+}
