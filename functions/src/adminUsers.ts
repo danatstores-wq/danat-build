@@ -80,7 +80,11 @@ export const adminSetUserAccess = onCall(
     }
 
     const isProfessional = access === "professional";
-    await db.collection("entitlements").doc(uid).set({
+    const now = Timestamp.now();
+    const entitlementRef = db.collection("entitlements").doc(uid);
+    const auditRef = db.collection("adminAccessChanges").doc();
+    const batch = db.batch();
+    batch.set(entitlementRef, {
       adminOverride: true,
       adminStatus: access,
       status: isProfessional ? "active" : "revoked",
@@ -89,8 +93,15 @@ export const adminSetUserAccess = onCall(
       platform: "admin",
       productId: null,
       adminUpdatedBy: adminUid,
-      adminUpdatedAt: Timestamp.now(),
+      adminUpdatedAt: now,
     }, { merge: true });
+    batch.set(auditRef, {
+      targetUid: uid,
+      changedBy: adminUid,
+      access,
+      changedAt: now,
+    });
+    await batch.commit();
 
     return { success: true };
   }
