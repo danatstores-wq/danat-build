@@ -31,6 +31,23 @@ function getAnnualExpiry(purchasedAtMs: number): number {
   return date.getTime();
 }
 
+function matchesCurrentTransaction(
+  current: { transactionId?: string | null; originalTransactionId?: string | null } | undefined,
+  event: RevenueCatEvent
+): boolean {
+  const transactionMatches = Boolean(
+    event.transaction_id
+    && current?.transactionId
+    && current.transactionId === event.transaction_id
+  );
+  const originalTransactionMatches = Boolean(
+    event.original_transaction_id
+    && current?.originalTransactionId
+    && current.originalTransactionId === event.original_transaction_id
+  );
+  return transactionMatches || originalTransactionMatches;
+}
+
 function isAllowedProduct(event: RevenueCatEvent): boolean {
   if (event.store === "APP_STORE") {
     return event.product_id === APPLE_PRODUCT_ID;
@@ -132,7 +149,9 @@ export const revenueCatWebhook = onRequest(
             throw new Error("Purchase expiry is invalid");
           }
 
-          // Do not let an older/out-of-order event shorten a newer term.
+          // Do not let an older/out-of-order event shorten a newer term or
+          // replace the transaction identifiers used to match later refunds.
+          const isNewestPurchase = expiresAt >= currentExpiry;
           const finalExpiry = Math.max(currentExpiry, expiresAt);
           transaction.set(entitlementRef, {
             status: finalExpiry > now ? "active" : "expired",
@@ -140,9 +159,15 @@ export const revenueCatWebhook = onRequest(
             platform: event.store === "APP_STORE" ? "apple" : "google_play",
             productId: event.product_id,
             source: "revenuecat",
-            environment: event.environment || "UNKNOWN",
-            transactionId: event.transaction_id || null,
-            originalTransactionId: event.original_transaction_id || null,
+            environment: isNewestPurchase
+              ? event.environment || "UNKNOWN"
+              : current?.environment || "UNKNOWN",
+            transactionId: isNewestPurchase
+              ? event.transaction_id || current?.transactionId || null
+              : current?.transactionId || null,
+            originalTransactionId: isNewestPurchase
+              ? event.original_transaction_id || current?.originalTransactionId || null
+              : current?.originalTransactionId || null,
             lastValidatedAt: FieldValue.serverTimestamp(),
           }, { merge: true });
         } else if (eventType === "EXPIRATION") {
@@ -156,10 +181,7 @@ export const revenueCatWebhook = onRequest(
         } else if (eventType === "CANCELLATION") {
           // For the configured non-renewing/prepaid products this event is
           // treated as a refund/revocation, not an auto-renewal cancellation.
-          const matchesCurrent = !current?.transactionId
-            || !event.transaction_id
-            || current.transactionId === event.transaction_id
-            || current.originalTransactionId === event.original_transaction_id;
+          const matchesCurrent = matchesCurrentTransaction(current, event);
           if (matchesCurrent) {
             transaction.set(entitlementRef, {
               status: "revoked",
@@ -167,7 +189,7 @@ export const revenueCatWebhook = onRequest(
             }, { merge: true });
           }
         } else if (eventType === "REFUND_REVERSED") {
-          if (currentExpiry > now) {
+          if (currentExpiry > now && matchesCurrentTransaction(current, event)) {
             transaction.set(entitlementRef, {
               status: "active",
               lastValidatedAt: FieldValue.serverTimestamp(),
