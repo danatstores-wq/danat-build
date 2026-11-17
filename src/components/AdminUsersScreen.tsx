@@ -15,6 +15,9 @@ import {
   getDoc,
   getDocs,
   limit,
+  orderBy,
+  documentId,
+  startAfter,
   query,
   serverTimestamp,
   setDoc,
@@ -45,6 +48,8 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
   const ui = getThemedStyles(styles, theme);
   const [filter, setFilter] = useState('');
   const [users, setUsers] = useState<UserResult[]>([]);
+  const [lastUserDoc, setLastUserDoc] = useState<any>(null);
+  const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
   const [savingUid, setSavingUid] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -53,13 +58,16 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
   const t = (en: string, ar: string, fr: string) =>
     language === 'ar' ? ar : language === 'fr' ? fr : en;
 
-  const loadUsers = useCallback(async () => {
+  const loadUsers = useCallback(async (reset = true) => {
     setLoading(true);
     setError('');
     try {
       // Admin Firestore rules allow this directory read. Each entitlement is read
       // separately so every user's current subscription/manual override is shown.
-      const profiles = await getDocs(query(collection(db, 'users'), limit(200)));
+      const usersQuery = reset
+        ? query(collection(db, 'users'), orderBy(documentId()), limit(50))
+        : query(collection(db, 'users'), orderBy(documentId()), startAfter(lastUserDoc), limit(50));
+      const profiles = await getDocs(usersQuery);
       const rows = await Promise.all(profiles.docs.map(async (profile) => {
         const uid = profile.id;
         const profileData = profile.data();
@@ -81,16 +89,18 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
         };
       }));
       rows.sort((a, b) => a.email.localeCompare(b.email));
-      setUsers(rows);
+      setUsers((current) => reset ? rows : [...current, ...rows]);
+      setLastUserDoc(profiles.docs.length ? profiles.docs[profiles.docs.length - 1] : lastUserDoc);
+      setHasMore(profiles.docs.length === 50);
     } catch (e: any) {
       setError(e?.message || t('Could not load users. Check that the latest Firestore rules are published.', 'تعذر تحميل المستخدمين. تحقق من نشر أحدث قواعد Firestore.', 'Impossible de charger les utilisateurs. Vérifiez les règles Firestore.'));
     } finally {
       setLoading(false);
     }
-  }, [language]);
+  }, [language, lastUserDoc]);
 
   useEffect(() => {
-    loadUsers();
+    loadUsers(true);
   }, [loadUsers]);
 
   const visibleUsers = useMemo(() => {
@@ -159,7 +169,7 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
       />
       <View style={styles.toolbar}>
         <Text style={styles.count}>{t('Users', 'المستخدمون', 'Utilisateurs')}: {visibleUsers.length} / {users.length}</Text>
-        <Pressable style={styles.refreshButton} onPress={loadUsers} disabled={loading || savingUid !== null}>
+        <Pressable style={styles.refreshButton} onPress={() => loadUsers(true)} disabled={loading || savingUid !== null}>
           <Text style={styles.freeText}>{t('REFRESH', 'تحديث', 'ACTUALISER')}</Text>
         </Pressable>
       </View>
@@ -227,6 +237,11 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
           );
         })}
       </ScrollView>
+      {hasMore && !loading ? (
+        <Pressable style={styles.refreshButton} onPress={() => loadUsers(false)} disabled={savingUid !== null}>
+          <Text style={styles.freeText}>{t('LOAD MORE USERS', 'تحميل المزيد من المستخدمين', 'CHARGER PLUS')}</Text>
+        </Pressable>
+      ) : null}
 
       <Pressable onPress={onBack} style={styles.backButton}>
         <Text style={styles.freeText}>{t('BACK', 'رجوع', 'RETOUR')}</Text>
