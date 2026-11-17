@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Platform, StyleSheet, View } from "react-native";
-import {
+import mobileAds, {
   AdsConsent,
   BannerAd,
   BannerAdSize,
   TestIds,
-  mobileAds,
 } from "react-native-google-mobile-ads";
 
 type Props = {
