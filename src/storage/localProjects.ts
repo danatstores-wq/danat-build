@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-export type SavedCalculation={id:string;title:string;kind:'quick'|'building';savedAt:string;payload:Record<string,unknown>};
+export type SavedCalculation={id:string;title:string;kind:'quick'|'building';savedAt:string;payload:Record<string,unknown>;projectName?:string};
 export type LocalProject={id:string;name:string;createdAt:string;calculations:SavedCalculation[]};
 const storageKey=(userId:string)=>`danatBuildProjects:${userId||'guest'}`;
 export async function getLocalProjects(userId:string):Promise<LocalProject[]>{try{const raw=await AsyncStorage.getItem(storageKey(userId));const parsed=raw?JSON.parse(raw):[];return Array.isArray(parsed)?parsed:[];}catch(error){console.warn('Could not load local projects:',error);return[];}}
