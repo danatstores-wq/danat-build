@@ -13,8 +13,8 @@
 - Google Play: subscription product `danat_build_professional_annual`, base plan `annual-prepaid`, duration P1Y, prepaid (not auto-renewing).
 - Apple App Store: non-renewing in-app purchase `danat_build_professional_annual`, with a 1-year term calculated by the trusted backend.
 - RevenueCat entitlement identifier: `professional`. Do not attach the Apple non-renewing product to a RevenueCat entitlement: Apple supplies no expiry and RevenueCat would otherwise treat it as active indefinitely. The Firebase webhook owns the one-year expiry for Apple.
-- Create a RevenueCat offering named/currently selected as `default`, containing the store products in the annual package `$rc_annual`.
-- The app accepts only package `$rc_annual` with product identifier `danat_build_professional_annual`.
+- Create a RevenueCat offering named/currently selected as `default`, containing the store products in the annual package `professional_annual`.
+- The app accepts only package `professional_annual` with product identifier `danat_build_professional_annual`.
 - Configure the RevenueCat webhook with the deployed `revenueCatWebhook` HTTPS URL and an Authorization header matching the Firebase secret `REVENUECAT_WEBHOOK_AUTHORIZATION`. Enable purchase, renewal, expiration, cancellation, and refund-reversed events for both production and sandbox.
 - RevenueCat must identify each purchaser with the Firebase UID. The app configures the SDK with that UID before a purchase; anonymous RevenueCat IDs are rejected by the webhook.
 - Both store transactions are validated by RevenueCat before its webhook updates Firebase. Never trust a client-only boolean or a date sent by the app.
@@ -22,7 +22,7 @@
 ## Current repository findings
 - Expo SDK 54, React Native 0.81.5, React 19.
 - Firebase Authentication is initialized in `src/firebase.ts`.
-- `App.tsx` currently defaults to Professional mode and lets any signed-in user select it.
+- `App.tsx` now defaults to Home Owner mode and requires a server-managed entitlement before Professional access.
 - The six quick calculators are rendered in `App.tsx`; Full Building Calculator is currently hidden unless Professional mode is selected.
 - `ProfileScreen.tsx` now links to the Professional plan screen.
 - RevenueCat's React Native SDK is used for store purchase and restore flows; a native development build is required (Expo Go cannot make real purchases).
