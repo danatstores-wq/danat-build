@@ -116,7 +116,7 @@ export default function SubscriptionScreen({
       </Text>
 
       <View style={ui.card}>
-        <Text style={ui.price}>$10<Text style={ui.perYear}> / {t("year", "سنوياً", "an")}</Text></Text>
+        <Text style={ui.price}>{annualPackage?.product.priceString || "$10"}<Text style={ui.perYear}> / {t("year", "سنوياً", "an")}</Text></Text>
         <Text style={ui.description}>
           {t(
             "One year of full access. Renew manually whenever you choose.",
