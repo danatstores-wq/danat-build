@@ -49,7 +49,13 @@ function DanatARScene(props: any) {
       const scene = sceneRef.current;
       if (!scene) return;
       const camera = await scene.getCameraOrientationAsync();
-      const hits = await scene.performARHitTestWithRay(camera.forward);
+      const origin = camera.position as Point3;
+      const destination = [
+        origin[0] + camera.forward[0] * 10,
+        origin[1] + camera.forward[1] * 10,
+        origin[2] + camera.forward[2] * 10,
+      ] as Point3;
+      const hits = await scene.performARHitTestWithWorldPoints(origin, destination);
       const preferred = hits.find((hit: any) =>
         hit.type === 'ExistingPlaneUsingExtent' ||
         hit.type === 'ExistingPlane' ||
