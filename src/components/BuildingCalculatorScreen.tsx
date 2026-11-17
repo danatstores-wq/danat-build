@@ -1346,7 +1346,7 @@ export default function BuildingCalculatorScreen({
         <Pressable
           onPress={async () => {
             try {
-              await exportCalculationPdf(projectName || savedCalculation.title, savedCalculation, language);
+              await exportCalculationPdf(savedCalculation.projectName || projectName || savedCalculation.title, savedCalculation, language);
             } catch (error) {
               console.warn('Could not export building calculation PDF:', error);
             }
