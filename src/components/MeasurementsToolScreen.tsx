@@ -17,6 +17,7 @@ export default function MeasurementsToolScreen({ toolId, language, units, onBack
   const [sightDistance, setSightDistance] = useState('10');
   const [sightAngle, setSightAngle] = useState('35');
   const [observerHeight, setObserverHeight] = useState('1.6');
+  const [polygonCoordinates, setPolygonCoordinates] = useState('0,0\\n6.5,0\\n6.5,7.5\\n0,7.5');
 
   const t = (en: string, ar: string, fr: string) => language === 'ar' ? ar : language === 'fr' ? fr : en;
   const isLevelTool = toolId === 'spirit-level';
@@ -30,6 +31,9 @@ export default function MeasurementsToolScreen({ toolId, language, units, onBack
   const slope = Math.tan(Math.abs(pitchValue) * Math.PI / 180) * 100;
   const area = Math.max(0, Number(length) || 0) * Math.max(0, Number(width) || 0);
   const perimeter = 2 * (Math.max(0, Number(length) || 0) + Math.max(0, Number(width) || 0));
+  const polygonPoints = polygonCoordinates.split(/[;\\n]+/).map(line => line.trim()).filter(Boolean).map(line => line.split(/[,\\s]+/).map(Number)).filter(pair => pair.length === 2 && pair.every(Number.isFinite));
+  const polygonArea = polygonPoints.length >= 3 ? Math.abs(polygonPoints.reduce((sum, point, index) => { const next = polygonPoints[(index + 1) % polygonPoints.length]; return sum + point[0] * next[1] - next[0] * point[1]; }, 0)) / 2 : 0;
+  const polygonPerimeter = polygonPoints.length >= 3 ? polygonPoints.reduce((sum, point, index) => { const next = polygonPoints[(index + 1) % polygonPoints.length]; return sum + Math.hypot(next[0] - point[0], next[1] - point[1]); }, 0) : 0;
   const unit = units === 'metric' ? 'm' : 'ft';
   const areaUnit = units === 'metric' ? 'm²' : 'ft²';
   const heightDistance = Math.max(0, Number(sightDistance) || 0);
@@ -121,7 +125,12 @@ export default function MeasurementsToolScreen({ toolId, language, units, onBack
           <TextInput value={width} onChangeText={setWidth} keyboardType="decimal-pad" style={s.input} placeholder="0" placeholderTextColor="#777" />
           <View style={s.result}><Text style={s.label}>{t('Area', 'المساحة', 'Surface')}</Text><Text style={s.value}>{area.toFixed(2)} {areaUnit}</Text></View>
           <View style={s.result}><Text style={s.label}>{t('Perimeter', 'المحيط', 'Périmètre')}</Text><Text style={s.value}>{perimeter.toFixed(2)} {unit}</Text></View>
-          <Text style={s.note}>{t('Enter measured side lengths. This first version calculates rectangular spaces; polygon point marking will be added later.', 'أدخل أطوال الأضلاع المقاسة. تحسب هذه النسخة المساحات المستطيلة؛ وستضاف لاحقاً إمكانية تحديد نقاط الأشكال متعددة الأضلاع.', 'Saisissez les longueurs mesurées. Cette version calcule les rectangles ; le marquage de polygones sera ajouté ensuite.')}</Text>
+          <Text style={s.eyebrow}>{t('IRREGULAR AREA — POLYGON POINTS', 'مساحة غير منتظمة — نقاط المضلع', 'SURFACE IRRÉGULIÈRE — POINTS DU POLYGONE')}</Text>
+          <Text style={s.label}>{t('Enter one X,Y coordinate per line', 'أدخل إحداثيات X,Y لكل نقطة في سطر', 'Saisissez une coordonnée X,Y par ligne')} ({unit})</Text>
+          <TextInput value={polygonCoordinates} onChangeText={setPolygonCoordinates} multiline textAlignVertical="top" style={[s.input, { minHeight: 104 }]} placeholder="0,0\\n6,0\\n6,4\\n0,4" placeholderTextColor="#777" />
+          <View style={s.result}><Text style={s.label}>{t('Polygon area', 'مساحة المضلع', 'Surface du polygone')}</Text><Text style={s.value}>{polygonPoints.length >= 3 ? polygonArea.toFixed(2) + ' ' + areaUnit : '—'}</Text></View>
+          <View style={s.result}><Text style={s.label}>{t('Polygon perimeter', 'محيط المضلع', 'Périmètre du polygone')}</Text><Text style={s.value}>{polygonPoints.length >= 3 ? polygonPerimeter.toFixed(2) + ' ' + unit : '—'}</Text></View>
+          <Text style={s.note}>{t('Enter measured points in order around the boundary. The first point is automatically connected to the last. Coordinates use the same unit selected in Settings.', 'أدخل النقاط المقاسة بالترتيب حول الحدود. يتم وصل النقطة الأولى بالأخيرة تلقائياً. تستخدم الإحداثيات الوحدة المحددة في الإعدادات.', 'Saisissez les points mesurés dans l’ordre du contour. Le premier point est automatiquement relié au dernier. Les coordonnées utilisent l’unité choisie dans les paramètres.')}</Text>
         </View>
       )}
 
