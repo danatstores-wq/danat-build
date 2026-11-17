@@ -11,7 +11,6 @@ const webhookAuthorization = defineSecret("REVENUECAT_WEBHOOK_AUTHORIZATION");
 const APPLE_PRODUCT_ID = "danat_build_professional_annual";
 const GOOGLE_PRODUCT_ID = "danat_build_professional_annual";
 const GOOGLE_BASE_PLAN_ID = "annual-prepaid";
-const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
 
 type RevenueCatEvent = {
   id?: string;
@@ -148,7 +147,6 @@ export const revenueCatWebhook = onRequest(
           }, { merge: true });
         } else if (eventType === "EXPIRATION") {
           // An old expiration must not revoke a later purchase.
-          const eventExpiry = Number(event.expiration_at_ms || 0);
           if (!currentExpiry || currentExpiry <= now) {
             transaction.set(entitlementRef, {
               status: "expired",
