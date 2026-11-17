@@ -20,6 +20,7 @@ module.exports = ({ config }) => {
 
   return {
     ...config,
+    newArchEnabled: true,
     plugins: [
       ...plugins,
       [
@@ -44,7 +45,7 @@ module.exports = ({ config }) => {
             cameraUsagePermission: "Danat Build uses the camera to measure real-world distances and room dimensions in augmented reality.",
             microphoneUsagePermission: "Danat Build uses the microphone only when an AR feature explicitly requires it.",
             photosPermission: "Danat Build can access photos when you choose to use them in a project.",
-            savephotosPermission: "Danat Build can save measurement snapshots when you request them.",
+            savePhotosPermission: "Danat Build can save measurement snapshots when you request them.",
           },
           telemetry: false,
         },
