@@ -1061,7 +1061,7 @@ export default function App() {
             </ScrollView>
 
             <AdBanner enabled={entitlementLoaded && !professionalActive} />
-            <AdInterstitial enabled={entitlementLoaded && !professionalActive} />
+            <AdInterstitial enabled={entitlementLoaded && !professionalActive} safeToShow={screen === "home" || screen === "menu" || screen === "favorites"} />
 
             <View
               style={[
