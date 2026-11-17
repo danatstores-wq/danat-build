@@ -24,12 +24,12 @@
 - Expo SDK 54, React Native 0.81.5, React 19.
 - Firebase Authentication is initialized in `src/firebase.ts`.
 - `App.tsx` now defaults to Home Owner mode and requires a server-managed entitlement before Professional access.
-- The six quick calculators are rendered in `App.tsx`; Full Building Calculator is currently hidden unless Professional mode is selected.
+- The six quick calculators are rendered in `App.tsx`; Full Building Calculator is hidden unless Professional mode is selected and the server-managed entitlement is active.
 - `ProfileScreen.tsx` now links to the Professional plan screen.
 - RevenueCat's React Native SDK is used for store purchase and restore flows; a native development build is required (Expo Go cannot make real purchases).
 - `functions/src/revenuecatWebhook.ts` receives authenticated RevenueCat events and writes server-managed entitlement records.
 - AdMob uses `react-native-google-mobile-ads@16.4.0`, the Expo SDK 54-compatible line. Version 17 requires React Native 0.86+ and the New Architecture, so it must not be installed into this app without a planned SDK upgrade.
-- A consent-aware banner is shown on the Home screen only for free mobile users. The web build has no native AdMob placement.
+- A consent-aware banner is shown on the Home screen and quick-calculator screens for free mobile users. The web build has no native AdMob placement.
 - Development builds use Google's official test app IDs and test banner unit by default. Real AdMob app IDs and banner unit IDs must be added before release.
 
 ## Remaining configuration and release sequence
@@ -67,7 +67,7 @@ Do not accept an entitlement expiry supplied by the mobile client. The app fails
 - Added a Professional plan screen with annual purchase and restore actions.
 - Added a RevenueCat webhook with an Authorization secret, event idempotency, product allow-list, server-calculated Apple annual expiry, and Firebase Admin entitlement writes.
 - Added a development-build profile requirement; no native store transaction has been tested yet.
-- Added a consent-aware AdMob banner on the Home screen for free mobile accounts only; the web build intentionally renders no ad.
+- Added consent-aware AdMob banners on the Home and quick-calculator screens for free mobile accounts only; the web build intentionally renders no ad.
 - Added dynamic native AdMob app-ID configuration with Google's test IDs as safe development defaults.
 - Real AdMob app/unit IDs, consent-message configuration, and native device testing remain pending.
 
