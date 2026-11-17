@@ -34,8 +34,6 @@
     "typescript": "~5.9.2"
   },
   "overrides": {
-    "@reactvision/react-viro": {
-      "react": "19.1.0"
-    }
+    "react": "$react"
   }
 }
