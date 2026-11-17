@@ -1,23 +1,53 @@
-# Danat Build — first visual implementation
+# Danat Build
 
-This is the first implemented mobile UI pass based on the supplied Danat Build concept: black/charcoal surfaces, warm gold accents, welcome screen, language selector, professional/homeowner choice, calculator dashboard, calculator navigation, and a concrete calculator with a working volume + wastage formula.
+Danat Build is a multilingual construction calculator app built with Expo and React Native.
 
-## Run
+## Implemented
+
+- Firebase Authentication and user profiles.
+- Free/Homeowner and Professional access modes.
+- Firebase-backed Professional entitlement checks.
+- Administrator screen for granting and revoking Professional access, with an audit trail.
+- Six quick calculators: concrete, tiles and ceramics, paint, blocks and bricks, sand and cement, and project cost.
+- Full Building Calculator with floor, structural, finishing, services, and itemized cost estimates.
+- Metric and imperial input/output conversion in quick calculators.
+- English, Arabic, and French interface content.
+- Dark and light themes.
+- Local saved projects and saved calculations.
+- AdMob banner and timed interstitial placements for Free users; Professional users are ad-free.
+- Web export and GitHub Pages deployment.
+
+## Subscription and payment status
+
+The Professional plan is intended to cost **$10 for one year with manual renewal**. Website card payments are not part of the project scope.
+
+Google Play and Apple App Store purchases are not enabled. Store developer accounts and RevenueCat platform configuration are still required before real purchases can be accepted. The RevenueCat webhook source is present, but a trusted external backend must be deployed and tested before automatic store-purchase entitlements can be activated. Do not enable purchase buttons before end-to-end verification.
+
+Firebase Spark remains the selected plan. The current manual administrator grant/revoke flow is separate from paid store purchases.
+
+## Saved projects
+
+Projects and calculations are currently stored locally on the device. They are not synchronized between devices or backed up to Firebase. PDF export and cross-device project sync remain future work.
+
+## Validation
+
+GitHub Actions validates:
+
+- Building quantity estimator and market benchmark translation regression tests.
+- Quick calculator regression tests.
+- TypeScript.
+- Expo native config plugins.
+- Firebase Functions compilation.
+- Web export.
+
+Run locally:
+
 ```bash
 npm install
-npx expo start
+npm run test:quantities
+npm run test:calculators
+npx tsc --noEmit
+npx expo export --platform web
 ```
 
-## Important scope notes
-- The welcome, dashboard, navigation, calculator shell, and concrete calculation are implemented in React Native.
-- Tiles, paint, blocks/bricks, sand/cement, and project-cost screens currently have designed placeholders. Their formulas, pricing inputs, saved projects, and PDF export have not yet been implemented.
-- The Arabic labels are starter translations; full RTL layout and professional Arabic copy need a dedicated pass.
-- Construction formulas and material assumptions must be reviewed by a qualified construction professional before real-world purchasing or building decisions.
-
-## GitHub update
-Copy these project files into your existing local repository, inspect the changes, then run:
-```bash
-git add .
-git commit -m "Build Danat Build visual interface"
-git push origin main
-```
+Construction calculations are preliminary estimates. Structural design, reinforcement, and material specifications must be reviewed by a qualified construction professional before construction or purchasing decisions.
