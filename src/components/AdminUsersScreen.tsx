@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -48,7 +48,7 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
   const ui = getThemedStyles(styles, theme);
   const [filter, setFilter] = useState('');
   const [users, setUsers] = useState<UserResult[]>([]);
-  const [lastUserDoc, setLastUserDoc] = useState<any>(null);
+  const lastUserDoc = useRef<any>(null);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
   const [savingUid, setSavingUid] = useState<string | null>(null);
@@ -66,7 +66,7 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
       // separately so every user's current subscription/manual override is shown.
       const usersQuery = reset
         ? query(collection(db, 'users'), orderBy(documentId()), limit(50))
-        : query(collection(db, 'users'), orderBy(documentId()), startAfter(lastUserDoc), limit(50));
+        : query(collection(db, 'users'), orderBy(documentId()), startAfter(lastUserDoc.current), limit(50));
       const profiles = await getDocs(usersQuery);
       const rows = await Promise.all(profiles.docs.map(async (profile) => {
         const uid = profile.id;
@@ -90,14 +90,15 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
       }));
       rows.sort((a, b) => a.email.localeCompare(b.email));
       setUsers((current) => reset ? rows : [...current, ...rows]);
-      setLastUserDoc(profiles.docs.length ? profiles.docs[profiles.docs.length - 1] : lastUserDoc);
+      if (profiles.docs.length) lastUserDoc.current = profiles.docs[profiles.docs.length - 1];
+      if (reset) lastUserDoc.current = profiles.docs.length ? profiles.docs[profiles.docs.length - 1] : null;
       setHasMore(profiles.docs.length === 50);
     } catch (e: any) {
       setError(e?.message || t('Could not load users. Check that the latest Firestore rules are published.', 'تعذر تحميل المستخدمين. تحقق من نشر أحدث قواعد Firestore.', 'Impossible de charger les utilisateurs. Vérifiez les règles Firestore.'));
     } finally {
       setLoading(false);
     }
-  }, [language, lastUserDoc]);
+  }, [language]);
 
   useEffect(() => {
     loadUsers(true);
