@@ -1,0 +1,44 @@
+name: Android native AR build check
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "app.config.js"
+      - "package.json"
+      - "package-lock.json"
+      - "src/components/ARMeasurementView.tsx"
+      - "src/components/ARMeasurementView.web.tsx"
+      - "src/components/MeasurementsToolScreen.tsx"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android-ar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Install JavaScript dependencies
+        run: npm install --no-audit --no-fund
+      - name: Generate native Android project
+        run: npx expo prebuild --platform android --no-install
+      - name: Compile Android debug app with ARCore integration
+        working-directory: android
+        run: chmod +x gradlew && ./gradlew assembleDebug --no-daemon
