@@ -57,10 +57,10 @@ function reportHtml(projectName: string, calculation: SavedCalculation, language
   const direction = language === 'ar' ? 'rtl' : 'ltr';
   const date = new Date(calculation.savedAt).toLocaleString(language === 'ar' ? 'ar' : language === 'fr' ? 'fr-FR' : 'en');
   return `<!DOCTYPE html><html lang="${language}" dir="${direction}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(calculation.title)}</title><style>
-    @page{size:A4;margin:18mm}*{box-sizing:border-box}body{font-family:Arial,"Noto Sans Arabic",sans-serif;color:#20252b;font-size:11px;line-height:1.5;margin:0}
+    @page{size:A4;margin:18mm}*{box-sizing:border-box}body{font-family:"Noto Naskh Arabic","Noto Sans Arabic","Geeza Pro",Tahoma,Arial,sans-serif;color:#20252b;font-size:11px;line-height:1.65;margin:0;unicode-bidi:plaintext}
     header{border-bottom:3px solid #c99742;padding-bottom:12px;margin-bottom:18px}h1{font-size:19px;color:#28231b;margin:0 0 8px}h2{font-size:14px;color:#8b6425;margin:22px 0 8px;border-bottom:1px solid #e5d8c2;padding-bottom:5px}
-    .meta{display:flex;flex-wrap:wrap;gap:8px 24px;color:#555}.meta strong{color:#222}table{width:100%;border-collapse:collapse;page-break-inside:auto}tr{page-break-inside:avoid}td,th{padding:6px 8px;border-bottom:1px solid #e9e9e9;text-align:start;vertical-align:top}td:first-child{width:55%;color:#555}.group th{background:#f5f0e7;color:#6c4e1d;font-weight:700;padding-top:8px}.empty{color:#777;font-style:italic}
-    footer{margin-top:26px;padding-top:9px;border-top:1px solid #ddd;color:#666;font-size:9px}
+    .meta{display:flex;flex-wrap:wrap;gap:8px 24px;color:#555}.meta strong{color:#222}table{width:100%;border-collapse:collapse;page-break-inside:auto}tr{page-break-inside:avoid}td,th{padding:6px 8px;border-bottom:1px solid #e9e9e9;text-align:start;vertical-align:top;overflow-wrap:anywhere}td:first-child{width:55%;color:#555}.group th{background:#f5f0e7;color:#6c4e1d;font-weight:700;padding-top:8px}.empty{color:#777;font-style:italic}
+    footer{margin-top:26px;padding-top:9px;border-top:1px solid #ddd;color:#666;font-size:9px;page-break-inside:avoid}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}thead{display:table-header-group}}
   </style></head><body><header><h1>${escapeHtml(copy.report)}</h1><div class="meta"><span><strong>${escapeHtml(copy.project)}:</strong> ${escapeHtml(projectName)}</span><span><strong>${escapeHtml(copy.calculation)}:</strong> ${escapeHtml(calculation.title)}</span><span><strong>${escapeHtml(copy.saved)}:</strong> ${escapeHtml(date)}</span></div></header>
   <h2>${escapeHtml(copy.inputs)}</h2><table>${rowsFor(inputs) || `<tr><td colspan="2" class="empty">—</td></tr>`}</table>
   <h2>${escapeHtml(copy.results)}</h2><table>${result === null || result === undefined ? `<tr><td colspan="2" class="empty">${escapeHtml(copy.empty)}</td></tr>` : rowsFor(result)}</table>
@@ -77,15 +77,22 @@ export async function exportCalculationPdf(projectName: string, calculation: Sav
     return;
   }
 
-  const file = await Print.printToFileAsync({ html });
+  const file = await Print.printToFileAsync({ html, width: 595, height: 842 });
+  if (!file?.uri) {
+    throw new Error('PDF generation did not return a file URI.');
+  }
+
   const available = await Sharing.isAvailableAsync();
   if (available) {
     await Sharing.shareAsync(file.uri, {
       mimeType: 'application/pdf',
       dialogTitle: calculation.title,
-      UTI: '.pdf',
+      // iOS expects a Uniform Type Identifier, not a file extension.
+      UTI: 'com.adobe.pdf',
     });
-  } else {
-    await Print.printAsync({ html });
+    return;
   }
+
+  // Keep a usable fallback on devices where the native share sheet is unavailable.
+  await Print.printAsync({ html });
 }
