@@ -11,6 +11,7 @@ import {
 import { calculateTool } from '../calculators';
 import { getThemedStyles } from '../theme';
 import { saveLocalCalculation, SavedCalculation } from '../storage/localProjects';
+import { exportCalculationPdf } from '../utils/exportCalculationPdf';
 
 type Props = {
   calculatorId: string;
@@ -257,7 +258,17 @@ export default function CalculatorScreen({
   const [saveMessage, setSaveMessage] = useState('');
 
   const isArabic = language === 'ar';
+
   const title = titles[calculatorId]?.[language] || 'Calculator';
+  const exportSavedPdf = async () => {
+    if (!savedCalculation || savedCalculation.kind !== 'quick') return;
+    try {
+      await exportCalculationPdf(savedCalculation.projectName || projectName || savedCalculation.title, savedCalculation, language);
+    } catch (exportError) {
+      console.warn('Could not export calculation PDF:', exportError);
+      setSaveMessage(language === 'ar' ? 'تعذر تصدير ملف PDF. حاول مرة أخرى.' : language === 'fr' ? 'Impossible d’exporter le PDF. Réessayez.' : 'Could not export PDF. Please try again.');
+    }
+  };
 
   const calculate = () => {
     try {
@@ -366,6 +377,18 @@ export default function CalculatorScreen({
 
       {!!error && (
         <Text style={ui.error}>{error}</Text>
+      )}
+
+      {savedCalculation?.kind === 'quick' && savedCalculation.payload && (
+        <Pressable
+          onPress={exportSavedPdf}
+          style={{ backgroundColor: '#29251d', borderColor: GOLD, borderWidth: 1, borderRadius: 9, padding: 12, marginTop: 10 }}
+          accessibilityRole="button"
+        >
+          <Text style={{ color: GOLD, textAlign: 'center', fontWeight: '800' }}>
+            {language === 'ar' ? 'تصدير تفاصيل الحساب إلى PDF' : language === 'fr' ? 'Exporter le détail du calcul en PDF' : 'EXPORT CALCULATION DETAILS — PDF'}
+          </Text>
+        </Pressable>
       )}
 
       {result !== null && (
