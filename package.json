@@ -32,5 +32,10 @@
   "devDependencies": {
     "@types/react": "~19.1.10",
     "typescript": "~5.9.2"
+  },
+  "overrides": {
+    "@reactvision/react-viro": {
+      "react": "19.1.0"
+    }
   }
 }
