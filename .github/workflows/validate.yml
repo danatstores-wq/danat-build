@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - fix/construction-cost-calculation
+      - feature/pro-subscription-foundation
   pull_request:
     branches:
       - main
