@@ -21,13 +21,18 @@ function distance3(a: Point3, b: Point3) {
   return Math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2);
 }
 
-function polygonAreaXZ(points: Point3[]) {
-  let sum = 0;
+function polygonArea3D(points: Point3[]) {
+  let nx = 0;
+  let ny = 0;
+  let nz = 0;
   for (let i = 0; i < points.length; i += 1) {
+    const current = points[i];
     const next = points[(i + 1) % points.length];
-    sum += points[i][0] * next[2] - next[0] * points[i][2];
+    nx += (current[1] - next[1]) * (current[2] + next[2]);
+    ny += (current[2] - next[2]) * (current[0] + next[0]);
+    nz += (current[0] - next[0]) * (current[1] + next[1]);
   }
-  return Math.abs(sum) / 2;
+  return Math.sqrt(nx * nx + ny * ny + nz * nz) / 2;
 }
 
 function formatDistance(meters: number, units: 'metric' | 'imperial') {
@@ -95,13 +100,11 @@ export default function ARMeasurementView({ mode, units, language }: Props) {
   const [finished, setFinished] = React.useState(false);
 
   const t = (en: string, ar: string, fr: string) => language === 'ar' ? ar : language === 'fr' ? fr : en;
-  const required = mode === 'distance' ? 2 : 3;
   const perimeter = points.length >= 2
     ? points.reduce((sum, point, index) => sum + (index < points.length - 1 ? distance3(point, points[index + 1]) : (finished && mode === 'room' ? distance3(point, points[0]) : 0)), 0)
     : 0;
-  const area = mode === 'room' && points.length >= 3 && finished ? polygonAreaXZ(points) : 0;
+  const area = mode === 'room' && points.length >= 3 && finished ? polygonArea3D(points) : 0;
   const distance = mode === 'distance' && points.length === 2 ? distance3(points[0], points[1]) : 0;
-  const volume = mode === 'room' && area > 0 ? null : null;
 
   const onPoint = (point: Point3) => {
     setPoints(old => {
