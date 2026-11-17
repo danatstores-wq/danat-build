@@ -35,7 +35,7 @@ import { db } from './src/firestore';
 import { configureRevenueCat, logOutRevenueCat } from './src/subscriptions/revenueCat';
 
 type Language = 'en' | 'ar' | 'fr';
-type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings' | 'projects' | 'subscription' | 'adminUsers';
+type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'measurements' | 'measurementTool' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings' | 'projects' | 'subscription' | 'adminUsers';
 type Mode = 'professional' | 'homeowner';
 
 type Tool = {
@@ -46,6 +46,15 @@ type Tool = {
   icon: string;
   desc: string;
 };
+
+const measurementTools = [
+  { id: 'ar-distance', icon: '📏', en: 'AR Distance Measurement', ar: 'قياس المسافة بالواقع المعزز', fr: 'Mesure de distance AR', desc: 'Measure a walking path with a live camera line.', descAr: 'قس مسار الحركة بخط مباشر عبر الكاميرا.', descFr: 'Mesurez un trajet avec une ligne en direct.' },
+  { id: 'ar-room', icon: '🏠', en: 'AR Room Measurement', ar: 'قياس الغرف بالواقع المعزز', fr: 'Mesure de pièce AR', desc: 'Measure room dimensions, floor area and volume.', descAr: 'قس أبعاد الغرفة ومساحة الأرضية والحجم.', descFr: 'Mesurez les dimensions, la surface et le volume.' },
+  { id: 'angle-slope', icon: '📐', en: 'Angle & Slope Measurement', ar: 'قياس الزوايا والانحدار', fr: 'Mesure des angles et pentes', desc: 'Check angles, inclinations and gradients.', descAr: 'افحص الزوايا والميل والانحدارات.', descFr: 'Vérifiez les angles, inclinaisons et pentes.' },
+  { id: 'spirit-level', icon: '⚖️', en: 'Digital Spirit Level', ar: 'ميزان الماء الرقمي', fr: 'Niveau à bulle numérique', desc: 'Check whether a surface is level or vertical.', descAr: 'تحقق من استواء السطح أو عموديته.', descFr: 'Vérifiez si une surface est horizontale ou verticale.' },
+  { id: 'height', icon: '📏', en: 'Height Measurement', ar: 'قياس الارتفاع', fr: 'Mesure de hauteur', desc: 'Measure wall, ceiling and object heights with supported AR.', descAr: 'قس ارتفاع الجدران والأسقف والأجسام باستخدام AR المدعوم.', descFr: 'Mesurez les murs, plafonds et objets avec AR compatible.' },
+  { id: 'area-perimeter', icon: '⬛', en: 'Area & Perimeter Measurement', ar: 'قياس المساحة والمحيط', fr: 'Mesure de surface et périmètre', desc: 'Mark boundary points to calculate area and perimeter.', descAr: 'حدد نقاط الحدود لحساب المساحة والمحيط.', descFr: 'Marquez les limites pour calculer la surface et le périmètre.' },
+];
 
 const GOLD = '#E9B85D';
 const BG = '#080B0E';
@@ -113,6 +122,7 @@ export default function App() {
   const [theme, setTheme] = useState<AppTheme>('dark');
   const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [selected, setSelected] = useState('concrete');
+  const [selectedMeasurement, setSelectedMeasurement] = useState(measurementTools[0]);
   const [savedCalculation, setSavedCalculation] = useState<SavedCalculation | null>(null);
   const [favourites, setFavourites] = useState<string[]>([]);
 
@@ -602,6 +612,18 @@ export default function App() {
                     {tools.map(renderToolCard)}
                   </View>
 
+                  <Pressable
+                    onPress={() => setScreen('measurements')}
+                    style={ui.measurementsEntry}
+                  >
+                    <View style={ui.measurementsEntryIcon}><Text style={ui.measurementsEntryEmoji}>📐</Text></View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={ui.measurementsEntryTitle}>{tr('MEASUREMENTS', 'القياسات', 'MESURES')}</Text>
+                      <Text style={ui.measurementsEntryDesc}>{tr('Six tools for on-site measurements', 'ست أدوات للقياس في موقع العمل', 'Six outils de mesure sur chantier')}</Text>
+                    </View>
+                    <Text style={ui.measurementsEntryArrow}>›</Text>
+                  </Pressable>
+
                   <View style={ui.tipBox}>
                     <Text style={ui.tipTitle}>
                       ✦ {tr(
@@ -621,6 +643,41 @@ export default function App() {
                   </View>
 
                 </>
+              )}
+
+              {screen === 'measurements' && (
+                <>
+                  <Text style={ui.h1}>{tr('Measurements', 'القياسات', 'Mesures')}</Text>
+                  <Text style={ui.centerMuted}>{tr('Choose a measurement tool', 'اختر أداة القياس', 'Choisissez un outil de mesure')}</Text>
+                  <View style={ui.measurementGrid}>
+                    {measurementTools.map(tool => (
+                      <Pressable
+                        key={tool.id}
+                        onPress={() => { setSelectedMeasurement(tool); setScreen('measurementTool'); }}
+                        style={ui.measurementCard}
+                      >
+                        <Text style={ui.measurementIcon}>{tool.icon}</Text>
+                        <Text style={ui.measurementTitle}>{lang === 'ar' ? tool.ar : lang === 'fr' ? tool.fr : tool.en}</Text>
+                        <Text style={ui.measurementDesc}>{lang === 'ar' ? tool.descAr : lang === 'fr' ? tool.descFr : tool.desc}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </>
+              )}
+
+              {screen === 'measurementTool' && (
+                <View style={ui.measurementToolPanel}>
+                  <Text style={ui.measurementIconLarge}>{selectedMeasurement.icon}</Text>
+                  <Text style={ui.h1}>{lang === 'ar' ? selectedMeasurement.ar : lang === 'fr' ? selectedMeasurement.fr : selectedMeasurement.en}</Text>
+                  <Text style={ui.centerMuted}>{lang === 'ar' ? selectedMeasurement.descAr : lang === 'fr' ? selectedMeasurement.descFr : selectedMeasurement.desc}</Text>
+                  <View style={ui.measurementNotice}>
+                    <Text style={ui.measurementNoticeTitle}>{tr('Measurement engine integration', 'تجهيز محرك القياس', 'Intégration du moteur de mesure')}</Text>
+                    <Text style={ui.measurementNoticeText}>{tr('This tool is included in the Measurements menu. Its measuring engine is the next implementation step; AR functions will require a compatible phone and a native app build.', 'هذه الأداة موجودة في قائمة القياسات. سيتم تنفيذ محرك القياس في الخطوة التالية؛ وتتطلب ميزات الواقع المعزز هاتفاً متوافقاً ونسخة تطبيق أصلية.', 'Cet outil est dans le menu Mesures. Son moteur sera intégré à l’étape suivante ; les fonctions AR nécessitent un téléphone compatible et une application native.')}</Text>
+                  </View>
+                  <Pressable style={ui.measurementBackButton} onPress={() => setScreen('measurements')}>
+                    <Text style={ui.measurementBackText}>{tr('BACK TO MEASUREMENTS', 'العودة إلى القياسات', 'RETOUR AUX MESURES')}</Text>
+                  </Pressable>
+                </View>
               )}
 
               {screen === 'calculator' && (
@@ -1352,6 +1409,36 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 10,
   },
+  measurementsEntry: {
+    marginTop: 18,
+    minHeight: 82,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: GOLD,
+    backgroundColor: '#17191C',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    gap: 13,
+  },
+  measurementsEntryIcon: { width: 48, height: 48, borderRadius: 12, backgroundColor: '#292318', alignItems: 'center', justifyContent: 'center' },
+  measurementsEntryEmoji: { fontSize: 26 },
+  measurementsEntryTitle: { color: GOLD, fontSize: 15, fontWeight: '900', letterSpacing: 1.1 },
+  measurementsEntryDesc: { color: '#B8B8B8', fontSize: 11, marginTop: 5 },
+  measurementsEntryArrow: { color: GOLD, fontSize: 30, fontWeight: '300' },
+  measurementGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 11, marginTop: 20 },
+  measurementCard: { width: '48%', minHeight: 154, borderRadius: 15, borderWidth: 1, borderColor: '#79613A', backgroundColor: '#17191C', padding: 13, alignItems: 'center', justifyContent: 'center' },
+  measurementIcon: { fontSize: 31, marginBottom: 9 },
+  measurementTitle: { color: GOLD, fontSize: 13, fontWeight: '800', textAlign: 'center' },
+  measurementDesc: { color: '#B8B8B8', fontSize: 10, textAlign: 'center', lineHeight: 15, marginTop: 7 },
+  measurementToolPanel: { alignItems: 'center', paddingTop: 28 },
+  measurementIconLarge: { fontSize: 58, marginBottom: 14 },
+  measurementNotice: { width: '100%', marginTop: 24, borderRadius: 14, borderWidth: 1, borderColor: '#79613A', backgroundColor: '#17191C', padding: 16 },
+  measurementNoticeTitle: { color: GOLD, fontSize: 14, fontWeight: '800', marginBottom: 9, textAlign: 'center' },
+  measurementNoticeText: { color: '#D0D0D0', fontSize: 12, lineHeight: 19, textAlign: 'center' },
+  measurementBackButton: { marginTop: 22, borderRadius: 12, backgroundColor: GOLD, paddingVertical: 14, paddingHorizontal: 20, alignSelf: 'stretch', alignItems: 'center' },
+  measurementBackText: { color: '#17130D', fontSize: 12, fontWeight: '900', letterSpacing: 0.7 },
   toolCard: {
     width: '48%',
     height: 140,
