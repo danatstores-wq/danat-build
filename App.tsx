@@ -21,6 +21,7 @@ import BuildingCalculatorScreen from './src/components/BuildingCalculatorScreen'
 import AuthScreen from './src/components/AuthScreen';
 import ProfileScreen from './src/components/ProfileScreen';
 import SubscriptionScreen from './src/components/SubscriptionScreen';
+import AdBanner from './src/components/AdBanner';
 import MyProjectsScreen from './src/components/MyProjectsScreen';
 import { SavedCalculation } from './src/storage/localProjects';
 import { AppTheme, getThemedStyles } from './src/theme';
@@ -605,6 +606,8 @@ export default function App() {
                       )}
                     </Text>
                   </View>
+
+                  <AdBanner enabled={!professionalActive} />
                 </>
               )}
 
