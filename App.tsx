@@ -580,7 +580,7 @@ export default function App() {
                 />
               )}
 
-              {screen === 'building' && (
+              {screen === 'building' && professionalActive && (
                 <BuildingCalculatorScreen
                   language={lang}
                   theme={theme}
@@ -601,6 +601,18 @@ export default function App() {
                     if (payload.units) setUnits(payload.units);
                     setScreen('calculator');
                   } else {
+                    if (!professionalActive) {
+                      setSavedCalculation(null);
+                      Alert.alert(
+                        tr('Professional plan required', 'تتطلب هذه الميزة الاشتراك الاحترافي', 'Abonnement Professionnel requis'),
+                        tr(
+                          'Subscribe for $10 per year to open the Full Building Calculator.',
+                          'اشترك مقابل 10 دولارات سنوياً لفتح حاسبة البناء الشاملة.',
+                          'Abonnez-vous pour 10 $ par an pour ouvrir le calculateur complet du bâtiment.'
+                        )
+                      );
+                      return;
+                    }
                     const payload = calculation.payload as { units?: 'metric' | 'imperial' };
                     if (payload.units) setUnits(payload.units);
                     setScreen('building');
