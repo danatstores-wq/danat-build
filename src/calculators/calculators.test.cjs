@@ -9,7 +9,7 @@ const { calculateSandCement } = require('./sand.js');
 const { calculateProjectCost } = require('./cost.js');
 
 test('concrete includes the selected wastage percentage', () => {
-  assert.equal(calculateConcrete(5, 4, 0.15, 10), 3.3);
+  assert.ok(Math.abs(calculateConcrete(5, 4, 0.15, 10) - 3.3) < 1e-9);
 });
 
 test('tiles rounds the purchase quantity up after wastage', () => {
