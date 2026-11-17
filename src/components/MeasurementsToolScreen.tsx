@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView, StyleSheet, Platform } from 'react-native';
 import { DeviceMotion } from 'expo-sensors';
+import ARMeasurementView from './ARMeasurementView';
 
 type Language = 'en' | 'ar' | 'fr';
 type Props = { toolId: string; language: Language; units: 'metric' | 'imperial'; onBack: () => void };
@@ -22,6 +23,7 @@ export default function MeasurementsToolScreen({ toolId, language, units, onBack
   const isAngleTool = toolId === 'angle-slope';
   const isAreaTool = toolId === 'area-perimeter';
   const isHeightTool = toolId === 'height';
+  const isArTool = toolId === 'ar-distance' || toolId === 'ar-room';
   const sensorTool = isLevelTool || isAngleTool;
   const pitchValue = pitch - zeroPitch;
   const rollValue = roll - zeroRoll;
