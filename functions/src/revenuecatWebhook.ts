@@ -35,17 +35,15 @@ function matchesCurrentTransaction(
   current: { transactionId?: string | null; originalTransactionId?: string | null } | undefined,
   event: RevenueCatEvent
 ): boolean {
-  const transactionMatches = Boolean(
-    event.transaction_id
-    && current?.transactionId
-    && current.transactionId === event.transaction_id
-  );
-  const originalTransactionMatches = Boolean(
-    event.original_transaction_id
-    && current?.originalTransactionId
-    && current.originalTransactionId === event.original_transaction_id
-  );
-  return transactionMatches || originalTransactionMatches;
+  // Prefer the exact transaction ID when both sides provide one. Fall back
+  // to the original transaction ID only when the event lacks a transaction ID.
+  if (event.transaction_id && current?.transactionId) {
+    return current.transactionId === event.transaction_id;
+  }
+  if (event.original_transaction_id && current?.originalTransactionId) {
+    return current.originalTransactionId === event.original_transaction_id;
+  }
+  return false;
 }
 
 function isAllowedProduct(event: RevenueCatEvent): boolean {
