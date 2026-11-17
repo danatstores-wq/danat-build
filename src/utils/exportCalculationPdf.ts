@@ -12,8 +12,8 @@ const labels = {
 };
 
 function escapeHtml(value: string): string {
-  const entities: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' };
-  return value.replace(/[&<>\"']/g, char => entities[char] || char);
+  const entities: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  return value.replace(/[&<>"']/g, char => entities[char] || char);
 }
 
 function humanize(key: string): string {
