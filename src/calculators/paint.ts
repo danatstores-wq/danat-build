@@ -45,7 +45,12 @@ export function calculatePaint(
   }
 
   const grossArea = wallLength * wallHeight * numberOfWalls;
-  const wallArea = Math.max(0, grossArea - openingsArea);
+
+  if (openingsArea >= grossArea) {
+    throw new Error('Openings area must be smaller than total wall area');
+  }
+
+  const wallArea = grossArea - openingsArea;
   const totalArea = wallArea * coats;
 
   const paintLitres =
