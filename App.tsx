@@ -664,7 +664,7 @@ export default function App() {
                         onPress={() => { setSelectedMeasurement(tool); setScreen('measurementTool'); }}
                         style={ui.measurementCard}
                       >
-                        <Image
+                        <ImageBackground
                           source={
                             tool.id === 'ar-distance'
                               ? require('./assets/measurements/ar-distance.png')
@@ -678,11 +678,15 @@ export default function App() {
                               ? require('./assets/measurements/height.png')
                               : require('./assets/measurements/area-perimeter.png')
                           }
-                          style={ui.measurementIconImage}
-                          resizeMode="contain"
-                        />
-                        <Text style={ui.measurementTitle}>{lang === 'ar' ? tool.ar : lang === 'fr' ? tool.fr : tool.en}</Text>
-                        <Text style={ui.measurementDesc}>{lang === 'ar' ? tool.descAr : lang === 'fr' ? tool.descFr : tool.desc}</Text>
+                          style={ui.measurementCardBackground}
+                          imageStyle={ui.measurementCardArtwork as ImageStyle}
+                          resizeMode="stretch"
+                        >
+                          <View style={ui.measurementTextOverlay}>
+                            <Text style={ui.measurementTitle}>{lang === 'ar' ? tool.ar : lang === 'fr' ? tool.fr : tool.en}</Text>
+                            <Text style={ui.measurementDesc}>{lang === 'ar' ? tool.descAr : lang === 'fr' ? tool.descFr : tool.desc}</Text>
+                          </View>
+                        </ImageBackground>
                       </Pressable>
                     ))}
                   </View>
@@ -1478,9 +1482,11 @@ const styles = StyleSheet.create({
   measurementsEntryDesc: { color: '#B8B8B8', fontSize: 11, marginTop: 5 },
   measurementsEntryArrow: { color: GOLD, fontSize: 30, fontWeight: '300' },
   measurementGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 11, marginTop: 20 },
-  measurementCard: { width: '48%', minHeight: 154, borderRadius: 15, borderWidth: 1, borderColor: '#79613A', backgroundColor: '#17191C', padding: 13, alignItems: 'center', justifyContent: 'center' },
+  measurementCard: { width: '48%', minHeight: 154, borderRadius: 15, borderWidth: 1, borderColor: '#79613A', backgroundColor: '#17191C', padding: 0, overflow: 'hidden' },
+  measurementCardBackground: { flex: 1, minHeight: 154, width: '100%', justifyContent: 'flex-end' },
+  measurementCardArtwork: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' },
+  measurementTextOverlay: { width: '100%', paddingHorizontal: 9, paddingVertical: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(8, 11, 14, 0.70)' },
   measurementIcon: { fontSize: 31, marginBottom: 9 },
-  measurementIconImage: { width: 88, height: 88, marginBottom: 9 },
   measurementTitle: { color: GOLD, fontSize: 13, fontWeight: '800', textAlign: 'center' },
   measurementDesc: { color: '#B8B8B8', fontSize: 10, textAlign: 'center', lineHeight: 15, marginTop: 7 },
   measurementToolPanel: { alignItems: 'center', paddingTop: 28 },
@@ -1512,6 +1518,11 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   toolBackgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     width: '100%',
     height: '100%',
     opacity: 0.88,
