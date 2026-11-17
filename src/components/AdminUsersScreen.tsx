@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -18,7 +19,6 @@ import {
   query,
   serverTimestamp,
   setDoc,
-  where,
 } from 'firebase/firestore';
 import { auth } from '../firebase';
 import { db } from '../firestore';
@@ -44,93 +44,82 @@ const GOLD = '#E9B85D';
 
 export default function AdminUsersScreen({ language, theme, onBack }: Props) {
   const ui = getThemedStyles(styles, theme);
-  const [email, setEmail] = useState('');
-  const [user, setUser] = useState<UserResult | null>(null);
+  const [filter, setFilter] = useState('');
+  const [users, setUsers] = useState<UserResult[]>([]);
   const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [savingUid, setSavingUid] = useState<string | null>(null);
   const [error, setError] = useState('');
 
   const t = (en: string, ar: string, fr: string) =>
     language === 'ar' ? ar : language === 'fr' ? fr : en;
 
-  const search = async () => {
-    const exactEmail = email.trim();
-    if (!exactEmail) {
-      setError(t('Enter the user email address.', 'أدخل البريد الإلكتروني للمستخدم.', 'Saisissez l’adresse e-mail.'));
-      return;
-    }
+  const loadUsers = useCallback(async () => {
     setLoading(true);
     setError('');
-    setUser(null);
     try {
-      // Firestore rules permit this directory query only to admin-token users.
-      const matches = await getDocs(query(
-        collection(db, 'users'),
-        where('email', '==', exactEmail),
-        limit(1),
-      ));
-      if (matches.empty) {
-        throw new Error(t(
-          'No Danat Build profile was found for this exact email. Ask the user to sign in once, then try again.',
-          'لم يتم العثور على ملف بهذا البريد. اطلب من المستخدم تسجيل الدخول مرة واحدة ثم أعد المحاولة.',
-          'Aucun profil trouvé pour cet e-mail exact. Demandez à l’utilisateur de se connecter une fois, puis réessayez.',
-        ));
-      }
-
-      const profile = matches.docs[0];
-      const uid = profile.id;
-      const entitlementSnapshot = await getDoc(doc(db, 'entitlements', uid));
-      const data = entitlementSnapshot.data();
-      const hasOverride = data?.adminOverride === true;
-      const expiry = typeof data?.expiresAt?.toMillis === 'function'
-        ? data.expiresAt.toMillis()
-        : null;
-      const isProfessional = hasOverride
-        ? data?.adminStatus === 'professional'
-        : data?.status === 'active' && typeof expiry === 'number' && expiry > Date.now();
-
-      setUser({
-        uid,
-        email: String(profile.data().email || exactEmail),
-        access: isProfessional ? 'professional' : 'free',
-        source: hasOverride ? 'admin' : (data?.source || 'subscription'),
-        expiresAt: hasOverride ? null : expiry,
-      });
+      // Admin Firestore rules allow this directory read. Each entitlement is read
+      // separately so every user's current subscription/manual override is shown.
+      const profiles = await getDocs(query(collection(db, 'users'), limit(200)));
+      const rows = await Promise.all(profiles.docs.map(async (profile) => {
+        const uid = profile.id;
+        const profileData = profile.data();
+        const entitlementSnapshot = await getDoc(doc(db, 'entitlements', uid));
+        const data = entitlementSnapshot.data();
+        const hasOverride = data?.adminOverride === true;
+        const expiry = typeof data?.expiresAt?.toMillis === 'function'
+          ? data.expiresAt.toMillis()
+          : null;
+        const isProfessional = hasOverride
+          ? data?.adminStatus === 'professional'
+          : data?.status === 'active' && typeof expiry === 'number' && expiry > Date.now();
+        return {
+          uid,
+          email: String(profileData.email || '(email unavailable)'),
+          access: isProfessional ? 'professional' as Access : 'free' as Access,
+          source: hasOverride ? 'admin' : String(data?.source || 'subscription'),
+          expiresAt: hasOverride ? null : expiry,
+        };
+      }));
+      rows.sort((a, b) => a.email.localeCompare(b.email));
+      setUsers(rows);
     } catch (e: any) {
-      setError(e?.message || t('Could not find this user.', 'تعذر العثور على المستخدم.', 'Utilisateur introuvable.'));
+      setError(e?.message || t('Could not load users. Check that the latest Firestore rules are published.', 'تعذر تحميل المستخدمين. تحقق من نشر أحدث قواعد Firestore.', 'Impossible de charger les utilisateurs. Vérifiez les règles Firestore.'));
     } finally {
       setLoading(false);
     }
-  };
+  }, [language]);
 
-  const changeAccess = (access: Access) => {
-    if (!user || user.access === access) return;
-    if (user.uid === auth.currentUser?.uid) {
-      setError(t(
-        'For safety, use another administrator account to change your own access.',
-        'لأسباب أمنية، استخدم حساب مدير آخر لتغيير صلاحية حسابك.',
-        'Pour votre sécurité, utilisez un autre compte administrateur pour modifier votre propre accès.',
-      ));
-      return;
-    }
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
+
+  const visibleUsers = useMemo(() => {
+    const value = filter.trim().toLowerCase();
+    return value
+      ? users.filter((item) => item.email.toLowerCase().includes(value) || item.uid.toLowerCase().includes(value))
+      : users;
+  }, [filter, users]);
+
+  const changeAccess = (target: UserResult, access: Access) => {
+    if (target.access === access) return;
     const label = access === 'professional'
       ? t('Professional', 'محترف', 'Professionnel')
       : t('Free / Homeowner', 'مجاني / مالك منزل', 'Gratuit / Propriétaire');
     Alert.alert(
       t('Confirm account change', 'تأكيد تغيير الحساب', 'Confirmer le changement'),
-      t(`Change ${user.email} to ${label}?`, `هل تريد تغيير ${user.email} إلى ${label}؟`, `Passer ${user.email} à ${label} ?`),
+      t(`Change ${target.email} to ${label}?`, `هل تريد تغيير ${target.email} إلى ${label}؟`, `Passer ${target.email} à ${label} ?`),
       [
         { text: t('Cancel', 'إلغاء', 'Annuler'), style: 'cancel' },
         {
           text: t('Confirm', 'تأكيد', 'Confirmer'),
           onPress: async () => {
-            setSaving(true);
+            setSavingUid(target.uid);
             setError('');
             try {
               const adminUid = auth.currentUser?.uid;
               if (!adminUid) throw new Error('Administrator sign-in is required.');
               const now = serverTimestamp();
-              await setDoc(doc(db, 'entitlements', user.uid), {
+              await setDoc(doc(db, 'entitlements', target.uid), {
                 adminOverride: true,
                 adminStatus: access,
                 status: access === 'professional' ? 'active' : 'revoked',
@@ -142,16 +131,18 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
                 adminUpdatedAt: now,
               }, { merge: true });
               await addDoc(collection(db, 'adminAccessChanges'), {
-                targetUid: user.uid,
+                targetUid: target.uid,
                 changedBy: adminUid,
                 access,
                 changedAt: now,
               });
-              setUser({ ...user, access, source: 'admin', expiresAt: null });
+              setUsers((current) => current.map((item) => item.uid === target.uid
+                ? { ...item, access, source: 'admin', expiresAt: null }
+                : item));
             } catch (e: any) {
               setError(e?.message || t('Could not update account access.', 'تعذر تحديث صلاحية الحساب.', 'Impossible de modifier l’accès.'));
             } finally {
-              setSaving(false);
+              setSavingUid(null);
             }
           },
         },
@@ -163,41 +154,65 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
     <View style={ui.container}>
       <Text style={styles.brand}>DANAT BUILD</Text>
       <Text style={styles.heading}>{t('Admin Users', 'إدارة المستخدمين', 'Gestion des utilisateurs')}</Text>
-      <Text style={styles.help}>{t('Search by the exact email address, then change the account access.', 'ابحث باستخدام البريد الإلكتروني ثم غيّر صلاحية الحساب.', 'Recherchez par adresse e-mail puis modifiez l’accès.')}</Text>
+      <Text style={styles.help}>{t('All registered users and their current access are shown below. You can manage your own account too.', 'تظهر أدناه جميع الحسابات المسجلة وصلاحية كل منها. يمكنك إدارة حسابك أيضاً.', 'Tous les utilisateurs et leur accès actuel sont affichés ci-dessous. Vous pouvez aussi gérer votre propre compte.')}</Text>
 
       <TextInput
         style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        placeholder={t('User email address', 'البريد الإلكتروني للمستخدم', 'E-mail de l’utilisateur')}
+        value={filter}
+        onChangeText={setFilter}
+        placeholder={t('Filter by email or UID', 'تصفية حسب البريد أو UID', 'Filtrer par e-mail ou UID')}
         placeholderTextColor="#92979d"
-        keyboardType="email-address"
         autoCapitalize="none"
         autoCorrect={false}
-        onSubmitEditing={search}
       />
-      <Pressable style={styles.primaryButton} onPress={search} disabled={loading || saving}>
-        {loading ? <ActivityIndicator color="#17110a" /> : <Text style={styles.primaryText}>{t('SEARCH USER', 'بحث عن المستخدم', 'RECHERCHER')}</Text>}
-      </Pressable>
+      <View style={styles.toolbar}>
+        <Text style={styles.count}>{t('Users', 'المستخدمون', 'Utilisateurs')}: {visibleUsers.length} / {users.length}</Text>
+        <Pressable style={styles.refreshButton} onPress={loadUsers} disabled={loading || savingUid !== null}>
+          <Text style={styles.freeText}>{t('REFRESH', 'تحديث', 'ACTUALISER')}</Text>
+        </Pressable>
+      </View>
 
       {!!error && <Text style={styles.error}>{error}</Text>}
+      {loading ? <ActivityIndicator color={GOLD} style={{ marginTop: 24 }} /> : null}
+      {!loading && users.length === 0 && !error
+        ? <Text style={styles.help}>{t('No registered user profiles found yet.', 'لا توجد حسابات مسجلة بعد.', 'Aucun profil utilisateur trouvé.')}</Text>
+        : null}
 
-      {user && (
-        <View style={styles.userCard}>
-          <Text style={styles.email}>{user.email}</Text>
-          <Text style={styles.meta}>{t('Account access', 'صلاحية الحساب', 'Accès au compte')}: <Text style={styles.status}>{user.access === 'professional' ? 'PROFESSIONAL' : 'FREE / HOMEOWNER'}</Text></Text>
-          <Text style={styles.meta}>{t('Access control', 'مصدر الصلاحية', 'Contrôle d’accès')}: {user.source === 'admin' ? t('Manual admin control', 'تحكم يدوي من المدير', 'Contrôle manuel admin') : t('Store subscription', 'اشتراك المتجر', 'Abonnement boutique')}</Text>
-          {user.expiresAt ? <Text style={styles.meta}>{t('Subscription expiry', 'انتهاء الاشتراك', 'Expiration')}: {new Date(user.expiresAt).toLocaleDateString()}</Text> : null}
-          <Text selectable style={styles.uid}>UID: {user.uid}</Text>
-
-          <Pressable style={[styles.accessButton, user.access === 'professional' && styles.disabled]} onPress={() => changeAccess('professional')} disabled={saving || user.access === 'professional'}>
-            {saving ? <ActivityIndicator color="#17110a" /> : <Text style={styles.primaryText}>{t('GRANT PROFESSIONAL ACCESS', 'منح صلاحية المحترف', 'ACCORDER L’ACCÈS PROFESSIONNEL')}</Text>}
-          </Pressable>
-          <Pressable style={[styles.freeButton, user.access === 'free' && styles.disabled]} onPress={() => changeAccess('free')} disabled={saving || user.access === 'free'}>
-            <Text style={styles.freeText}>{t('CHANGE TO FREE / HOMEOWNER', 'تغيير إلى مجاني / مالك منزل', 'PASSER À GRATUIT / PROPRIÉTAIRE')}</Text>
-          </Pressable>
-        </View>
-      )}
+      <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
+        {visibleUsers.map((item) => {
+          const isSelf = item.uid === auth.currentUser?.uid;
+          const saving = savingUid === item.uid;
+          return (
+            <View key={item.uid} style={styles.userCard}>
+              <View style={styles.userHeader}>
+                <Text style={styles.email}>{item.email}</Text>
+                <Text style={[styles.statusBadge, item.access === 'professional' ? styles.professionalBadge : styles.freeBadge]}>
+                  {item.access === 'professional' ? 'PROFESSIONAL' : 'FREE / HOMEOWNER'}
+                </Text>
+              </View>
+              <Text style={styles.meta}>{t('Access control', 'مصدر الصلاحية', 'Contrôle d’accès')}: {item.source === 'admin' ? t('Manual admin control', 'تحكم يدوي من المدير', 'Contrôle manuel admin') : t('Store subscription', 'اشتراك المتجر', 'Abonnement boutique')}</Text>
+              {isSelf ? <Text style={styles.selfLabel}>{t('YOUR ADMIN ACCOUNT', 'حساب المدير الخاص بك', 'VOTRE COMPTE ADMIN')}</Text> : null}
+              <Text selectable style={styles.uid}>UID: {item.uid}</Text>
+              <View style={styles.actions}>
+                <Pressable
+                  style={[styles.accessButton, item.access === 'professional' && styles.disabled]}
+                  onPress={() => changeAccess(item, 'professional')}
+                  disabled={saving || item.access === 'professional'}
+                >
+                  {saving ? <ActivityIndicator color="#17110a" /> : <Text style={styles.primaryText}>{t('GRANT PROFESSIONAL', 'منح المحترف', 'ACCORDER PRO')}</Text>}
+                </Pressable>
+                <Pressable
+                  style={[styles.freeButton, item.access === 'free' && styles.disabled]}
+                  onPress={() => changeAccess(item, 'free')}
+                  disabled={saving || item.access === 'free'}
+                >
+                  <Text style={styles.freeText}>{t('SET FREE', 'تعيين مجاني', 'PASSER GRATUIT')}</Text>
+                </Pressable>
+              </View>
+            </View>
+          );
+        })}
+      </ScrollView>
 
       <Pressable onPress={onBack} style={styles.backButton}>
         <Text style={styles.freeText}>{t('BACK', 'رجوع', 'RETOUR')}</Text>
@@ -209,20 +224,29 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 18 },
   brand: { color: GOLD, fontSize: 13, fontWeight: '900', letterSpacing: 3, textAlign: 'center', marginTop: 10 },
-  heading: { color: '#fff', fontSize: 24, fontWeight: '800', textAlign: 'center', marginTop: 18, marginBottom: 16 },
-  help: { color: '#b7bbc0', fontSize: 13, lineHeight: 20, textAlign: 'center', marginBottom: 18 },
-  input: { backgroundColor: '#080b0e', borderWidth: 1, borderColor: '#66553a', borderRadius: 11, padding: 14, color: '#fff', marginBottom: 12 },
-  primaryButton: { backgroundColor: GOLD, borderRadius: 11, padding: 15, alignItems: 'center' },
-  primaryText: { color: '#17110a', fontSize: 12, fontWeight: '900', textAlign: 'center' },
-  error: { color: '#ff7777', marginTop: 12, textAlign: 'center' },
-  userCard: { backgroundColor: '#191e24', borderWidth: 1, borderColor: '#66553a', borderRadius: 15, padding: 16, marginTop: 22 },
-  email: { color: '#fff', fontSize: 16, fontWeight: '800', marginBottom: 12 },
-  meta: { color: '#c5c8cc', fontSize: 12, marginBottom: 9 },
-  status: { color: GOLD, fontWeight: '900' },
-  uid: { color: '#92979d', fontSize: 10, marginTop: 5, marginBottom: 16 },
-  accessButton: { backgroundColor: GOLD, borderRadius: 10, padding: 14, marginTop: 5 },
-  freeButton: { borderColor: GOLD, borderWidth: 1, borderRadius: 10, padding: 14, marginTop: 10 },
-  freeText: { color: GOLD, fontSize: 11, fontWeight: '900', textAlign: 'center' },
+  heading: { color: '#fff', fontSize: 24, fontWeight: '800', textAlign: 'center', marginTop: 18, marginBottom: 12 },
+  help: { color: '#b7bbc0', fontSize: 13, lineHeight: 20, textAlign: 'center', marginBottom: 14 },
+  input: { backgroundColor: '#080b0e', borderWidth: 1, borderColor: '#66553a', borderRadius: 11, padding: 14, color: '#fff', marginBottom: 10 },
+  toolbar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
+  count: { color: '#c5c8cc', fontSize: 12 },
+  refreshButton: { borderColor: GOLD, borderWidth: 1, borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12 },
+  error: { color: '#ff7777', marginTop: 10, textAlign: 'center' },
+  list: { flex: 1 },
+  listContent: { paddingBottom: 12 },
+  userCard: { backgroundColor: '#191e24', borderWidth: 1, borderColor: '#66553a', borderRadius: 13, padding: 14, marginTop: 10 },
+  userHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 10 },
+  email: { color: '#fff', fontSize: 14, fontWeight: '800', flexShrink: 1 },
+  statusBadge: { fontSize: 10, fontWeight: '900', overflow: 'hidden', borderRadius: 6, paddingVertical: 5, paddingHorizontal: 8 },
+  professionalBadge: { color: '#17110a', backgroundColor: GOLD },
+  freeBadge: { color: '#d5d8dc', backgroundColor: '#414850' },
+  meta: { color: '#c5c8cc', fontSize: 11, marginBottom: 7 },
+  selfLabel: { color: GOLD, fontSize: 10, fontWeight: '900', marginBottom: 6 },
+  uid: { color: '#92979d', fontSize: 9, marginBottom: 12 },
+  actions: { flexDirection: 'row', gap: 8 },
+  accessButton: { flex: 1, backgroundColor: GOLD, borderRadius: 9, padding: 12, alignItems: 'center' },
+  primaryText: { color: '#17110a', fontSize: 10, fontWeight: '900', textAlign: 'center' },
+  freeButton: { flex: 1, borderColor: GOLD, borderWidth: 1, borderRadius: 9, padding: 12, alignItems: 'center' },
+  freeText: { color: GOLD, fontSize: 10, fontWeight: '900', textAlign: 'center' },
   disabled: { opacity: 0.4 },
-  backButton: { padding: 16, marginTop: 16 },
+  backButton: { padding: 14, marginTop: 6 },
 });
