@@ -24,7 +24,7 @@ jobs:
           cache: npm
 
       - name: Install app dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Install Firebase Functions dependencies
         run: npm ci --prefix functions
