@@ -9,6 +9,7 @@ import { marketBenchmarkLabel, marketBenchmarkSourceLabel } from '../data/market
 import { PUBLISHED_MARKET_BENCHMARKS } from '../data/publishedMarketBenchmarks';
 import { getThemedStyles } from '../theme';
 import { saveLocalCalculation, SavedCalculation } from '../storage/localProjects';
+import { exportCalculationPdf } from '../utils/exportCalculationPdf';
 import {
   View,
   Text,
@@ -1341,6 +1342,23 @@ export default function BuildingCalculatorScreen({
       <Text style={[ui.subtitle, isArabic && ui.rtl]}>
         {t.subtitle}
       </Text>
+      {savedCalculation?.kind === 'building' && (
+        <Pressable
+          onPress={async () => {
+            try {
+              await exportCalculationPdf(projectName || savedCalculation.title, savedCalculation, language);
+            } catch (error) {
+              console.warn('Could not export building calculation PDF:', error);
+            }
+          }}
+          style={{ backgroundColor: '#29251d', borderColor: GOLD, borderWidth: 1, borderRadius: 9, padding: 12, marginTop: 10, marginBottom: 12 }}
+          accessibilityRole="button"
+        >
+          <Text style={{ color: GOLD, textAlign: 'center', fontWeight: '800' }}>
+            {language === 'ar' ? 'تصدير تفاصيل الحساب إلى PDF' : language === 'fr' ? 'Exporter le détail du calcul en PDF' : 'EXPORT FULL CALCULATION DETAILS — PDF'}
+          </Text>
+        </Pressable>
+      )}
 
       <View style={ui.infoBox}>
         <Text style={ui.infoText}>
