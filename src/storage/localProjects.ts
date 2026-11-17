@@ -7,7 +7,7 @@ export async function saveLocalCalculation(userId:string,projectName:string,calc
  const cleanName=projectName.trim();if(!cleanName)throw new Error('Enter a project name first.');
  let projects=await getLocalProjects(userId);let project=projects.find(item=>item.name.toLowerCase()===cleanName.toLowerCase());
  if(!project){project={id:`project-${Date.now()}`,name:cleanName,createdAt:new Date().toISOString(),calculations:[]};projects=[project,...projects];}
- const saved:SavedCalculation={...calculation,id:`calculation-${Date.now()}`,savedAt:new Date().toISOString()};
+ const saved:SavedCalculation={...calculation,projectName:cleanName,id:`calculation-${Date.now()}`,savedAt:new Date().toISOString()};
  const updated=projects.map(item=>item.id===project!.id?{...item,calculations:[saved,...item.calculations]}:item);
  await AsyncStorage.setItem(storageKey(userId),JSON.stringify(updated));return updated;
 }
