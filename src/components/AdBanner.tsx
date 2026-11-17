@@ -53,7 +53,7 @@ export default function AdBanner({ enabled }: Props) {
   if (!enabled || !consentReady) return null;
 
   const configuredUnitId = Platform.OS === "ios"
-    ? process.env.EXPO_PUBLIC_ADMOB_IOS_BANNER_ID
+    ? process.env.EXPO_PUBLIC_ADMOB_IOS_BANNER_ID || "ca-app-pub-1622329571366129/8077566372"
     : process.env.EXPO_PUBLIC_ADMOB_ANDROID_BANNER_ID || "ca-app-pub-1622329571366129/9043163685";
   const adUnitId = configuredUnitId || (__DEV__ ? TestIds.BANNER : null);
 
