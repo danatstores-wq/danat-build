@@ -1,25 +1,9 @@
-const TEST_ANDROID_ADMOB_APP_ID = "ca-app-pub-3940256099942544~3347511713";
-const TEST_IOS_ADMOB_APP_ID = "ca-app-pub-3940256099942544~1458002511";
+const ANDROID_ADMOB_APP_ID = "ca-app-pub-1622329571366129~7573722234";
+const IOS_ADMOB_APP_ID = "ca-app-pub-1622329571366129~8388110450";
 
 module.exports = ({ config }) => {
-  const productionBuild = process.env.EAS_BUILD_PROFILE === "production";
-  const androidAppId = process.env.ADMOB_ANDROID_APP_ID
-    || (!productionBuild ? TEST_ANDROID_ADMOB_APP_ID : undefined);
-  const iosAppId = process.env.ADMOB_IOS_APP_ID
-    || (!productionBuild ? TEST_IOS_ADMOB_APP_ID : undefined);
-
-  if (productionBuild && (
-    !androidAppId
-    || !iosAppId
-    || !process.env.EXPO_PUBLIC_ADMOB_ANDROID_BANNER_ID
-    || !process.env.EXPO_PUBLIC_ADMOB_IOS_BANNER_ID
-    || !process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY
-    || !process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY
-  )) {
-    throw new Error(
-      "Production builds require RevenueCat platform keys and real Android/iOS AdMob app IDs and banner ad-unit IDs."
-    );
-  }
+  const androidAppId = process.env.ADMOB_ANDROID_APP_ID || ANDROID_ADMOB_APP_ID;
+  const iosAppId = process.env.ADMOB_IOS_APP_ID || IOS_ADMOB_APP_ID;
 
   const existingPlugins = config.plugins || [];
   const plugins = existingPlugins.filter(plugin => {
