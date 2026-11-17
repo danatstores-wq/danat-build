@@ -1,12 +1,12 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { calculateConcrete } = require('./concrete.js');
-const { calculateTiles } = require('./tiles.js');
-const { calculatePaint } = require('./paint.js');
-const { calculateBlocks } = require('./blocks.js');
-const { calculateSandCement } = require('./sand.js');
-const { calculateProjectCost } = require('./cost.js');
+const { calculateConcrete } = require('../../.test-build/calculators/concrete.js');
+const { calculateTiles } = require('../../.test-build/calculators/tiles.js');
+const { calculatePaint } = require('../../.test-build/calculators/paint.js');
+const { calculateBlocks } = require('../../.test-build/calculators/blocks.js');
+const { calculateSandCement } = require('../../.test-build/calculators/sand.js');
+const { calculateProjectCost } = require('../../.test-build/calculators/cost.js');
 
 test('concrete includes the selected wastage percentage', () => {
   assert.ok(Math.abs(calculateConcrete(5, 4, 0.15, 10) - 3.3) < 1e-9);
