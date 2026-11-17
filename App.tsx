@@ -613,15 +613,18 @@ export default function App() {
               )}
 
               {screen === 'calculator' && (
-                <CalculatorScreen
-                  calculatorId={selected}
-                  language={lang}
-                  theme={theme}
-                  units={units}
-                  userId={auth.currentUser?.uid || 'guest'}
-                  savedCalculation={savedCalculation}
-                  onBack={() => { setSavedCalculation(null); setScreen('home'); }}
-                />
+                <>
+                  <CalculatorScreen
+                    calculatorId={selected}
+                    language={lang}
+                    theme={theme}
+                    units={units}
+                    userId={auth.currentUser?.uid || 'guest'}
+                    savedCalculation={savedCalculation}
+                    onBack={() => { setSavedCalculation(null); setScreen('home'); }}
+                  />
+                  <AdBanner enabled={!professionalActive} />
+                </>
               )}
 
               {screen === 'building' && professionalActive && (
