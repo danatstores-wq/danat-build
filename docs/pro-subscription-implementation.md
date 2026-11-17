@@ -77,3 +77,9 @@ Do not accept an entitlement expiry supplied by the mobile client. The app fails
 - Store secrets and service-account credentials must be server-side only.
 - Do not deploy functions or publish store products until credentials, rules, and test results are verified.
 - Do not change the existing UI design or calculator formulas as part of the subscription work.
+
+
+## Administrator access controls
+- Accounts with the Firebase Auth custom claim `admin: true` can search users by email and set manual Professional or Free access.
+- Manual overrides are authoritative over store events and are audited in `adminAccessChanges`.
+- The first administrator is provisioned with the one-time script in `functions/scripts/set-admin-claim.mjs` using trusted Firebase Admin credentials.
