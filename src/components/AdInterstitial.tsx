@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { AppState, Platform } from "react-native";
-import mobileAds, {
+import {
   AdEventType,
-  AdsConsent,
   InterstitialAd,
 } from "react-native-google-mobile-ads";
+import { initializeAdMobForUserConsent } from "../ads/initializeAdMob";
 
 type Props = {
   enabled: boolean;
@@ -31,12 +31,8 @@ export default function AdInterstitial({ enabled }: Props) {
 
     const initialize = async () => {
       try {
-        await AdsConsent.gatherConsent();
-        const consentInfo = await AdsConsent.getConsentInfo();
-        if (!mounted || !consentInfo.canRequestAds) return;
-
-        await mobileAds().initialize();
-        if (!mounted) return;
+        const ready = await initializeAdMobForUserConsent();
+        if (!mounted || !ready) return;
 
         const unitId = Platform.OS === "ios"
           ? IOS_INTERSTITIAL_ID
