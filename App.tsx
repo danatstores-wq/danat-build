@@ -137,6 +137,7 @@ export default function App() {
     const unsubscribeAuth = onAuthStateChanged(auth, user => {
       unsubscribeEntitlement();
       setProfessionalActive(false);
+      setMode('homeowner');
       setProfessionalExpiry(null);
       if (!user) {
         logOutRevenueCat().catch(error => console.warn('RevenueCat sign-out failed:', error));
