@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import { SavedCalculation } from '../storage/localProjects';
+import { LocalProject, SavedCalculation } from '../storage/localProjects';
 
 type Language = 'en' | 'ar' | 'fr';
 
@@ -49,50 +49,70 @@ function rowsFor(value: unknown, prefix = ''): string {
   return `<tr><td>${escapeHtml(prefix || 'Value')}</td><td>${escapeHtml(displayValue(value))}</td></tr>`;
 }
 
-function reportHtml(projectName: string, calculation: SavedCalculation, language: Language): string {
+function reportHtml(projectName: string, calculations: SavedCalculation[], language: Language): string {
   const copy = labels[language];
-  const payload = calculation.payload || {};
-  const inputs = Object.fromEntries(Object.entries(payload).filter(([key]) => !['result', 'benchmarkSnapshot'].includes(key)));
-  const result = payload.result;
   const direction = language === 'ar' ? 'rtl' : 'ltr';
-  const date = new Date(calculation.savedAt).toLocaleString(language === 'ar' ? 'ar' : language === 'fr' ? 'fr-FR' : 'en');
-  return `<!DOCTYPE html><html lang="${language}" dir="${direction}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(calculation.title)}</title><style>
+  const savedDates = calculations.map(item => new Date(item.savedAt).toLocaleString(language === 'ar' ? 'ar' : language === 'fr' ? 'fr-FR' : 'en'));
+  const sections = calculations.map(calculation => {
+    const payload = calculation.payload || {};
+    const inputs = Object.fromEntries(Object.entries(payload).filter(([key]) => !['result', 'benchmarkSnapshot'].includes(key)));
+    const result = payload.result;
+    return `<section class="calculation"><h2>${escapeHtml(copy.calculation)}: ${escapeHtml(calculation.title)}</h2>
+      <h3>${escapeHtml(copy.inputs)}</h3><table>${rowsFor(inputs) || `<tr><td colspan="2" class="empty">—</td></tr>`}</table>
+      <h3>${escapeHtml(copy.results)}</h3><table>${result === null || result === undefined ? `<tr><td colspan="2" class="empty">${escapeHtml(copy.empty)}</td></tr>` : rowsFor(result)}</table>
+    </section>`;
+  }).join('');
+  return `<!DOCTYPE html><html lang="${language}" dir="${direction}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(projectName)}</title><style>
     @page{size:A4;margin:18mm}*{box-sizing:border-box}body{font-family:"Noto Naskh Arabic","Noto Sans Arabic","Geeza Pro",Tahoma,Arial,sans-serif;color:#20252b;font-size:11px;line-height:1.65;margin:0;unicode-bidi:plaintext}
-    header{border-bottom:3px solid #c99742;padding-bottom:12px;margin-bottom:18px}h1{font-size:19px;color:#28231b;margin:0 0 8px}h2{font-size:14px;color:#8b6425;margin:22px 0 8px;border-bottom:1px solid #e5d8c2;padding-bottom:5px}
-    .meta{display:flex;flex-wrap:wrap;gap:8px 24px;color:#555}.meta strong{color:#222}table{width:100%;border-collapse:collapse;page-break-inside:auto}tr{page-break-inside:avoid}td,th{padding:6px 8px;border-bottom:1px solid #e9e9e9;text-align:start;vertical-align:top;overflow-wrap:anywhere}td:first-child{width:55%;color:#555}.group th{background:#f5f0e7;color:#6c4e1d;font-weight:700;padding-top:8px}.empty{color:#777;font-style:italic}
+    header{border-bottom:3px solid #c99742;padding-bottom:12px;margin-bottom:18px}h1{font-size:19px;color:#28231b;margin:0 0 8px}h2{font-size:14px;color:#8b6425;margin:22px 0 8px;border-bottom:1px solid #e5d8c2;padding-bottom:5px}h3{font-size:12px;color:#8b6425;margin:12px 0 6px}
+    .meta{display:flex;flex-wrap:wrap;gap:8px 24px;color:#555}.meta strong{color:#222}.calculation{page-break-inside:auto;margin-bottom:24px}.calculation+ .calculation{page-break-before:always}
+    table{width:100%;border-collapse:collapse;page-break-inside:auto}tr{page-break-inside:avoid}td,th{padding:6px 8px;border-bottom:1px solid #e9e9e9;text-align:start;vertical-align:top;overflow-wrap:anywhere}td:first-child{width:55%;color:#555}.group th{background:#f5f0e7;color:#6c4e1d;font-weight:700;padding-top:8px}.empty{color:#777;font-style:italic}
     footer{margin-top:26px;padding-top:9px;border-top:1px solid #ddd;color:#666;font-size:9px;page-break-inside:avoid}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}thead{display:table-header-group}}
-  </style></head><body><header><h1>${escapeHtml(copy.report)}</h1><div class="meta"><span><strong>${escapeHtml(copy.project)}:</strong> ${escapeHtml(projectName)}</span><span><strong>${escapeHtml(copy.calculation)}:</strong> ${escapeHtml(calculation.title)}</span><span><strong>${escapeHtml(copy.saved)}:</strong> ${escapeHtml(date)}</span></div></header>
-  <h2>${escapeHtml(copy.inputs)}</h2><table>${rowsFor(inputs) || `<tr><td colspan="2" class="empty">—</td></tr>`}</table>
-  <h2>${escapeHtml(copy.results)}</h2><table>${result === null || result === undefined ? `<tr><td colspan="2" class="empty">${escapeHtml(copy.empty)}</td></tr>` : rowsFor(result)}</table>
+  </style></head><body><header><h1>${escapeHtml(copy.report)}</h1><div class="meta"><span><strong>${escapeHtml(copy.project)}:</strong> ${escapeHtml(projectName)}</span><span><strong>${escapeHtml(copy.calculation)}:</strong> ${calculations.length}</span><span><strong>${escapeHtml(copy.saved)}:</strong> ${escapeHtml(savedDates.join(' • '))}</span></div></header>
+  ${sections}
   <footer>${escapeHtml(copy.disclaimer)}</footer></body></html>`;
 }
 
-export async function exportCalculationPdf(projectName: string, calculation: SavedCalculation, language: Language): Promise<void> {
-  const html = reportHtml(projectName, calculation, language);
-
-  // On web, Expo Print opens the browser print dialog; the user can choose
-  // "Save as PDF". The native file API is only used on Android and iOS.
+async function printOrShareHtml(html: string, title: string): Promise<void> {
   if (Platform.OS === 'web') {
-    await Print.printAsync({ html });
+    // Expo Print's web implementation prints the current page, not the supplied
+    // HTML string. Use a dedicated document so the PDF contains project data.
+    if (typeof window === 'undefined') throw new Error('Browser printing is unavailable.');
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) throw new Error('Allow pop-ups to export the project PDF.');
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.document.title = title;
+    printWindow.focus();
+    printWindow.onload = () => {
+      printWindow.focus();
+      printWindow.print();
+    };
     return;
   }
 
   const file = await Print.printToFileAsync({ html, width: 595, height: 842 });
-  if (!file?.uri) {
-    throw new Error('PDF generation did not return a file URI.');
-  }
-
+  if (!file?.uri) throw new Error('PDF generation did not return a file URI.');
   const available = await Sharing.isAvailableAsync();
   if (available) {
     await Sharing.shareAsync(file.uri, {
       mimeType: 'application/pdf',
-      dialogTitle: calculation.title,
-      // iOS expects a Uniform Type Identifier, not a file extension.
+      dialogTitle: title,
       UTI: 'com.adobe.pdf',
     });
     return;
   }
-
-  // Keep a usable fallback on devices where the native share sheet is unavailable.
   await Print.printAsync({ html });
+}
+
+export async function exportCalculationPdf(projectName: string, calculation: SavedCalculation, language: Language): Promise<void> {
+  const html = reportHtml(projectName, [calculation], language);
+  await printOrShareHtml(html, calculation.title);
+}
+
+export async function exportProjectPdf(project: LocalProject, language: Language): Promise<void> {
+  if (!project.calculations.length) throw new Error('This project has no saved calculations to export.');
+  const html = reportHtml(project.name, project.calculations, language);
+  await printOrShareHtml(html, project.name);
 }
