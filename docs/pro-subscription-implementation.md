@@ -12,7 +12,7 @@
 ## Store product types and RevenueCat configuration
 - Google Play: subscription product `danat_build_professional_annual`, base plan `annual-prepaid`, duration P1Y, prepaid (not auto-renewing).
 - Apple App Store: non-renewing in-app purchase `danat_build_professional_annual`, with a 1-year term calculated by the trusted backend.
-- RevenueCat entitlement identifier: `professional`. Do not attach the Apple non-renewing product to a RevenueCat entitlement: Apple supplies no expiry and RevenueCat would otherwise treat it as active indefinitely. The Firebase webhook owns the one-year expiry for Apple.
+- Firebase `entitlements/{uid}` is the sole access-control authority. The app does not trust a RevenueCat client entitlement. Do not map the Apple non-renewing product to a RevenueCat entitlement: Apple supplies no expiry and RevenueCat could otherwise treat it as active indefinitely. The Firebase webhook owns the one-year expiry for Apple.
 - Create a RevenueCat offering named/currently selected as `default`, containing the store products in the annual package `professional_annual`.
 - The app accepts only package `professional_annual` with product identifier `danat_build_professional_annual`.
 - Configure the RevenueCat webhook with the deployed `revenueCatWebhook` HTTPS URL and an Authorization header matching the Firebase secret `REVENUECAT_WEBHOOK_AUTHORIZATION`. Enable purchase, renewal, expiration, cancellation, and refund-reversed events for both production and sandbox.
