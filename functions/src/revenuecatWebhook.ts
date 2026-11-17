@@ -149,7 +149,7 @@ export const revenueCatWebhook = onRequest(
         } else if (eventType === "EXPIRATION") {
           // An old expiration must not revoke a later purchase.
           const eventExpiry = Number(event.expiration_at_ms || 0);
-          if (!currentExpiry || currentExpiry <= now || eventExpiry >= currentExpiry) {
+          if (!currentExpiry || currentExpiry <= now) {
             transaction.set(entitlementRef, {
               status: "expired",
               lastValidatedAt: FieldValue.serverTimestamp(),
