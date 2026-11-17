@@ -20,6 +20,7 @@ import CalculatorScreen from './src/components/CalculatorScreen';
 import BuildingCalculatorScreen from './src/components/BuildingCalculatorScreen';
 import AuthScreen from './src/components/AuthScreen';
 import ProfileScreen from './src/components/ProfileScreen';
+import SubscriptionScreen from './src/components/SubscriptionScreen';
 import MyProjectsScreen from './src/components/MyProjectsScreen';
 import { SavedCalculation } from './src/storage/localProjects';
 import { AppTheme, getThemedStyles } from './src/theme';
@@ -27,9 +28,10 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { auth } from './src/firebase';
 import { db } from './src/firestore';
+import { configureRevenueCat, logOutRevenueCat } from './src/subscriptions/revenueCat';
 
 type Language = 'en' | 'ar' | 'fr';
-type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings' | 'projects';
+type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings' | 'projects' | 'subscription';
 type Mode = 'professional' | 'homeowner';
 
 type Tool = {
@@ -137,10 +139,13 @@ export default function App() {
       setProfessionalActive(false);
       setProfessionalExpiry(null);
       if (!user) {
+        logOutRevenueCat().catch(error => console.warn('RevenueCat sign-out failed:', error));
         setMode('homeowner');
         setScreen(current => current === 'building' ? 'home' : current);
         return;
       }
+
+      configureRevenueCat(user.uid).catch(error => console.warn('RevenueCat setup failed:', error));
 
       unsubscribeEntitlement = onSnapshot(
         doc(db, 'entitlements', user.uid),
@@ -459,14 +464,7 @@ export default function App() {
                         if (professionalActive) {
                           setMode('professional');
                         } else {
-                          Alert.alert(
-                            tr('Professional plan required', 'تتطلب هذه الميزة الاشتراك الاحترافي', 'Abonnement Professionnel requis'),
-                            tr(
-                              'Subscribe for $10 per year to unlock all Professional features.',
-                              'اشترك مقابل 10 دولارات سنوياً لفتح جميع الميزات الاحترافية.',
-                              'Abonnez-vous pour 10 $ par an afin de débloquer toutes les fonctions professionnelles.'
-                            )
-                          );
+                          setScreen('subscription');
                         }
                       }}
                       style={[
@@ -652,6 +650,15 @@ export default function App() {
                 }} />
               )}
 
+              {screen === 'subscription' && (
+                <SubscriptionScreen
+                  language={lang}
+                  theme={theme}
+                  active={professionalActive}
+                  onBack={() => setScreen('home')}
+                />
+              )}
+
               {screen === 'profile' && (
                 <ProfileScreen
                   language={lang}
@@ -661,6 +668,7 @@ export default function App() {
                     await signOut(auth);
                     setScreen('auth');
                   }}
+                  onManageSubscription={() => setScreen('subscription')}
                 />
               )}
 
