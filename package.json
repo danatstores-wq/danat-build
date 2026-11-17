@@ -26,7 +26,8 @@
     "react-native-google-mobile-ads": "16.4.0",
     "react-native-purchases": "^11.0.2",
     "react-native-web": "^0.21.0",
-    "expo-sensors": "~15.0.8"
+    "expo-sensors": "~15.0.8",
+    "@reactvision/react-viro": "2.56.0"
   },
   "devDependencies": {
     "@types/react": "~19.1.10",
