@@ -54,7 +54,7 @@ export default function AdBanner({ enabled }: Props) {
 
   const configuredUnitId = Platform.OS === "ios"
     ? process.env.EXPO_PUBLIC_ADMOB_IOS_BANNER_ID
-    : process.env.EXPO_PUBLIC_ADMOB_ANDROID_BANNER_ID;
+    : process.env.EXPO_PUBLIC_ADMOB_ANDROID_BANNER_ID || "ca-app-pub-1622329571366129/9043163685";
   const adUnitId = configuredUnitId || (__DEV__ ? TestIds.BANNER : null);
 
   // Never ship Google's test ad unit as a production placement.
