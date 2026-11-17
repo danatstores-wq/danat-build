@@ -123,6 +123,21 @@ export const revenueCatWebhook = onRequest(
           : 0;
         const now = Date.now();
         const eventType = event.type || "";
+
+        // A manual administrator decision is authoritative. Keep recording
+        // incoming store events for idempotency, but do not let a later
+        // purchase, expiration, cancellation, or refund overwrite that choice.
+        if (current?.adminOverride === true) {
+          transaction.create(eventRef, {
+            type: eventType,
+            uid,
+            productId: event.product_id,
+            receivedAt: FieldValue.serverTimestamp(),
+            ignoredBecause: "admin_override",
+          });
+          return;
+        }
+
         const isPurchase = [
           "INITIAL_PURCHASE",
           "NON_RENEWING_PURCHASE",
