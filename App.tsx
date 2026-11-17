@@ -618,7 +618,13 @@ export default function App() {
                     onPress={() => setScreen('measurements')}
                     style={ui.measurementsEntry}
                   >
-                    <View style={ui.measurementsEntryIcon}><Text style={ui.measurementsEntryEmoji}>📐</Text></View>
+                    <View style={ui.measurementsEntryIcon}>
+                      <Image
+                        source={require('./assets/measurements/measurement.png')}
+                        style={ui.measurementsEntryArtwork}
+                        resizeMode="contain"
+                      />
+                    </View>
                     <View style={{ flex: 1 }}>
                       <Text style={ui.measurementsEntryTitle}>{tr('MEASUREMENTS', 'القياسات', 'MESURES')}</Text>
                       <Text style={ui.measurementsEntryDesc}>{tr('Six tools for on-site measurements', 'ست أدوات للقياس في موقع العمل', 'Six outils de mesure sur chantier')}</Text>
@@ -658,7 +664,23 @@ export default function App() {
                         onPress={() => { setSelectedMeasurement(tool); setScreen('measurementTool'); }}
                         style={ui.measurementCard}
                       >
-                        <Text style={ui.measurementIcon}>{tool.icon}</Text>
+                        <Image
+                          source={
+                            tool.id === 'ar-distance'
+                              ? require('./assets/measurements/ar-distance.png')
+                              : tool.id === 'ar-room'
+                              ? require('./assets/measurements/ar-room.png')
+                              : tool.id === 'angle-slope'
+                              ? require('./assets/measurements/angle-slope.png')
+                              : tool.id === 'spirit-level'
+                              ? require('./assets/measurements/digital-level.png')
+                              : tool.id === 'height'
+                              ? require('./assets/measurements/height.png')
+                              : require('./assets/measurements/area-perimeter.png')
+                          }
+                          style={ui.measurementIconImage}
+                          resizeMode="contain"
+                        />
                         <Text style={ui.measurementTitle}>{lang === 'ar' ? tool.ar : lang === 'fr' ? tool.fr : tool.en}</Text>
                         <Text style={ui.measurementDesc}>{lang === 'ar' ? tool.descAr : lang === 'fr' ? tool.descFr : tool.desc}</Text>
                       </Pressable>
@@ -1451,12 +1473,14 @@ const styles = StyleSheet.create({
   },
   measurementsEntryIcon: { width: 48, height: 48, borderRadius: 12, backgroundColor: '#292318', alignItems: 'center', justifyContent: 'center' },
   measurementsEntryEmoji: { fontSize: 26 },
+  measurementsEntryArtwork: { width: 44, height: 44 },
   measurementsEntryTitle: { color: GOLD, fontSize: 15, fontWeight: '900', letterSpacing: 1.1 },
   measurementsEntryDesc: { color: '#B8B8B8', fontSize: 11, marginTop: 5 },
   measurementsEntryArrow: { color: GOLD, fontSize: 30, fontWeight: '300' },
   measurementGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 11, marginTop: 20 },
   measurementCard: { width: '48%', minHeight: 154, borderRadius: 15, borderWidth: 1, borderColor: '#79613A', backgroundColor: '#17191C', padding: 13, alignItems: 'center', justifyContent: 'center' },
   measurementIcon: { fontSize: 31, marginBottom: 9 },
+  measurementIconImage: { width: 88, height: 88, marginBottom: 9 },
   measurementTitle: { color: GOLD, fontSize: 13, fontWeight: '800', textAlign: 'center' },
   measurementDesc: { color: '#B8B8B8', fontSize: 10, textAlign: 'center', lineHeight: 15, marginTop: 7 },
   measurementToolPanel: { alignItems: 'center', paddingTop: 28 },
