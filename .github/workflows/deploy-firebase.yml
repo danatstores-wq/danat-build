@@ -1,6 +1,13 @@
 name: Deploy Danat Build Firebase
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'firestore.rules'
+      - 'firebase.json'
+      - '.github/workflows/deploy-firebase.yml'
   workflow_dispatch:
 
 permissions:
@@ -26,7 +33,7 @@ jobs:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DANAT_BUILD }}
         run: |
           if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
-            echo "::error::Add the FIREBASE_SERVICE_ACCOUNT_DANAT_BUILD GitHub Actions secret first."
+            echo "::error::The FIREBASE_SERVICE_ACCOUNT_DANAT_BUILD secret is missing or empty."
             exit 1
           fi
           printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-service-account.json"
