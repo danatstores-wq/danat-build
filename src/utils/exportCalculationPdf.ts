@@ -78,17 +78,30 @@ async function printOrShareHtml(html: string, title: string): Promise<void> {
     // Expo Print's web implementation prints the current page, not the supplied
     // HTML string. Use a dedicated document so the PDF contains project data.
     if (typeof window === 'undefined') throw new Error('Browser printing is unavailable.');
+    const isIOS = /iPad|iPhone|iPod/.test(window.navigator.userAgent)
+      || (window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1);
     const printWindow = window.open('', '_blank');
     if (!printWindow) throw new Error('Allow pop-ups to export the project PDF.');
+    const mobilePrintControls = isIOS
+      ? `<style>
+          .mobile-pdf-toolbar{position:sticky;top:0;z-index:9999;display:flex;justify-content:center;padding:12px;background:#171c22;border-bottom:2px solid #c99742}
+          .mobile-pdf-toolbar button{background:#c99742;color:#171717;border:0;border-radius:8px;padding:12px 20px;font-size:16px;font-weight:700}
+          @media print{.mobile-pdf-toolbar{display:none}}
+        </style><div class="mobile-pdf-toolbar"><button type="button" onclick="window.print()">Print / Save PDF</button></div>`
+      : '';
+    const reportDocument = isIOS ? html.replace('<body>', `<body>${mobilePrintControls}`) : html;
     printWindow.document.open();
-    printWindow.document.write(html);
+    printWindow.document.write(reportDocument);
     printWindow.document.close();
     printWindow.document.title = title;
     printWindow.focus();
-    printWindow.onload = () => {
-      printWindow.focus();
-      printWindow.print();
-    };
+    if (!isIOS) {
+      printWindow.onload = () => {
+        printWindow.focus();
+        printWindow.print();
+      };
+    }
+    // iOS Safari requires a direct user gesture to reliably open print options.
     return;
   }
 
