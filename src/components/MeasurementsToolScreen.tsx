@@ -13,11 +13,15 @@ export default function MeasurementsToolScreen({ toolId, language, units, onBack
   const [zeroRoll, setZeroRoll] = useState(0);
   const [length, setLength] = useState('5');
   const [width, setWidth] = useState('4');
+  const [sightDistance, setSightDistance] = useState('10');
+  const [sightAngle, setSightAngle] = useState('35');
+  const [observerHeight, setObserverHeight] = useState('1.6');
 
   const t = (en: string, ar: string, fr: string) => language === 'ar' ? ar : language === 'fr' ? fr : en;
   const isLevelTool = toolId === 'spirit-level';
   const isAngleTool = toolId === 'angle-slope';
   const isAreaTool = toolId === 'area-perimeter';
+  const isHeightTool = toolId === 'height';
   const sensorTool = isLevelTool || isAngleTool;
   const pitchValue = pitch - zeroPitch;
   const rollValue = roll - zeroRoll;
@@ -26,6 +30,9 @@ export default function MeasurementsToolScreen({ toolId, language, units, onBack
   const perimeter = 2 * (Math.max(0, Number(length) || 0) + Math.max(0, Number(width) || 0));
   const unit = units === 'metric' ? 'm' : 'ft';
   const areaUnit = units === 'metric' ? 'm²' : 'ft²';
+  const heightDistance = Math.max(0, Number(sightDistance) || 0);
+  const heightAngle = Math.max(-89.9, Math.min(89.9, Number(sightAngle) || 0));
+  const calculatedHeight = Math.max(0, heightDistance * Math.tan(heightAngle * Math.PI / 180) + Math.max(0, Number(observerHeight) || 0));
 
   useEffect(() => {
     if (!sensorTool) return;
@@ -116,7 +123,21 @@ export default function MeasurementsToolScreen({ toolId, language, units, onBack
         </View>
       )}
 
-      {!sensorTool && !isAreaTool && (
+      {isHeightTool && (
+        <View style={s.panel}>
+          <Text style={s.eyebrow}>{t('TRIGONOMETRIC HEIGHT ESTIMATE', 'تقدير الارتفاع بالمثلثات', 'ESTIMATION DE HAUTEUR PAR TRIGONOMÉTRIE')}</Text>
+          <Text style={s.label}>{t('Horizontal distance to the base', 'المسافة الأفقية إلى القاعدة', 'Distance horizontale jusqu’à la base')} ({unit})</Text>
+          <TextInput value={sightDistance} onChangeText={setSightDistance} keyboardType="decimal-pad" style={s.input} placeholder="10" placeholderTextColor="#777" />
+          <Text style={s.label}>{t('Angle from horizontal to the top', 'زاوية النظر من الأفق إلى القمة', 'Angle de visée depuis l’horizontale vers le sommet')} (°)</Text>
+          <TextInput value={sightAngle} onChangeText={setSightAngle} keyboardType="decimal-pad" style={s.input} placeholder="35" placeholderTextColor="#777" />
+          <Text style={s.label}>{t('Height of phone/camera above ground', 'ارتفاع الهاتف أو الكاميرا عن الأرض', 'Hauteur du téléphone/de la caméra au-dessus du sol')} ({unit})</Text>
+          <TextInput value={observerHeight} onChangeText={setObserverHeight} keyboardType="decimal-pad" style={s.input} placeholder="1.6" placeholderTextColor="#777" />
+          <View style={s.result}><Text style={s.label}>{t('Estimated total height', 'الارتفاع الإجمالي التقديري', 'Hauteur totale estimée')}</Text><Text style={s.value}>{calculatedHeight.toFixed(2)} {unit}</Text></View>
+          <Text style={s.note}>{t('This is a manual trigonometric estimate, not AR. Measure the horizontal distance and sight angle accurately; uneven ground and angle errors affect the result.', 'هذا تقدير يدوي بالمثلثات وليس واقعاً معززاً. قِس المسافة الأفقية وزاوية النظر بدقة؛ يؤثر اختلاف مستوى الأرض وأخطاء الزاوية في النتيجة.', 'Il s’agit d’une estimation trigonométrique manuelle, pas de réalité augmentée. Mesurez précisément la distance horizontale et l’angle ; le relief et les erreurs d’angle influencent le résultat.')}</Text>
+        </View>
+      )}
+
+      {!sensorTool && !isAreaTool && !isHeightTool && (
         <View style={s.panel}>
           <Text style={s.eyebrow}>{t('NATIVE AR ENGINE REQUIRED', 'يتطلب محرك واقع معزز أصلي', 'MOTEUR AR NATIF REQUIS')}</Text>
           <Text style={s.muted}>{arPlaceholder}</Text>
