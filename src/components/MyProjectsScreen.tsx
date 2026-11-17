@@ -1,6 +1,7 @@
 import React,{useCallback,useEffect,useState} from 'react';
 import {View,Text,Pressable,ScrollView,StyleSheet,TextInput,Alert} from 'react-native';
 import {getLocalProjects,deleteLocalProject,deleteLocalCalculation,renameLocalProject,LocalProject,SavedCalculation} from '../storage/localProjects';
+import { exportCalculationPdf } from '../utils/exportCalculationPdf';
 type Props={language:'en'|'ar'|'fr';theme:'dark'|'light';userId:string;onBack:()=>void;onOpen:(calculation:SavedCalculation)=>void};
 const GOLD='#E9B85D';
 export default function MyProjectsScreen({language,theme,userId,onBack,onOpen}:Props){
@@ -9,6 +10,7 @@ export default function MyProjectsScreen({language,theme,userId,onBack,onOpen}:P
  const [editingId,setEditingId]=useState<string|null>(null);
  const [editName,setEditName]=useState('');
  const [message,setMessage]=useState('');
+ const [exportingId,setExportingId]=useState<string|null>(null);
  const t=(en:string,ar:string,fr:string)=>language==='ar'?ar:language==='fr'?fr:en;
  const refresh=useCallback(async()=>{setLoading(true);setProjects(await getLocalProjects(userId));setLoading(false);},[userId]);
  useEffect(()=>{refresh();},[refresh]);
@@ -52,6 +54,25 @@ export default function MyProjectsScreen({language,theme,userId,onBack,onOpen}:P
      <Text style={styles.openLabel}>{t('OPEN ›','فتح ›','OUVRIR ›')}</Text>
     </Pressable>
     <View style={styles.calculationActions}>
+     <Pressable
+      onPress={async()=>{
+       setExportingId(item.id);
+       setMessage('');
+       try {
+        await exportCalculationPdf(project.name,item,language);
+       } catch(error) {
+        console.warn('Could not export saved calculation PDF:',error);
+        setMessage(t('Could not export PDF. Please try again.','تعذر تصدير ملف PDF. حاول مرة أخرى.','Impossible d’exporter le PDF. Réessayez.'));
+       } finally {
+        setExportingId(null);
+       }
+      }}
+      style={styles.exportButton}
+      accessibilityRole="button"
+      disabled={exportingId===item.id}
+     >
+      <Text style={styles.exportButtonText}>{exportingId===item.id?t('Preparing PDF…','جارٍ تجهيز PDF…','Préparation du PDF…'):t('EXPORT PDF','تصدير PDF','EXPORTER PDF')}</Text>
+     </Pressable>
      <Pressable onPress={()=>confirmDeleteCalculation(project,item)} style={styles.removeCalculation}><Text style={styles.delete}>{t('Delete calculation','حذف الحساب','Supprimer le calcul')}</Text></Pressable>
     </View>
    </View>)}
@@ -68,5 +89,5 @@ const styles=StyleSheet.create({
  openLabel:{color:GOLD,fontSize:11,fontWeight:'900'},footnote:{color:'#999',fontSize:10,lineHeight:16,marginTop:12},message:{color:GOLD,fontSize:12,marginBottom:10},
  editBox:{gap:9},input:{backgroundColor:'#292f36',color:'#fff',borderRadius:9,padding:11,borderWidth:1,borderColor:'#6c5938'},actions:{flexDirection:'row',alignItems:'center',gap:14},
  smallButton:{backgroundColor:GOLD,paddingHorizontal:16,paddingVertical:8,borderRadius:8},smallButtonText:{color:'#171717',fontSize:11,fontWeight:'900'},cancel:{color:'#c5c5c5',fontSize:11},
- calculationActions:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginTop:9},removeCalculation:{alignSelf:'flex-end',paddingTop:7}
+ calculationActions:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginTop:9,gap:10},exportButton:{backgroundColor:'#29251d',borderColor:GOLD,borderWidth:1,borderRadius:8,paddingHorizontal:13,paddingVertical:9},exportButtonText:{color:GOLD,fontSize:10,fontWeight:'900'},removeCalculation:{alignSelf:'flex-end',paddingTop:7}
 });
