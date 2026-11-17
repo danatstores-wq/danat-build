@@ -44,7 +44,7 @@ export async function getAnnualProfessionalPackage(): Promise<PurchasesPackage |
   const offerings = await Purchases.getOfferings();
   const available = offerings.current?.availablePackages || [];
   return available.find(item =>
-    item.identifier === "$rc_annual"
+    item.identifier === "professional_annual"
     && item.product.identifier === "danat_build_professional_annual"
   ) || null;
 }
