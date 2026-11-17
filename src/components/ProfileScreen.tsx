@@ -15,6 +15,7 @@ type Props = {
   language: 'en' | 'ar' | 'fr';
   mode: 'professional' | 'homeowner';
   onSignOut: () => void;
+  onManageSubscription: () => void;
   theme: 'dark' | 'light';
 };
 
@@ -25,6 +26,7 @@ export default function ProfileScreen({
   theme,
   mode,
   onSignOut,
+  onManageSubscription,
 }: Props) {
   const ui = getThemedStyles(styles, theme);
   const [profile, setProfile] = useState<any>(null);
@@ -123,13 +125,11 @@ export default function ProfileScreen({
             <Text style={ui.value}>{createdAt}</Text>
           </View>
 
-          <Text style={ui.note}>
-            {t(
-              'Subscription management will be available here.',
-              'ستتوفر إدارة الاشتراك هنا.',
-              'La gestion des abonnements sera disponible ici.'
-            )}
-          </Text>
+          <Pressable style={ui.subscriptionButton} onPress={onManageSubscription}>
+            <Text style={ui.subscriptionButtonText}>
+              {t('VIEW PROFESSIONAL PLAN', 'عرض الخطة الاحترافية', 'VOIR L’OFFRE PROFESSIONNELLE')}
+            </Text>
+          </Pressable>
         </>
       )}
 
@@ -214,11 +214,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#39352d',
     marginVertical: 16,
   },
-  note: {
-    color: '#aaa',
-    fontSize: 11,
-    textAlign: 'center',
+  subscriptionButton: {
+    width: '100%',
+    backgroundColor: '#292019',
+    borderWidth: 1,
+    borderColor: GOLD,
+    borderRadius: 12,
+    padding: 15,
+    alignItems: 'center',
     marginTop: 20,
+  },
+  subscriptionButtonText: {
+    color: GOLD,
+    fontWeight: '900',
+    fontSize: 12,
   },
   error: {
     color: '#ff7777',
