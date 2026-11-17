@@ -6,6 +6,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
+  sendEmailVerification,
+  reload,
 } from 'firebase/auth';
 import {
   doc,
@@ -53,6 +55,7 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [verificationPending, setVerificationPending] = useState(false);
 
   const t = (en: string, ar: string, fr: string) =>
     language === 'ar' ? ar : language === 'fr' ? fr : en;
@@ -90,7 +93,13 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
         );
 
         await ensureUserProfile(credential.user);
-        onAuthenticated();
+        await sendEmailVerification(credential.user);
+        setVerificationPending(true);
+        setMessage(t(
+          'Verification email sent. Open the link in your inbox, then return here and confirm.',
+          'تم إرسال رسالة التحقق. افتح الرابط في بريدك ثم عد إلى هنا للتأكيد.',
+          'E-mail de vérification envoyé. Ouvrez le lien reçu, puis revenez ici pour confirmer.'
+        ));
 
       } else if (mode === 'login') {
         const credential = await signInWithEmailAndPassword(
@@ -98,6 +107,16 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
           email.trim(),
           password
         );
+
+        if (!credential.user.emailVerified) {
+          setVerificationPending(true);
+          setMessage(t(
+            'Your email is not verified yet. Check your inbox or resend the verification email.',
+            'لم يتم التحقق من بريدك بعد. تحقق من صندوق الوارد أو أعد إرسال رسالة التحقق.',
+            'Votre e-mail n’est pas encore vérifié. Consultez votre boîte de réception ou renvoyez le message.'
+          ));
+          return;
+        }
 
         await ensureUserProfile(credential.user);
         onAuthenticated();
@@ -169,6 +188,104 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
       setLoading(false);
     }
   };
+
+  const resendVerification = async () => {
+    const user = auth.currentUser;
+    if (!user) {
+      setError(t(
+        'Please sign in again to resend the verification email.',
+        'يرجى تسجيل الدخول مجدداً لإعادة إرسال رسالة التحقق.',
+        'Reconnectez-vous pour renvoyer l’e-mail de vérification.'
+      ));
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      await sendEmailVerification(user);
+      setMessage(t(
+        'A new verification email has been sent. Check your inbox and spam folder.',
+        'تم إرسال رسالة تحقق جديدة. تحقق من الوارد والبريد غير المرغوب فيه.',
+        'Un nouvel e-mail de vérification a été envoyé. Vérifiez votre boîte de réception et les courriers indésirables.'
+      ));
+    } catch (e: any) {
+      setError(e?.message || t('Could not send the verification email.', 'تعذر إرسال رسالة التحقق.', 'Impossible d’envoyer l’e-mail de vérification.'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const confirmVerification = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+    setLoading(true);
+    setError('');
+    try {
+      await reload(user);
+      if (user.emailVerified) {
+        await ensureUserProfile(user);
+        onAuthenticated();
+      } else {
+        setMessage(t(
+          'We have not detected verification yet. Open the link in your email, then try again.',
+          'لم نكتشف إتمام التحقق بعد. افتح الرابط في بريدك ثم حاول مجدداً.',
+          'La vérification n’a pas encore été détectée. Ouvrez le lien reçu, puis réessayez.'
+        ));
+      }
+    } catch (e: any) {
+      setError(e?.message || t('Could not check verification status.', 'تعذر التحقق من الحالة.', 'Impossible de vérifier le statut.'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (verificationPending) {
+    return (
+      <View style={ui.container}>
+        <Text style={ui.brand}>DANAT BUILD</Text>
+        <Text style={ui.heading}>
+          {t('Verify your email', 'تحقق من بريدك الإلكتروني', 'Vérifiez votre e-mail')}
+        </Text>
+        <Text style={ui.subtitle}>
+          {t(
+            'We sent a verification link to your email address. You must verify it before entering Danat Build.',
+            'أرسلنا رابط تحقق إلى بريدك الإلكتروني. يجب تأكيده قبل الدخول إلى Danat Build.',
+            'Nous avons envoyé un lien de vérification. Vous devez confirmer votre adresse avant d’accéder à Danat Build.'
+          )}
+        </Text>
+        {!!message && <Text style={ui.success}>{message}</Text>}
+        {!!error && <Text style={ui.error}>{error}</Text>}
+        <Pressable
+          style={[ui.button, loading && ui.disabled]}
+          onPress={confirmVerification}
+          disabled={loading}
+        >
+          {loading
+            ? <ActivityIndicator color="#17110a" />
+            : <Text style={ui.buttonText}>
+                {t('I HAVE VERIFIED MY EMAIL', 'تحققت من بريدي الإلكتروني', 'J’AI VÉRIFIÉ MON E-MAIL')}
+              </Text>}
+        </Pressable>
+        <Pressable onPress={resendVerification} disabled={loading}>
+          <Text style={ui.link}>
+            {t('Resend verification email', 'إعادة إرسال رسالة التحقق', 'Renvoyer l’e-mail de vérification')}
+          </Text>
+        </Pressable>
+        <Pressable onPress={async () => {
+          const { signOut } = await import('firebase/auth');
+          await signOut(auth);
+          setVerificationPending(false);
+          setMode('login');
+          setMessage('');
+          setError('');
+        }}>
+          <Text style={ui.link}>
+            {t('Back to sign in', 'العودة لتسجيل الدخول', 'Retour à la connexion')}
+          </Text>
+        </Pressable>
+      </View>
+    );
+  }
 
   const heading = mode === 'register'
     ? t('Create Account', 'إنشاء حساب', 'Créer un compte')
