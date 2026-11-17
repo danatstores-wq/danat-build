@@ -1,10 +1,15 @@
 name: Validate Danat Build
 
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches:
       - main
       - fix/construction-cost-calculation
+      - feature/pro-subscription-foundation
   pull_request:
     branches:
       - main
@@ -23,7 +28,7 @@ jobs:
           cache: npm
 
       - name: Install app dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Install Firebase Functions dependencies
         run: npm ci --prefix functions
@@ -33,6 +38,9 @@ jobs:
 
       - name: TypeScript check
         run: npx tsc --noEmit
+
+      - name: Validate native Expo config plugins
+        run: npx expo config --type prebuild
 
       - name: Firebase Functions build
         run: npm run build --prefix functions

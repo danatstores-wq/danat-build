@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   SafeAreaView,
   StatusBar,
+  AppState,
   View,
   Text,
   Image,
@@ -12,20 +13,28 @@ import {
   StyleSheet,
   Platform,
   ImageStyle,
+  Alert,
 } from 'react-native';
 
 import CalculatorScreen from './src/components/CalculatorScreen';
 import BuildingCalculatorScreen from './src/components/BuildingCalculatorScreen';
 import AuthScreen from './src/components/AuthScreen';
 import ProfileScreen from './src/components/ProfileScreen';
+import SubscriptionScreen from './src/components/SubscriptionScreen';
+import AdBanner from './src/components/AdBanner';
+import AdPrivacyOptionsButton from './src/components/AdPrivacyOptionsButton';
+import AdminUsersScreen from './src/components/AdminUsersScreen';
 import MyProjectsScreen from './src/components/MyProjectsScreen';
 import { SavedCalculation } from './src/storage/localProjects';
 import { AppTheme, getThemedStyles } from './src/theme';
-import { signOut } from 'firebase/auth';
+import { getIdTokenResult, onAuthStateChanged, signOut } from 'firebase/auth';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { auth } from './src/firebase';
+import { db } from './src/firestore';
+import { configureRevenueCat, logOutRevenueCat } from './src/subscriptions/revenueCat';
 
 type Language = 'en' | 'ar' | 'fr';
-type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings' | 'projects';
+type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings' | 'projects' | 'subscription' | 'adminUsers';
 type Mode = 'professional' | 'homeowner';
 
 type Tool = {
@@ -94,7 +103,11 @@ const tools: Tool[] = [
 export default function App() {
   const [lang, setLang] = useState<Language>('en');
   const [screen, setScreen] = useState<Screen>('welcome');
-  const [mode, setMode] = useState<Mode>('professional');
+  const [mode, setMode] = useState<Mode>('homeowner');
+  const [professionalActive, setProfessionalActive] = useState(false);
+  const [entitlementLoaded, setEntitlementLoaded] = useState(false);
+  const [professionalExpiry, setProfessionalExpiry] = useState<number | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [units, setUnits] = useState<'metric' | 'imperial'>('metric');
   const [theme, setTheme] = useState<AppTheme>('dark');
   const [settingsLoaded, setSettingsLoaded] = useState(false);
@@ -111,7 +124,6 @@ export default function App() {
           const settings = JSON.parse(saved);
 
           if (['en', 'ar', 'fr'].includes(settings.lang)) setLang(settings.lang);
-          if (['professional', 'homeowner'].includes(settings.mode)) setMode(settings.mode);
           if (['metric', 'imperial'].includes(settings.units)) setUnits(settings.units);
           if (['dark', 'light'].includes(settings.theme)) setTheme(settings.theme);
         }
@@ -124,6 +136,99 @@ export default function App() {
 
     loadSettings();
   }, []);
+
+  useEffect(() => {
+    let unsubscribeEntitlement = () => {};
+    const unsubscribeAuth = onAuthStateChanged(auth, user => {
+      unsubscribeEntitlement();
+      setProfessionalActive(false);
+      setEntitlementLoaded(false);
+      setMode('homeowner');
+      setProfessionalExpiry(null);
+      setIsAdmin(false);
+      if (!user) {
+        logOutRevenueCat().catch(error => console.warn('RevenueCat sign-out failed:', error));
+        setMode('homeowner');
+        setScreen(current => current === 'building' ? 'home' : current);
+        setEntitlementLoaded(true);
+        return;
+      }
+
+      getIdTokenResult(user).then(token => setIsAdmin(token.claims.admin === true)).catch(error => console.warn('Could not read admin role:', error));
+      configureRevenueCat(user.uid).catch(error => console.warn('RevenueCat setup failed:', error));
+
+      unsubscribeEntitlement = onSnapshot(
+        doc(db, 'entitlements', user.uid),
+        snapshot => {
+          const data = snapshot.data();
+          const expiry = data?.expiresAt;
+          const expiryMillis = typeof expiry?.toMillis === 'function'
+            ? expiry.toMillis()
+            : 0;
+          const hasAdminOverride = data?.adminOverride === true;
+          const active = hasAdminOverride
+            ? data?.adminStatus === 'professional'
+            : data?.status === 'active' && expiryMillis > Date.now();
+
+          setProfessionalExpiry(hasAdminOverride ? null : (expiryMillis || null));
+          setProfessionalActive(active);
+          setEntitlementLoaded(true);
+          if (!active) {
+            setMode('homeowner');
+            setScreen(current => current === 'building' ? 'home' : current);
+          }
+        },
+        error => {
+          console.warn('Could not verify Professional access:', error);
+          setProfessionalActive(false);
+          setProfessionalExpiry(null);
+          setEntitlementLoaded(true);
+          setMode('homeowner');
+          setScreen(current => current === 'building' ? 'home' : current);
+        }
+      );
+    });
+
+    return () => {
+      unsubscribeAuth();
+      unsubscribeEntitlement();
+    };
+  }, []);
+
+  // Revoke access locally at the exact entitlement expiry, and re-check
+  // whenever the app returns to the foreground.
+  useEffect(() => {
+    if (!professionalExpiry) return;
+
+    const checkExpiry = () => {
+      if (professionalExpiry <= Date.now()) {
+        setProfessionalActive(false);
+        setMode('homeowner');
+        setScreen(current => current === 'building' ? 'home' : current);
+      }
+    };
+
+    checkExpiry();
+    let expiryTimer: ReturnType<typeof setTimeout>;
+    const scheduleExpiryCheck = () => {
+      const remaining = Math.max(0, professionalExpiry - Date.now());
+      // JS timers have a signed 32-bit delay limit; reschedule long terms.
+      expiryTimer = setTimeout(() => {
+        checkExpiry();
+        if (Date.now() < professionalExpiry) scheduleExpiryCheck();
+      }, Math.min(remaining, 2_147_000_000));
+    };
+    scheduleExpiryCheck();
+
+    const appStateSubscription = AppState.addEventListener('change', state => {
+      if (state === 'active') checkExpiry();
+    });
+
+    return () => {
+      clearTimeout(expiryTimer);
+      appStateSubscription.remove();
+    };
+  }, [professionalExpiry]);
 
   useEffect(() => {
     if (!settingsLoaded) return;
@@ -378,7 +483,13 @@ export default function App() {
                     ]}
                   >
                     <Pressable
-                      onPress={() => setMode('professional')}
+                      onPress={() => {
+                        if (professionalActive) {
+                          setMode('professional');
+                        } else {
+                          setScreen('subscription');
+                        }
+                      }}
                       style={[
                         ui.modeCard,
                         mode === 'professional' && ui.modeActive,
@@ -444,7 +555,7 @@ export default function App() {
                     </Pressable>
                   </View>
 
-                  {mode === 'professional' && (
+                  {mode === 'professional' && professionalActive && (
                   <Pressable
                     onPress={() => setScreen('building')}
                     style={ui.buildingCard}
@@ -507,22 +618,27 @@ export default function App() {
                       )}
                     </Text>
                   </View>
+
+                  <AdBanner enabled={entitlementLoaded && !professionalActive} />
                 </>
               )}
 
               {screen === 'calculator' && (
-                <CalculatorScreen
-                  calculatorId={selected}
-                  language={lang}
-                  theme={theme}
-                  units={units}
-                  userId={auth.currentUser?.uid || 'guest'}
-                  savedCalculation={savedCalculation}
-                  onBack={() => { setSavedCalculation(null); setScreen('home'); }}
-                />
+                <>
+                  <CalculatorScreen
+                    calculatorId={selected}
+                    language={lang}
+                    theme={theme}
+                    units={units}
+                    userId={auth.currentUser?.uid || 'guest'}
+                    savedCalculation={savedCalculation}
+                    onBack={() => { setSavedCalculation(null); setScreen('home'); }}
+                  />
+                  <AdBanner enabled={entitlementLoaded && !professionalActive} />
+                </>
               )}
 
-              {screen === 'building' && (
+              {screen === 'building' && professionalActive && (
                 <BuildingCalculatorScreen
                   language={lang}
                   theme={theme}
@@ -543,6 +659,18 @@ export default function App() {
                     if (payload.units) setUnits(payload.units);
                     setScreen('calculator');
                   } else {
+                    if (!professionalActive) {
+                      setSavedCalculation(null);
+                      Alert.alert(
+                        tr('Professional plan required', 'تتطلب هذه الميزة الاشتراك الاحترافي', 'Abonnement Professionnel requis'),
+                        tr(
+                          'Subscribe for $10 per year to open the Full Building Calculator.',
+                          'اشترك مقابل 10 دولارات سنوياً لفتح حاسبة البناء الشاملة.',
+                          'Abonnez-vous pour 10 $ par an pour ouvrir le calculateur complet du bâtiment.'
+                        )
+                      );
+                      return;
+                    }
                     const payload = calculation.payload as { units?: 'metric' | 'imperial' };
                     if (payload.units) setUnits(payload.units);
                     setScreen('building');
@@ -550,15 +678,33 @@ export default function App() {
                 }} />
               )}
 
+              {screen === 'subscription' && (
+                <SubscriptionScreen
+                  language={lang}
+                  theme={theme}
+                  active={professionalActive}
+                  onBack={() => setScreen('home')}
+                />
+              )}
+
+              {screen === 'adminUsers' && isAdmin && (
+                <AdminUsersScreen
+                  language={lang}
+                  theme={theme}
+                  onBack={() => setScreen('menu')}
+                />
+              )}
+
               {screen === 'profile' && (
                 <ProfileScreen
                   language={lang}
                   theme={theme}
-                  mode={mode}
+                  mode={professionalActive ? 'professional' : mode}
                   onSignOut={async () => {
                     await signOut(auth);
                     setScreen('auth');
                   }}
+                  onManageSubscription={() => setScreen('subscription')}
                 />
               )}
 
@@ -750,6 +896,13 @@ export default function App() {
                     {tr('Settings', 'الإعدادات', 'Paramètres')}
                   </Text>
 
+                  {isAdmin && (
+                    <Pressable onPress={() => setScreen('adminUsers')} style={ui.menuRow}>
+                      <Text style={ui.menuRowText}>♙   {tr('Admin Users', 'إدارة المستخدمين', 'Gestion des utilisateurs')}</Text>
+                      <Text style={ui.menuArrow}>›</Text>
+                    </Pressable>
+                  )}
+
                   <Text style={ui.section}>
                     {tr('LANGUAGE', 'اللغة', 'LANGUE')}
                   </Text>
@@ -808,6 +961,8 @@ export default function App() {
                     ))}
                   </View>
 
+                  <AdPrivacyOptionsButton language={lang} />
+
                   <Text style={ui.section}>
                     {tr('DEFAULT WORKING MODE', 'وضع العمل الافتراضي', 'MODE DE TRAVAIL PAR DÉFAUT')}
                   </Text>
@@ -816,7 +971,13 @@ export default function App() {
                     {(['professional', 'homeowner'] as const).map(option => (
                       <Pressable
                         key={option}
-                        onPress={() => setMode(option)}
+                        onPress={() => {
+                          if (option === 'professional' && !professionalActive) {
+                            setScreen('subscription');
+                            return;
+                          }
+                          setMode(option);
+                        }}
                         style={[ui.langBtn, mode === option && ui.langOn]}
                       >
                         <Text style={[ui.langText, mode === option && ui.langTextOn]}>
