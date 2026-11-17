@@ -628,7 +628,7 @@ export default function App() {
                     savedCalculation={savedCalculation}
                     onBack={() => { setSavedCalculation(null); setScreen('home'); }}
                   />
-                  <AdBanner enabled={!professionalActive} />
+                  <AdBanner enabled={entitlementLoaded && !professionalActive} />
                 </>
               )}
 
