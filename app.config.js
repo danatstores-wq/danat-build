@@ -36,6 +36,19 @@ module.exports = ({ config }) => {
           motionPermission: "Danat Build uses device motion to measure angles and check surface level.",
         },
       ],
+      [
+        "@reactvision/react-viro",
+        {
+          android: { xRMode: "AR" },
+          ios: {
+            cameraUsagePermission: "Danat Build uses the camera to measure real-world distances and room dimensions in augmented reality.",
+            microphoneUsagePermission: "Danat Build uses the microphone only when an AR feature explicitly requires it.",
+            photosPermission: "Danat Build can access photos when you choose to use them in a project.",
+            savephotosPermission: "Danat Build can save measurement snapshots when you request them.",
+          },
+          telemetry: false,
+        },
+      ],
     ],
   };
 };
