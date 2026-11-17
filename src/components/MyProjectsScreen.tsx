@@ -1,7 +1,7 @@
 import React,{useCallback,useEffect,useState} from 'react';
 import {View,Text,Pressable,ScrollView,StyleSheet,TextInput,Alert} from 'react-native';
 import {getLocalProjects,deleteLocalProject,deleteLocalCalculation,renameLocalProject,LocalProject,SavedCalculation} from '../storage/localProjects';
-import { exportCalculationPdf } from '../utils/exportCalculationPdf';
+import { exportCalculationPdf, exportProjectPdf } from '../utils/exportCalculationPdf';
 type Props={language:'en'|'ar'|'fr';theme:'dark'|'light';userId:string;onBack:()=>void;onOpen:(calculation:SavedCalculation)=>void};
 const GOLD='#E9B85D';
 export default function MyProjectsScreen({language,theme,userId,onBack,onOpen}:Props){
@@ -11,6 +11,7 @@ export default function MyProjectsScreen({language,theme,userId,onBack,onOpen}:P
  const [editName,setEditName]=useState('');
  const [message,setMessage]=useState('');
  const [exportingId,setExportingId]=useState<string|null>(null);
+ const [exportingProjectId,setExportingProjectId]=useState<string|null>(null);
  const t=(en:string,ar:string,fr:string)=>language==='ar'?ar:language==='fr'?fr:en;
  const refresh=useCallback(async()=>{setLoading(true);setProjects(await getLocalProjects(userId));setLoading(false);},[userId]);
  useEffect(()=>{refresh();},[refresh]);
@@ -48,6 +49,25 @@ export default function MyProjectsScreen({language,theme,userId,onBack,onOpen}:P
     <Pressable onPress={()=>confirmDeleteProject(project)}><Text style={styles.delete}>{t('Delete','حذف','Supprimer')}</Text></Pressable>
    </View>}
    <Text style={styles.muted}>{project.calculations.length} {t('saved calculations','حسابات محفوظة','calculs enregistrés')}</Text>
+   <Pressable
+    onPress={async()=>{
+     setExportingProjectId(project.id);
+     setMessage('');
+     try {
+      await exportProjectPdf(project,language);
+     } catch(error) {
+      console.warn('Could not export full project PDF:',error);
+      setMessage(error instanceof Error?error.message:t('Could not export project PDF. Please try again.','تعذر تصدير ملف المشروع PDF. حاول مرة أخرى.','Impossible d’exporter le PDF du projet. Réessayez.'));
+     } finally {
+      setExportingProjectId(null);
+     }
+    }}
+    style={[styles.exportButton,{alignSelf:'stretch',marginTop:10}]}
+    accessibilityRole="button"
+    disabled={exportingProjectId===project.id}
+   >
+    <Text style={styles.exportButtonText}>{exportingProjectId===project.id?t('Preparing project PDF…','جارٍ تجهيز ملف المشروع…','Préparation du PDF du projet…'):t('EXPORT ENTIRE PROJECT — PDF','تصدير المشروع بالكامل — PDF','EXPORTER TOUT LE PROJET — PDF')}</Text>
+   </Pressable>
    {project.calculations.map(item=><View key={item.id} style={styles.calculation}>
     <Pressable onPress={()=>onOpen({...item,projectName:project.name})} style={styles.openRow} accessibilityRole="button">
      <View style={{flex:1}}><Text style={styles.calcTitle}>{item.title}</Text><Text style={styles.muted}>{new Date(item.savedAt).toLocaleString()}</Text></View>
