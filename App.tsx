@@ -22,6 +22,7 @@ import AuthScreen from './src/components/AuthScreen';
 import ProfileScreen from './src/components/ProfileScreen';
 import SubscriptionScreen from './src/components/SubscriptionScreen';
 import AdBanner from './src/components/AdBanner';
+import AdInterstitial from './src/components/AdInterstitial';
 import AdPrivacyOptionsButton from './src/components/AdPrivacyOptionsButton';
 import AdminUsersScreen from './src/components/AdminUsersScreen';
 import MyProjectsScreen from './src/components/MyProjectsScreen';
@@ -619,7 +620,6 @@ export default function App() {
                     </Text>
                   </View>
 
-                  <AdBanner enabled={entitlementLoaded && !professionalActive} />
                 </>
               )}
 
@@ -634,7 +634,6 @@ export default function App() {
                     savedCalculation={savedCalculation}
                     onBack={() => { setSavedCalculation(null); setScreen('home'); }}
                   />
-                  <AdBanner enabled={entitlementLoaded && !professionalActive} />
                 </>
               )}
 
@@ -1060,6 +1059,9 @@ export default function App() {
                 </>
               )}
             </ScrollView>
+
+            <AdBanner enabled={entitlementLoaded && !professionalActive} />
+            <AdInterstitial enabled={entitlementLoaded && !professionalActive} />
 
             <View
               style={[
