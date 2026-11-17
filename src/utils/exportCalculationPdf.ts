@@ -69,17 +69,23 @@ function reportHtml(projectName: string, calculation: SavedCalculation, language
 
 export async function exportCalculationPdf(projectName: string, calculation: SavedCalculation, language: Language): Promise<void> {
   const html = reportHtml(projectName, calculation, language);
+
+  // On web, Expo Print opens the browser print dialog; the user can choose
+  // "Save as PDF". The native file API is only used on Android and iOS.
+  if (Platform.OS === 'web') {
+    await Print.printAsync({ html });
+    return;
+  }
+
   const file = await Print.printToFileAsync({ html });
-  if (Platform.OS !== 'web') {
-    const available = await Sharing.isAvailableAsync();
-    if (available) {
-      await Sharing.shareAsync(file.uri, {
-        mimeType: 'application/pdf',
-        dialogTitle: calculation.title,
-        UTI: '.pdf',
-      });
-    } else {
-      await Print.printAsync({ html });
-    }
+  const available = await Sharing.isAvailableAsync();
+  if (available) {
+    await Sharing.shareAsync(file.uri, {
+      mimeType: 'application/pdf',
+      dialogTitle: calculation.title,
+      UTI: '.pdf',
+    });
+  } else {
+    await Print.printAsync({ html });
   }
 }
