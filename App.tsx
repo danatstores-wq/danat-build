@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   SafeAreaView,
   StatusBar,
+  AppState,
   View,
   Text,
   Image,
@@ -99,6 +100,7 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('welcome');
   const [mode, setMode] = useState<Mode>('homeowner');
   const [professionalActive, setProfessionalActive] = useState(false);
+  const [professionalExpiry, setProfessionalExpiry] = useState<number | null>(null);
   const [units, setUnits] = useState<'metric' | 'imperial'>('metric');
   const [theme, setTheme] = useState<AppTheme>('dark');
   const [settingsLoaded, setSettingsLoaded] = useState(false);
@@ -133,8 +135,10 @@ export default function App() {
     const unsubscribeAuth = onAuthStateChanged(auth, user => {
       unsubscribeEntitlement();
       setProfessionalActive(false);
+      setProfessionalExpiry(null);
       if (!user) {
         setMode('homeowner');
+        setScreen(current => current === 'building' ? 'home' : current);
         return;
       }
 
@@ -149,6 +153,7 @@ export default function App() {
           const active = data?.status === 'active'
             && expiryMillis > Date.now();
 
+          setProfessionalExpiry(expiryMillis || null);
           setProfessionalActive(active);
           if (!active) {
             setMode('homeowner');
@@ -158,6 +163,7 @@ export default function App() {
         error => {
           console.warn('Could not verify Professional access:', error);
           setProfessionalActive(false);
+          setProfessionalExpiry(null);
           setMode('homeowner');
           setScreen(current => current === 'building' ? 'home' : current);
         }
@@ -169,6 +175,32 @@ export default function App() {
       unsubscribeEntitlement();
     };
   }, []);
+
+  // Revoke access locally at the exact entitlement expiry, and re-check
+  // whenever the app returns to the foreground.
+  useEffect(() => {
+    if (!professionalExpiry) return;
+
+    const checkExpiry = () => {
+      if (professionalExpiry <= Date.now()) {
+        setProfessionalActive(false);
+        setMode('homeowner');
+        setScreen(current => current === 'building' ? 'home' : current);
+      }
+    };
+
+    checkExpiry();
+    const delay = Math.max(0, professionalExpiry - Date.now());
+    const expiryTimer = setTimeout(checkExpiry, delay);
+    const appStateSubscription = AppState.addEventListener('change', state => {
+      if (state === 'active') checkExpiry();
+    });
+
+    return () => {
+      clearTimeout(expiryTimer);
+      appStateSubscription.remove();
+    };
+  }, [professionalExpiry]);
 
   useEffect(() => {
     if (!settingsLoaded) return;
