@@ -195,8 +195,17 @@ export default function App() {
     };
 
     checkExpiry();
-    const delay = Math.max(0, professionalExpiry - Date.now());
-    const expiryTimer = setTimeout(checkExpiry, delay);
+    let expiryTimer: ReturnType<typeof setTimeout>;
+    const scheduleExpiryCheck = () => {
+      const remaining = Math.max(0, professionalExpiry - Date.now());
+      // JS timers have a signed 32-bit delay limit; reschedule long terms.
+      expiryTimer = setTimeout(() => {
+        checkExpiry();
+        if (Date.now() < professionalExpiry) scheduleExpiryCheck();
+      }, Math.min(remaining, 2_147_000_000));
+    };
+    scheduleExpiryCheck();
+
     const appStateSubscription = AppState.addEventListener('change', state => {
       if (state === 'active') checkExpiry();
     });
@@ -663,7 +672,7 @@ export default function App() {
                 <ProfileScreen
                   language={lang}
                   theme={theme}
-                  mode={mode}
+                  mode={professionalActive ? 'professional' : mode}
                   onSignOut={async () => {
                     await signOut(auth);
                     setScreen('auth');
