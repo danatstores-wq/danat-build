@@ -92,7 +92,8 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
           password
         );
 
-        await ensureUserProfile(credential.user);
+        // Send verification before any Firestore work so a profile/rules error
+        // cannot prevent the user from receiving the verification email.
         await sendEmailVerification(credential.user);
         setVerificationPending(true);
         setMessage(t(
@@ -109,11 +110,14 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
         );
 
         if (!credential.user.emailVerified) {
+          // Existing accounts created before email verification was introduced
+          // get a fresh verification message when they next sign in.
+          await sendEmailVerification(credential.user);
           setVerificationPending(true);
           setMessage(t(
-            'Your email is not verified yet. Check your inbox or resend the verification email.',
-            'لم يتم التحقق من بريدك بعد. تحقق من صندوق الوارد أو أعد إرسال رسالة التحقق.',
-            'Votre e-mail n’est pas encore vérifié. Consultez votre boîte de réception ou renvoyez le message.'
+            'Your email is not verified yet. We have sent a new verification link. Check your inbox and spam folder.',
+            'لم يتم التحقق من بريدك بعد. أرسلنا رابط تحقق جديداً. تحقق من الوارد والبريد غير المرغوب فيه.',
+            'Votre e-mail n’est pas encore vérifié. Nous avons renvoyé un lien. Vérifiez votre boîte de réception et les courriers indésirables.'
           ));
           return;
         }
