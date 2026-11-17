@@ -35,6 +35,29 @@
 5. Add AdMob only for free users; never show ads to active Professional subscribers.
 6. Test purchase, restore on a second platform/device, expiry, refund/revocation, offline behavior, and ad suppression before release.
 
+## Entitlement document contract
+
+The app now listens to `entitlements/{firebaseUid}` and grants Professional access only when:
+- `status` is exactly `active`.
+- `expiresAt` is a Firestore Timestamp later than the device's current time.
+
+The trusted backend must be the only writer and should store at least:
+- `status`: `active` or `expired` (and optionally `revoked`).
+- `expiresAt`: server-calculated Firestore Timestamp.
+- `platform`: `google_play` or `app_store`.
+- `productId`: the configured store product identifier.
+- `lastValidatedAt`: server timestamp.
+
+Do not accept an entitlement expiry supplied by the mobile client. The app fails closed (Home Owner access) if the document is missing, unreadable, malformed, or expired. The UI gate is a first layer; Professional screens and every privileged backend operation must independently enforce the same entitlement.
+
+## Work completed on the feature branch
+
+- Firestore rules now allow a signed-in user to create/read only their own minimal profile, and read only their own entitlement document. Clients cannot write entitlement data.
+- The app defaults to Home Owner mode rather than restoring a locally saved Professional mode.
+- Professional mode selection and the Full Building Calculator are gated by the server-managed entitlement.
+- Opening a saved Full Building Calculator project is also gated.
+- No purchase SDK, store verification endpoint, AdMob integration, or deployment has been added yet.
+
 ## Safety constraints
 - No payment-card numbers, CVV, or expiry dates are stored in Firebase.
 - Store secrets and service-account credentials must be server-side only.
