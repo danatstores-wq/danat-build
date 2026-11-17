@@ -11,7 +11,6 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow get: if signedIn() && request.auth.uid == userId;
-      // Only an administrator may search the user directory by exact email.
       allow list: if isAdmin();
 
       allow create: if signedIn()
@@ -27,11 +26,9 @@ service cloud.firestore {
     }
 
     match /entitlements/{userId} {
-      allow get: if signedIn() && request.auth.uid == userId;
+      allow get: if signedIn() && (request.auth.uid == userId || isAdmin());
       allow list: if false;
 
-      // Manual entitlement changes are allowed only for accounts carrying
-      // the Firebase Auth admin custom claim. No client can grant itself access.
       allow create: if isAdmin()
         && request.resource.data.keys().hasAll([
           'adminOverride', 'adminStatus', 'status', 'expiresAt',
