@@ -833,6 +833,7 @@ export default function BuildingCalculatorScreen({
       ? payload.selectedCountry!
       : 'LB';
     setSelectedCountry(country);
+    setProjectName(savedCalculation.projectName || '');
     if (payload.floors?.length) setFloors(payload.floors);
     if (payload.values) setValues(payload.values);
     if (payload.detailedValues) {
