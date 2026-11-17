@@ -13,9 +13,11 @@ module.exports = ({ config }) => {
     || !iosAppId
     || !process.env.EXPO_PUBLIC_ADMOB_ANDROID_BANNER_ID
     || !process.env.EXPO_PUBLIC_ADMOB_IOS_BANNER_ID
+    || !process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY
+    || !process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY
   )) {
     throw new Error(
-      "Production builds require real Android/iOS AdMob app IDs and banner ad-unit IDs."
+      "Production builds require RevenueCat platform keys and real Android/iOS AdMob app IDs and banner ad-unit IDs."
     );
   }
 
