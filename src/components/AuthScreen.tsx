@@ -46,6 +46,16 @@ async function ensureUserProfile(user: {
   }
 }
 
+
+async function ensureUserProfileBestEffort(user: { uid: string; email: string | null }) {
+  try {
+    await ensureUserProfile(user);
+  } catch (error: any) {
+    // Authentication must not be blocked by a profile/rules deployment issue.
+    console.warn('User profile could not be saved yet:', error?.code, error?.message);
+  }
+}
+
 export default function AuthScreen({ language, theme, onAuthenticated }: Props) {
   const ui = getThemedStyles(styles, theme);
   const [mode, setMode] = useState<AuthMode>('login');
@@ -92,8 +102,8 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
           password
         );
 
-        await ensureUserProfile(credential.user);
         await sendEmailVerification(credential.user);
+        await ensureUserProfileBestEffort(credential.user);
         setVerificationPending(true);
         setMessage(t(
           'Verification email sent. Open the link in your inbox, then return here and confirm.',
@@ -109,16 +119,16 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
         );
 
         if (!credential.user.emailVerified) {
-          setVerificationPending(true);
-          setMessage(t(
-            'Your email is not verified yet. Check your inbox or resend the verification email.',
-            'لم يتم التحقق من بريدك بعد. تحقق من صندوق الوارد أو أعد إرسال رسالة التحقق.',
-            'Votre e-mail n’est pas encore vérifié. Consultez votre boîte de réception ou renvoyez le message.'
-          ));
-          return;
+          // Keep existing accounts usable even if Firebase cannot deliver the
+          // legacy verification email. Verification can be completed later.
+          try {
+            await sendEmailVerification(credential.user);
+          } catch (verificationError: any) {
+            console.warn('Verification email resend failed:', verificationError?.code, verificationError?.message);
+          }
         }
 
-        await ensureUserProfile(credential.user);
+        await ensureUserProfileBestEffort(credential.user);
         onAuthenticated();
 
       } else {
@@ -223,7 +233,7 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
     try {
       await reload(user);
       if (user.emailVerified) {
-        await ensureUserProfile(user);
+        await ensureUserProfileBestEffort(user);
         onAuthenticated();
       } else {
         setMessage(t(
