@@ -421,7 +421,7 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
       )}
 
       {!!error && <Text style={ui.error}>{error}</Text>}
-      {!!message && <Text style={ui.success}>{message}</Text>
+      {!!message && <Text style={ui.success}>{message}</Text>}
 
       <Pressable
         style={[ui.button, loading && ui.disabled]}
