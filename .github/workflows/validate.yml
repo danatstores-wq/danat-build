@@ -59,6 +59,9 @@ jobs:
       - name: TypeScript check
         run: npx tsc --noEmit
 
+      - name: Validate native Expo config plugins
+        run: npx expo config --type prebuild
+
       - name: Firebase Functions build
         run: npm run build --prefix functions
 
