@@ -110,16 +110,17 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
         );
 
         if (!credential.user.emailVerified) {
-          // Existing accounts created before email verification was introduced
-          // get a fresh verification message when they next sign in.
-          await sendEmailVerification(credential.user);
-          setVerificationPending(true);
-          setMessage(t(
-            'Your email is not verified yet. We have sent a new verification link. Check your inbox and spam folder.',
-            'لم يتم التحقق من بريدك بعد. أرسلنا رابط تحقق جديداً. تحقق من الوارد والبريد غير المرغوب فيه.',
-            'Votre e-mail n’est pas encore vérifié. Nous avons renvoyé un lien. Vérifiez votre boîte de réception et les courriers indésirables.'
-          ));
-          return;
+          // Legacy accounts must not be locked out because an old verification
+          // email is unavailable. Attempt a resend, but never block sign-in.
+          try {
+            await sendEmailVerification(credential.user);
+          } catch (verificationError: any) {
+            console.warn(
+              'Could not resend legacy account verification email:',
+              verificationError?.code,
+              verificationError?.message
+            );
+          }
         }
 
         await ensureUserProfile(credential.user);
