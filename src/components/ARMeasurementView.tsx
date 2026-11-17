@@ -39,17 +39,14 @@ function formatDistance(meters: number, units: 'metric' | 'imperial') {
   return units === 'metric' ? meters.toFixed(2) + ' m' : (meters * 3.28084).toFixed(2) + ' ft';
 }
 
-class DanatARScene extends React.Component<any> {
-  private sceneRef = React.createRef<any>();
+function DanatARScene(props: any) {
+  const sceneRef = React.useRef<any>(null);
+  const appProps = props.sceneNavigator.viroAppProps;
+  const points: Point3[] = appProps.points || [];
 
-  componentDidMount() {
-    const appProps = this.props.sceneNavigator.viroAppProps;
-    appProps.onSceneReady(() => this.markPoint());
-  }
-
-  markPoint = async () => {
+  const markPoint = React.useCallback(async () => {
     try {
-      const scene = this.sceneRef.current;
+      const scene = sceneRef.current;
       if (!scene) return;
       const camera = await scene.getCameraOrientationAsync();
       const hits = await scene.performARHitTestWithRay(camera.forward);
@@ -67,29 +64,30 @@ class DanatARScene extends React.Component<any> {
       }
       appProps.onPoint([position[0], position[1], position[2]]);
     } catch (error) {
-      this.props.sceneNavigator.viroAppProps.onMessage('hit-error');
+      appProps.onMessage('hit-error');
     }
-  };
+  }, [appProps]);
 
-  render() {
-    const points: Point3[] = this.props.sceneNavigator.viroAppProps.points || [];
-    return (
-      <ViroARScene
-        ref={this.sceneRef}
-        anchorDetectionTypes={['PlanesHorizontal', 'PlanesVertical']}
-        onTrackingUpdated={(state: number) => this.props.sceneNavigator.viroAppProps.onTracking(state)}
-      >
-        {points.map((point, index) => (
-          <ViroSphere
-            key={'point-' + index}
-            position={point}
-            radius={0.025}
-            materials={['danatGold']}
-          />
-        ))}
-      </ViroARScene>
-    );
-  }
+  React.useEffect(() => {
+    appProps.onSceneReady(markPoint);
+  }, []);
+
+  return (
+    <ViroARScene
+      ref={sceneRef}
+      anchorDetectionTypes={['PlanesHorizontal', 'PlanesVertical']}
+      onTrackingUpdated={(state: number) => appProps.onTracking(state)}
+    >
+      {points.map((point, index) => (
+        <ViroSphere
+          key={'point-' + index}
+          position={point}
+          radius={0.025}
+          materials={['danatGold']}
+        />
+      ))}
+    </ViroARScene>
+  );
 }
 
 export default function ARMeasurementView({ mode, units, language }: Props) {
