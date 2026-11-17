@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  View, Text, TextInput, Pressable, StyleSheet, ActivityIndicator,
+  View, Text, TextInput, Pressable, StyleSheet, ActivityIndicator, Platform,
 } from 'react-native';
 import {
   createUserWithEmailAndPassword,
@@ -8,6 +9,11 @@ import {
   sendPasswordResetEmail,
   sendEmailVerification,
   reload,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
+  inMemoryPersistence,
+  getReactNativePersistence,
 } from 'firebase/auth';
 import {
   doc,
@@ -66,6 +72,26 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [verificationPending, setVerificationPending] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+
+  useEffect(() => {
+    AsyncStorage.getItem('danatBuildRememberMe').then(value => {
+      if (value !== null) setRememberMe(value === 'true');
+    }).catch(error => console.warn('Could not load remember-me preference:', error));
+  }, []);
+
+  const updateRememberMe = (value: boolean) => {
+    setRememberMe(value);
+    AsyncStorage.setItem('danatBuildRememberMe', value ? 'true' : 'false')
+      .catch(error => console.warn('Could not save remember-me preference:', error));
+  };
+
+  const applyAuthPersistence = async () => {
+    const persistence = Platform.OS === 'web'
+      ? (rememberMe ? browserLocalPersistence : browserSessionPersistence)
+      : (rememberMe ? getReactNativePersistence(AsyncStorage) : inMemoryPersistence);
+    await setPersistence(auth, persistence);
+  };
 
   const t = (en: string, ar: string, fr: string) =>
     language === 'ar' ? ar : language === 'fr' ? fr : en;
@@ -96,6 +122,7 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
 
     try {
       if (mode === 'register') {
+        await applyAuthPersistence();
         const credential = await createUserWithEmailAndPassword(
           auth,
           email.trim(),
@@ -112,6 +139,7 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
         ));
 
       } else if (mode === 'login') {
+        await applyAuthPersistence();
         const credential = await signInWithEmailAndPassword(
           auth,
           email.trim(),
@@ -371,8 +399,29 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
         </View>
       )}
 
+      {mode === 'login' && (
+        <Pressable
+          onPress={() => updateRememberMe(!rememberMe)}
+          style={ui.rememberRow}
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: rememberMe }}
+        >
+          <View style={[ui.rememberBox, rememberMe && ui.rememberBoxChecked]}>
+            {rememberMe && <Text style={ui.rememberTick}>✓</Text>}
+          </View>
+          <View style={ui.rememberCopy}>
+            <Text style={ui.rememberLabel}>
+              {t('Remember me on this device', 'تذكرني على هذا الجهاز', 'Se souvenir de moi sur cet appareil')}
+            </Text>
+            <Text style={ui.rememberHint}>
+              {t('Keep me signed in. Your password is never stored by the app.', 'ابقني مسجلاً للدخول. لا يحفظ التطبيق كلمة مرورك.', 'Rester connecté. Votre mot de passe n’est jamais enregistré par l’application.')}
+            </Text>
+          </View>
+        </Pressable>
+      )}
+
       {!!error && <Text style={ui.error}>{error}</Text>}
-      {!!message && <Text style={ui.success}>{message}</Text>}
+      {!!message && <Text style={ui.success}>{message}</Text>
 
       <Pressable
         style={[ui.button, loading && ui.disabled]}
@@ -467,6 +516,13 @@ const styles = StyleSheet.create({
     marginTop: 9,
     marginBottom: 22,
   },
+  rememberRow: { flexDirection: 'row', alignItems: 'flex-start', marginTop: 2, marginBottom: 10, gap: 10 },
+  rememberBox: { width: 19, height: 19, borderRadius: 5, borderWidth: 1.5, borderColor: '#8b795b', alignItems: 'center', justifyContent: 'center', marginTop: 1 },
+  rememberBoxChecked: { backgroundColor: GOLD, borderColor: GOLD },
+  rememberTick: { color: '#17110a', fontSize: 14, fontWeight: '900', lineHeight: 17 },
+  rememberCopy: { flex: 1 },
+  rememberLabel: { color: '#f0e7d7', fontSize: 12, fontWeight: '800' },
+  rememberHint: { color: '#92979d', fontSize: 10, marginTop: 3, lineHeight: 15 },
   input: {
     backgroundColor: '#080b0e',
     borderWidth: 1,
