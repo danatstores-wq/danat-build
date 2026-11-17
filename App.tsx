@@ -569,7 +569,7 @@ export default function App() {
 
                   {mode === 'professional' && professionalActive && (
                   <Pressable
-                    onPress={() => setScreen('building')}
+                    onPress={() => { setSavedCalculation(null); setScreen('building'); }}
                     style={ui.buildingCard}
                   >
                     <ImageBackground
@@ -691,6 +691,7 @@ export default function App() {
 
               {screen === 'building' && professionalActive && (
                 <BuildingCalculatorScreen
+                  key={savedCalculation?.kind === 'building' ? savedCalculation.id : 'new-building-calculation'}
                   language={lang}
                   theme={theme}
                   mode={mode}
@@ -702,7 +703,7 @@ export default function App() {
               )}
 
               {screen === 'projects' && (
-                <MyProjectsScreen language={lang} theme={theme} userId={auth.currentUser?.uid || 'guest'} onBack={() => setScreen('home')} onOpen={calculation => {
+                <MyProjectsScreen language={lang} theme={theme} userId={auth.currentUser?.uid || 'guest'} onBack={() => { setSavedCalculation(null); setScreen('home'); }} onOpen={calculation => {
                   setSavedCalculation(calculation);
                   if (calculation.kind === 'quick') {
                     const payload = calculation.payload as { calculatorId?: string; units?: 'metric' | 'imperial' };
