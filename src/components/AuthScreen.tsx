@@ -13,8 +13,14 @@ import {
   browserLocalPersistence,
   browserSessionPersistence,
   inMemoryPersistence,
-  getReactNativePersistence,
 } from 'firebase/auth';
+import * as FirebaseAuth from 'firebase/auth';
+
+// Firebase's React Native runtime exports this API, but some Firebase SDK type
+// entrypoints omit it from their declarations.
+const getReactNativePersistence = (FirebaseAuth as typeof FirebaseAuth & {
+  getReactNativePersistence: (storage: typeof AsyncStorage) => unknown;
+}).getReactNativePersistence;
 import {
   doc,
   getDoc,
