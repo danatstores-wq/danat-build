@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Platform, StyleSheet, View } from "react-native";
-import mobileAds, {
-  AdsConsent,
+import {
   BannerAd,
   BannerAdSize,
   TestIds,
 } from "react-native-google-mobile-ads";
+import { initializeAdMobForUserConsent } from "../ads/initializeAdMob";
 
 type Props = {
   enabled: boolean;
@@ -23,23 +23,8 @@ export default function AdBanner({ enabled }: Props) {
     let mounted = true;
 
     const initializeAds = async () => {
-      try {
-        // UMP checks the latest consent requirement and presents any form
-        // configured in AdMob Privacy & messaging.
-        await AdsConsent.gatherConsent();
-      } catch (error) {
-        console.warn("Ad consent collection failed:", error);
-      }
-
-      try {
-        const consentInfo = await AdsConsent.getConsentInfo();
-        if (!consentInfo.canRequestAds) return;
-
-        await mobileAds().initialize();
-        if (mounted) setConsentReady(true);
-      } catch (error) {
-        console.warn("AdMob initialization failed:", error);
-      }
+      const ready = await initializeAdMobForUserConsent();
+      if (mounted && ready) setConsentReady(true);
     };
 
     initializeAds();
