@@ -161,7 +161,7 @@ export default function ARMeasurementView({ mode, units, language }: Props) {
         <ViroARSceneNavigator
           autofocus
           depthEnabled
-          initialScene={{ scene: DanatARScene }}
+          initialScene={{ scene: DanatARScene as any }}
           viroAppProps={{
             points,
             onPoint,
