@@ -31,6 +31,7 @@
 - AdMob uses `react-native-google-mobile-ads@16.4.0`, the Expo SDK 54-compatible line. Version 17 requires React Native 0.86+ and the New Architecture, so it must not be installed into this app without a planned SDK upgrade.
 - A consent-aware banner is shown on the Home screen and quick-calculator screens for free mobile users. The web build has no native AdMob placement.
 - Development builds use Google's official test app IDs and test banner unit by default. Real AdMob app IDs and banner unit IDs must be added before release.
+- `app.config.js` blocks EAS production builds until both RevenueCat platform keys and real Android/iOS AdMob app IDs and banner units are configured.
 
 ## Remaining configuration and release sequence
 1. Create the Apple and Google store products exactly as listed above and connect both store apps/products in RevenueCat.
