@@ -12,6 +12,7 @@ import {
   StyleSheet,
   Platform,
   ImageStyle,
+  Alert,
 } from 'react-native';
 
 import CalculatorScreen from './src/components/CalculatorScreen';
@@ -21,8 +22,10 @@ import ProfileScreen from './src/components/ProfileScreen';
 import MyProjectsScreen from './src/components/MyProjectsScreen';
 import { SavedCalculation } from './src/storage/localProjects';
 import { AppTheme, getThemedStyles } from './src/theme';
-import { signOut } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { auth } from './src/firebase';
+import { db } from './src/firestore';
 
 type Language = 'en' | 'ar' | 'fr';
 type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings' | 'projects';
@@ -94,7 +97,8 @@ const tools: Tool[] = [
 export default function App() {
   const [lang, setLang] = useState<Language>('en');
   const [screen, setScreen] = useState<Screen>('welcome');
-  const [mode, setMode] = useState<Mode>('professional');
+  const [mode, setMode] = useState<Mode>('homeowner');
+  const [professionalActive, setProfessionalActive] = useState(false);
   const [units, setUnits] = useState<'metric' | 'imperial'>('metric');
   const [theme, setTheme] = useState<AppTheme>('dark');
   const [settingsLoaded, setSettingsLoaded] = useState(false);
@@ -111,7 +115,6 @@ export default function App() {
           const settings = JSON.parse(saved);
 
           if (['en', 'ar', 'fr'].includes(settings.lang)) setLang(settings.lang);
-          if (['professional', 'homeowner'].includes(settings.mode)) setMode(settings.mode);
           if (['metric', 'imperial'].includes(settings.units)) setUnits(settings.units);
           if (['dark', 'light'].includes(settings.theme)) setTheme(settings.theme);
         }
@@ -123,6 +126,48 @@ export default function App() {
     };
 
     loadSettings();
+  }, []);
+
+  useEffect(() => {
+    let unsubscribeEntitlement = () => {};
+    const unsubscribeAuth = onAuthStateChanged(auth, user => {
+      unsubscribeEntitlement();
+      setProfessionalActive(false);
+      if (!user) {
+        setMode('homeowner');
+        return;
+      }
+
+      unsubscribeEntitlement = onSnapshot(
+        doc(db, 'entitlements', user.uid),
+        snapshot => {
+          const data = snapshot.data();
+          const expiry = data?.expiresAt;
+          const expiryMillis = typeof expiry?.toMillis === 'function'
+            ? expiry.toMillis()
+            : 0;
+          const active = data?.status === 'active'
+            && expiryMillis > Date.now();
+
+          setProfessionalActive(active);
+          if (!active) {
+            setMode('homeowner');
+            setScreen(current => current === 'building' ? 'home' : current);
+          }
+        },
+        error => {
+          console.warn('Could not verify Professional access:', error);
+          setProfessionalActive(false);
+          setMode('homeowner');
+          setScreen(current => current === 'building' ? 'home' : current);
+        }
+      );
+    });
+
+    return () => {
+      unsubscribeAuth();
+      unsubscribeEntitlement();
+    };
   }, []);
 
   useEffect(() => {
@@ -378,7 +423,20 @@ export default function App() {
                     ]}
                   >
                     <Pressable
-                      onPress={() => setMode('professional')}
+                      onPress={() => {
+                        if (professionalActive) {
+                          setMode('professional');
+                        } else {
+                          Alert.alert(
+                            tr('Professional plan required', 'تتطلب هذه الميزة الاشتراك الاحترافي', 'Abonnement Professionnel requis'),
+                            tr(
+                              'Subscribe for $10 per year to unlock all Professional features.',
+                              'اشترك مقابل 10 دولارات سنوياً لفتح جميع الميزات الاحترافية.',
+                              'Abonnez-vous pour 10 $ par an afin de débloquer toutes les fonctions professionnelles.'
+                            )
+                          );
+                        }
+                      }}
                       style={[
                         ui.modeCard,
                         mode === 'professional' && ui.modeActive,
@@ -444,7 +502,7 @@ export default function App() {
                     </Pressable>
                   </View>
 
-                  {mode === 'professional' && (
+                  {mode === 'professional' && professionalActive && (
                   <Pressable
                     onPress={() => setScreen('building')}
                     style={ui.buildingCard}
