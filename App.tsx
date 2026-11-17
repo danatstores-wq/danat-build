@@ -14,6 +14,7 @@ import {
   Platform,
   ImageStyle,
   Alert,
+  Linking,
 } from 'react-native';
 
 import CalculatorScreen from './src/components/CalculatorScreen';
@@ -36,7 +37,7 @@ import { db } from './src/firestore';
 import { configureRevenueCat, logOutRevenueCat } from './src/subscriptions/revenueCat';
 
 type Language = 'en' | 'ar' | 'fr';
-type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'measurements' | 'measurementTool' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings' | 'projects' | 'subscription' | 'adminUsers';
+type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'measurements' | 'measurementTool' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings' | 'projects' | 'subscription' | 'adminUsers' | 'contact';
 type Mode = 'professional' | 'homeowner';
 
 type Tool = {
@@ -1049,6 +1050,35 @@ export default function App() {
                 </>
               )}
 
+              {screen === 'contact' && (
+                <>
+                  <Text style={ui.h1}>
+                    {tr('Contact Us', 'اتصل بنا', 'Contactez-nous')}
+                  </Text>
+                  <View style={ui.emptyCard}>
+                    <Text style={ui.emptyIcon}>✉</Text>
+                    <Text style={ui.menuRowText}>
+                      {tr('Danat Build Support', 'دعم دانات للبناء', 'Assistance Danat Build')}
+                    </Text>
+                    <Text style={ui.emptyText}>
+                      {tr('For questions, technical support or feedback, contact us by email:', 'للاستفسارات أو الدعم الفني أو لإرسال ملاحظاتك، تواصل معنا عبر البريد الإلكتروني:', 'Pour toute question, assistance technique ou remarque, contactez-nous par e-mail :')}
+                    </Text>
+                    <Pressable
+                      onPress={() => Linking.openURL('mailto:IT@danat-gulf.com').catch(error => console.warn('Could not open email app:', error))}
+                      style={[ui.goldButton, { marginTop: 14 }]}
+                      accessibilityRole="button"
+                    >
+                      <Text style={ui.goldButtonText}>IT@danat-gulf.com</Text>
+                    </Pressable>
+                  </View>
+                  <Pressable onPress={() => setScreen('menu')} style={ui.menuRow}>
+                    <Text style={ui.menuRowText}>
+                      ‹  {tr('Back to More', 'العودة إلى المزيد', 'Retour au menu')}
+                    </Text>
+                  </Pressable>
+                </>
+              )}
+
               {screen === 'menu' && (
                 <>
                   <Text style={ui.h1}>
@@ -1067,6 +1097,7 @@ export default function App() {
                       onPress={() => {
                         if (index === 0) setScreen('about');
                         if (index === 1) setScreen('guide');
+                        if (index === 2) setScreen('contact');
                         if (index === 3) setScreen('settings');
                         if (index === 4) setScreen('projects');
                       }}
