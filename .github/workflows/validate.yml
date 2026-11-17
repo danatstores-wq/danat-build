@@ -36,6 +36,9 @@ jobs:
       - name: Quantity estimator regression tests
         run: npm run test:quantities
 
+      - name: Quick calculator regression tests
+        run: npm run test:calculators
+
       - name: TypeScript check
         run: npx tsc --noEmit
 
