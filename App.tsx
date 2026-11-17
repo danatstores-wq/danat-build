@@ -26,6 +26,7 @@ import AdInterstitial from './src/components/AdInterstitial';
 import AdPrivacyOptionsButton from './src/components/AdPrivacyOptionsButton';
 import AdminUsersScreen from './src/components/AdminUsersScreen';
 import MyProjectsScreen from './src/components/MyProjectsScreen';
+import MeasurementsToolScreen from './src/components/MeasurementsToolScreen';
 import { SavedCalculation } from './src/storage/localProjects';
 import { AppTheme, getThemedStyles } from './src/theme';
 import { getIdTokenResult, onAuthStateChanged, signOut } from 'firebase/auth';
@@ -666,18 +667,12 @@ export default function App() {
               )}
 
               {screen === 'measurementTool' && (
-                <View style={ui.measurementToolPanel}>
-                  <Text style={ui.measurementIconLarge}>{selectedMeasurement.icon}</Text>
-                  <Text style={ui.h1}>{lang === 'ar' ? selectedMeasurement.ar : lang === 'fr' ? selectedMeasurement.fr : selectedMeasurement.en}</Text>
-                  <Text style={ui.centerMuted}>{lang === 'ar' ? selectedMeasurement.descAr : lang === 'fr' ? selectedMeasurement.descFr : selectedMeasurement.desc}</Text>
-                  <View style={ui.measurementNotice}>
-                    <Text style={ui.measurementNoticeTitle}>{tr('Measurement engine integration', 'تجهيز محرك القياس', 'Intégration du moteur de mesure')}</Text>
-                    <Text style={ui.measurementNoticeText}>{tr('This tool is included in the Measurements menu. Its measuring engine is the next implementation step; AR functions will require a compatible phone and a native app build.', 'هذه الأداة موجودة في قائمة القياسات. سيتم تنفيذ محرك القياس في الخطوة التالية؛ وتتطلب ميزات الواقع المعزز هاتفاً متوافقاً ونسخة تطبيق أصلية.', 'Cet outil est dans le menu Mesures. Son moteur sera intégré à l’étape suivante ; les fonctions AR nécessitent un téléphone compatible et une application native.')}</Text>
-                  </View>
-                  <Pressable style={ui.measurementBackButton} onPress={() => setScreen('measurements')}>
-                    <Text style={ui.measurementBackText}>{tr('BACK TO MEASUREMENTS', 'العودة إلى القياسات', 'RETOUR AUX MESURES')}</Text>
-                  </Pressable>
-                </View>
+                <MeasurementsToolScreen
+                  toolId={selectedMeasurement.id}
+                  language={lang}
+                  units={units}
+                  onBack={() => setScreen('measurements')}
+                />
               )}
 
               {screen === 'calculator' && (
