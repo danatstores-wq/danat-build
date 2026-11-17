@@ -22,6 +22,7 @@ import AuthScreen from './src/components/AuthScreen';
 import ProfileScreen from './src/components/ProfileScreen';
 import SubscriptionScreen from './src/components/SubscriptionScreen';
 import AdBanner from './src/components/AdBanner';
+import AdPrivacyOptionsButton from './src/components/AdPrivacyOptionsButton';
 import MyProjectsScreen from './src/components/MyProjectsScreen';
 import { SavedCalculation } from './src/storage/localProjects';
 import { AppTheme, getThemedStyles } from './src/theme';
@@ -931,6 +932,8 @@ export default function App() {
                     ))}
                   </View>
 
+                  <AdPrivacyOptionsButton language={lang} />
+
                   <Text style={ui.section}>
                     {tr('DEFAULT WORKING MODE', 'وضع العمل الافتراضي', 'MODE DE TRAVAIL PAR DÉFAUT')}
                   </Text>
@@ -939,7 +942,13 @@ export default function App() {
                     {(['professional', 'homeowner'] as const).map(option => (
                       <Pressable
                         key={option}
-                        onPress={() => setMode(option)}
+                        onPress={() => {
+                          if (option === 'professional' && !professionalActive) {
+                            setScreen('subscription');
+                            return;
+                          }
+                          setMode(option);
+                        }}
                         style={[ui.langBtn, mode === option && ui.langOn]}
                       >
                         <Text style={[ui.langText, mode === option && ui.langTextOn]}>
