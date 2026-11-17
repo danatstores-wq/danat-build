@@ -1,38 +1,80 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // A signed-in user may create and read only their own basic profile.
-    // Profile fields are deliberately limited; clients cannot grant themselves
-    // a subscription or change server-managed account data.
-    match /users/{userId} {
-      allow get: if request.auth != null && request.auth.uid == userId;
-      allow list: if false;
+    function signedIn() {
+      return request.auth != null;
+    }
 
-      allow create: if request.auth != null
+    function isAdmin() {
+      return signedIn() && request.auth.token.admin == true;
+    }
+
+    match /users/{userId} {
+      allow get: if signedIn() && request.auth.uid == userId;
+      // Only an administrator may search the user directory by exact email.
+      allow list: if isAdmin();
+
+      allow create: if signedIn()
         && request.auth.uid == userId
-        && request.resource.data.keys().hasAll([
-          'uid', 'email', 'createdAt', 'updatedAt'
-        ])
-        && request.resource.data.keys().hasOnly([
-          'uid', 'email', 'createdAt', 'updatedAt'
-        ])
+        && request.resource.data.keys().hasAll(['uid', 'email', 'createdAt', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['uid', 'email', 'createdAt', 'updatedAt'])
         && request.resource.data.uid == userId
         && request.resource.data.email == request.auth.token.email
-        && request.resource.data.createdAt is timestamp
-        && request.resource.data.updatedAt is timestamp;
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
 
-      // Profile edits and deletion are not currently needed by the app.
       allow update, delete: if false;
     }
 
-    // Entitlements are written only by trusted server code (Firebase Admin SDK).
-    // The account owner may read their own entitlement; clients cannot write it.
     match /entitlements/{userId} {
-      allow get: if request.auth != null && request.auth.uid == userId;
-      allow list, create, update, delete: if false;
+      allow get: if signedIn() && request.auth.uid == userId;
+      allow list: if false;
+
+      // Manual entitlement changes are allowed only for accounts carrying
+      // the Firebase Auth admin custom claim. No client can grant itself access.
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasAll([
+          'adminOverride', 'adminStatus', 'status', 'expiresAt',
+          'source', 'platform', 'productId', 'adminUpdatedBy', 'adminUpdatedAt'
+        ])
+        && request.resource.data.adminOverride == true
+        && request.resource.data.adminStatus in ['free', 'professional']
+        && request.resource.data.status == (request.resource.data.adminStatus == 'professional' ? 'active' : 'revoked')
+        && request.resource.data.source == 'admin'
+        && request.resource.data.platform == 'admin'
+        && request.resource.data.productId == null
+        && request.resource.data.adminUpdatedBy == request.auth.uid
+        && request.resource.data.adminUpdatedAt == request.time
+        && (request.resource.data.adminStatus == 'free' ? request.resource.data.expiresAt == null : request.resource.data.expiresAt is timestamp);
+
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'adminOverride', 'adminStatus', 'status', 'expiresAt',
+          'source', 'platform', 'productId', 'adminUpdatedBy', 'adminUpdatedAt'
+        ])
+        && request.resource.data.adminOverride == true
+        && request.resource.data.adminStatus in ['free', 'professional']
+        && request.resource.data.status == (request.resource.data.adminStatus == 'professional' ? 'active' : 'revoked')
+        && request.resource.data.source == 'admin'
+        && request.resource.data.platform == 'admin'
+        && request.resource.data.productId == null
+        && request.resource.data.adminUpdatedBy == request.auth.uid
+        && request.resource.data.adminUpdatedAt == request.time
+        && (request.resource.data.adminStatus == 'free' ? request.resource.data.expiresAt == null : request.resource.data.expiresAt is timestamp);
+
+      allow delete: if false;
     }
 
-    // No other client access is granted by default.
+    match /adminAccessChanges/{changeId} {
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly(['targetUid', 'changedBy', 'access', 'changedAt'])
+        && request.resource.data.targetUid is string
+        && request.resource.data.changedBy == request.auth.uid
+        && request.resource.data.access in ['free', 'professional']
+        && request.resource.data.changedAt == request.time;
+      allow read, update, delete: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
