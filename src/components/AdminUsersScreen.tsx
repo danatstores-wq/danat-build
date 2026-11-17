@@ -93,8 +93,8 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
 
   return (
     <View style={ui.container}>
-      <Text style={ui.brand}>DANAT BUILD</Text>
-      <Text style={ui.heading}>{t('Admin Users', 'إدارة المستخدمين', 'Gestion des utilisateurs')}</Text>
+      <Text style={styles.brand}>DANAT BUILD</Text>
+      <Text style={styles.heading}>{t('Admin Users', 'إدارة المستخدمين', 'Gestion des utilisateurs')}</Text>
       <Text style={styles.help}>{t('Search by the exact email address, then change the account access.', 'ابحث باستخدام البريد الإلكتروني ثم غيّر صلاحية الحساب.', 'Recherchez par adresse e-mail puis modifiez l’accès.')}</Text>
 
       <TextInput
@@ -140,6 +140,8 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 18 },
+  brand: { color: GOLD, fontSize: 13, fontWeight: '900', letterSpacing: 3, textAlign: 'center', marginTop: 10 },
+  heading: { color: '#fff', fontSize: 24, fontWeight: '800', textAlign: 'center', marginTop: 18, marginBottom: 16 },
   help: { color: '#b7bbc0', fontSize: 13, lineHeight: 20, textAlign: 'center', marginBottom: 18 },
   input: { backgroundColor: '#080b0e', borderWidth: 1, borderColor: '#66553a', borderRadius: 11, padding: 14, color: '#fff', marginBottom: 12 },
   primaryButton: { backgroundColor: GOLD, borderRadius: 11, padding: 15, alignItems: 'center' },
