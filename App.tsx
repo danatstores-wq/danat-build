@@ -23,17 +23,18 @@ import ProfileScreen from './src/components/ProfileScreen';
 import SubscriptionScreen from './src/components/SubscriptionScreen';
 import AdBanner from './src/components/AdBanner';
 import AdPrivacyOptionsButton from './src/components/AdPrivacyOptionsButton';
+import AdminUsersScreen from './src/components/AdminUsersScreen';
 import MyProjectsScreen from './src/components/MyProjectsScreen';
 import { SavedCalculation } from './src/storage/localProjects';
 import { AppTheme, getThemedStyles } from './src/theme';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { getIdTokenResult, onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { auth } from './src/firebase';
 import { db } from './src/firestore';
 import { configureRevenueCat, logOutRevenueCat } from './src/subscriptions/revenueCat';
 
 type Language = 'en' | 'ar' | 'fr';
-type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings' | 'projects' | 'subscription';
+type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings' | 'projects' | 'subscription' | 'adminUsers';
 type Mode = 'professional' | 'homeowner';
 
 type Tool = {
@@ -106,6 +107,7 @@ export default function App() {
   const [professionalActive, setProfessionalActive] = useState(false);
   const [entitlementLoaded, setEntitlementLoaded] = useState(false);
   const [professionalExpiry, setProfessionalExpiry] = useState<number | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [units, setUnits] = useState<'metric' | 'imperial'>('metric');
   const [theme, setTheme] = useState<AppTheme>('dark');
   const [settingsLoaded, setSettingsLoaded] = useState(false);
@@ -143,6 +145,7 @@ export default function App() {
       setEntitlementLoaded(false);
       setMode('homeowner');
       setProfessionalExpiry(null);
+      setIsAdmin(false);
       if (!user) {
         logOutRevenueCat().catch(error => console.warn('RevenueCat sign-out failed:', error));
         setMode('homeowner');
@@ -151,6 +154,7 @@ export default function App() {
         return;
       }
 
+      getIdTokenResult(user).then(token => setIsAdmin(token.claims.admin === true)).catch(error => console.warn('Could not read admin role:', error));
       configureRevenueCat(user.uid).catch(error => console.warn('RevenueCat setup failed:', error));
 
       unsubscribeEntitlement = onSnapshot(
@@ -161,10 +165,12 @@ export default function App() {
           const expiryMillis = typeof expiry?.toMillis === 'function'
             ? expiry.toMillis()
             : 0;
-          const active = data?.status === 'active'
-            && expiryMillis > Date.now();
+          const hasAdminOverride = data?.adminOverride === true;
+          const active = hasAdminOverride
+            ? data?.adminStatus === 'professional'
+            : data?.status === 'active' && expiryMillis > Date.now();
 
-          setProfessionalExpiry(expiryMillis || null);
+          setProfessionalExpiry(hasAdminOverride ? null : (expiryMillis || null));
           setProfessionalActive(active);
           setEntitlementLoaded(true);
           if (!active) {
@@ -681,6 +687,14 @@ export default function App() {
                 />
               )}
 
+              {screen === 'adminUsers' && isAdmin && (
+                <AdminUsersScreen
+                  language={lang}
+                  theme={theme}
+                  onBack={() => setScreen('menu')}
+                />
+              )}
+
               {screen === 'profile' && (
                 <ProfileScreen
                   language={lang}
@@ -881,6 +895,13 @@ export default function App() {
                   <Text style={ui.h1}>
                     {tr('Settings', 'الإعدادات', 'Paramètres')}
                   </Text>
+
+                  {isAdmin && (
+                    <Pressable onPress={() => setScreen('adminUsers')} style={ui.menuRow}>
+                      <Text style={ui.menuRowText}>♙   {tr('Admin Users', 'إدارة المستخدمين', 'Gestion des utilisateurs')}</Text>
+                      <Text style={ui.menuArrow}>›</Text>
+                    </Pressable>
+                  )}
 
                   <Text style={ui.section}>
                     {tr('LANGUAGE', 'اللغة', 'LANGUE')}
