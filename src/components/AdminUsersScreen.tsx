@@ -8,8 +8,20 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import app from '../firebase';
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  query,
+  serverTimestamp,
+  setDoc,
+  where,
+} from 'firebase/firestore';
+import { auth } from '../firebase';
+import { db } from '../firestore';
 import { getThemedStyles } from '../theme';
 
 type Language = 'en' | 'ar' | 'fr';
@@ -29,9 +41,6 @@ type Props = {
 };
 
 const GOLD = '#E9B85D';
-const functions = getFunctions(app, 'us-central1');
-const lookupAdminUser = httpsCallable<{ email: string }, UserResult>(functions, 'adminLookupUser');
-const setAdminUserAccess = httpsCallable<{ uid: string; access: Access }, { success: boolean }>(functions, 'adminSetUserAccess');
 
 export default function AdminUsersScreen({ language, theme, onBack }: Props) {
   const ui = getThemedStyles(styles, theme);
@@ -45,7 +54,8 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
     language === 'ar' ? ar : language === 'fr' ? fr : en;
 
   const search = async () => {
-    if (!email.trim()) {
+    const exactEmail = email.trim();
+    if (!exactEmail) {
       setError(t('Enter the user email address.', 'أدخل البريد الإلكتروني للمستخدم.', 'Saisissez l’adresse e-mail.'));
       return;
     }
@@ -53,8 +63,39 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
     setError('');
     setUser(null);
     try {
-      const result = await lookupAdminUser({ email: email.trim() });
-      setUser(result.data);
+      // Firestore rules permit this directory query only to admin-token users.
+      const matches = await getDocs(query(
+        collection(db, 'users'),
+        where('email', '==', exactEmail),
+        limit(1),
+      ));
+      if (matches.empty) {
+        throw new Error(t(
+          'No Danat Build profile was found for this exact email. Ask the user to sign in once, then try again.',
+          'لم يتم العثور على ملف بهذا البريد. اطلب من المستخدم تسجيل الدخول مرة واحدة ثم أعد المحاولة.',
+          'Aucun profil trouvé pour cet e-mail exact. Demandez à l’utilisateur de se connecter une fois, puis réessayez.',
+        ));
+      }
+
+      const profile = matches.docs[0];
+      const uid = profile.id;
+      const entitlementSnapshot = await getDoc(doc(db, 'entitlements', uid));
+      const data = entitlementSnapshot.data();
+      const hasOverride = data?.adminOverride === true;
+      const expiry = typeof data?.expiresAt?.toMillis === 'function'
+        ? data.expiresAt.toMillis()
+        : null;
+      const isProfessional = hasOverride
+        ? data?.adminStatus === 'professional'
+        : data?.status === 'active' && typeof expiry === 'number' && expiry > Date.now();
+
+      setUser({
+        uid,
+        email: String(profile.data().email || exactEmail),
+        access: isProfessional ? 'professional' : 'free',
+        source: hasOverride ? 'admin' : (data?.source || 'subscription'),
+        expiresAt: hasOverride ? null : expiry,
+      });
     } catch (e: any) {
       setError(e?.message || t('Could not find this user.', 'تعذر العثور على المستخدم.', 'Utilisateur introuvable.'));
     } finally {
@@ -64,6 +105,14 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
 
   const changeAccess = (access: Access) => {
     if (!user || user.access === access) return;
+    if (user.uid === auth.currentUser?.uid) {
+      setError(t(
+        'For safety, use another administrator account to change your own access.',
+        'لأسباب أمنية، استخدم حساب مدير آخر لتغيير صلاحية حسابك.',
+        'Pour votre sécurité, utilisez un autre compte administrateur pour modifier votre propre accès.',
+      ));
+      return;
+    }
     const label = access === 'professional'
       ? t('Professional', 'محترف', 'Professionnel')
       : t('Free / Homeowner', 'مجاني / مالك منزل', 'Gratuit / Propriétaire');
@@ -78,7 +127,26 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
             setSaving(true);
             setError('');
             try {
-              await setAdminUserAccess({ uid: user.uid, access });
+              const adminUid = auth.currentUser?.uid;
+              if (!adminUid) throw new Error('Administrator sign-in is required.');
+              const now = serverTimestamp();
+              await setDoc(doc(db, 'entitlements', user.uid), {
+                adminOverride: true,
+                adminStatus: access,
+                status: access === 'professional' ? 'active' : 'revoked',
+                expiresAt: access === 'professional' ? new Date('9999-12-31T23:59:59.000Z') : null,
+                source: 'admin',
+                platform: 'admin',
+                productId: null,
+                adminUpdatedBy: adminUid,
+                adminUpdatedAt: now,
+              }, { merge: true });
+              await addDoc(collection(db, 'adminAccessChanges'), {
+                targetUid: user.uid,
+                changedBy: adminUid,
+                access,
+                changedAt: now,
+              });
               setUser({ ...user, access, source: 'admin', expiresAt: null });
             } catch (e: any) {
               setError(e?.message || t('Could not update account access.', 'تعذر تحديث صلاحية الحساب.', 'Impossible de modifier l’accès.'));
