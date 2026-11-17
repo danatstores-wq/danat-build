@@ -31,7 +31,7 @@ export default function MeasurementsToolScreen({ toolId, language, units, onBack
   const slope = Math.tan(Math.abs(pitchValue) * Math.PI / 180) * 100;
   const area = Math.max(0, Number(length) || 0) * Math.max(0, Number(width) || 0);
   const perimeter = 2 * (Math.max(0, Number(length) || 0) + Math.max(0, Number(width) || 0));
-  const polygonPoints = polygonCoordinates.split(/[;\n]+/).map(line => line.trim()).filter(Boolean).map(line => line.split(/[,\\s]+/).map(Number)).filter(pair => pair.length === 2 && pair.every(Number.isFinite));
+  const polygonPoints = polygonCoordinates.split(/[;\n]+/).map(line => line.trim()).filter(Boolean).map(line => line.split(/[,\s]+/).map(Number)).filter(pair => pair.length === 2 && pair.every(Number.isFinite));
   const polygonArea = polygonPoints.length >= 3 ? Math.abs(polygonPoints.reduce((sum, point, index) => { const next = polygonPoints[(index + 1) % polygonPoints.length]; return sum + point[0] * next[1] - next[0] * point[1]; }, 0)) / 2 : 0;
   const polygonPerimeter = polygonPoints.length >= 3 ? polygonPoints.reduce((sum, point, index) => { const next = polygonPoints[(index + 1) % polygonPoints.length]; return sum + Math.hypot(next[0] - point[0], next[1] - point[1]); }, 0) : 0;
   const unit = units === 'metric' ? 'm' : 'ft';
