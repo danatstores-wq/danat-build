@@ -138,11 +138,16 @@ export const revenueCatWebhook = onRequest(
           }
 
           let expiresAt = Number(event.expiration_at_ms || 0);
+          // Each paid purchase adds one year to the shared Firebase account,
+          // even if the previous term came from the other app store.
+          const accountAnnualExpiry = getAnnualExpiry(Math.max(currentExpiry, purchasedAt));
           if (event.store === "APP_STORE" && !expiresAt) {
             // Apple non-renewing products have no store-supplied expiry.
-            // Each new paid purchase adds one year to the later of now/past
-            // entitlement expiry and this transaction's purchase date.
-            expiresAt = getAnnualExpiry(Math.max(currentExpiry, purchasedAt));
+            expiresAt = accountAnnualExpiry;
+          } else if (event.store === "PLAY_STORE") {
+            // Keep the later of Google Play's validated prepaid expiry and
+            // the shared-account extension (for cross-platform purchases).
+            expiresAt = Math.max(expiresAt, accountAnnualExpiry);
           }
 
           if (!Number.isFinite(expiresAt) || expiresAt <= purchasedAt) {
