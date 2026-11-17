@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -49,6 +48,7 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
   const [loading, setLoading] = useState(false);
   const [savingUid, setSavingUid] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [pendingChange, setPendingChange] = useState<{ target: UserResult; access: Access } | null>(null);
 
   const t = (en: string, ar: string, fr: string) =>
     language === 'ar' ? ar : language === 'fr' ? fr : en;
@@ -101,53 +101,45 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
   }, [filter, users]);
 
   const changeAccess = (target: UserResult, access: Access) => {
-    if (target.access === access) return;
-    const label = access === 'professional'
-      ? t('Professional', 'محترف', 'Professionnel')
-      : t('Free / Homeowner', 'مجاني / مالك منزل', 'Gratuit / Propriétaire');
-    Alert.alert(
-      t('Confirm account change', 'تأكيد تغيير الحساب', 'Confirmer le changement'),
-      t(`Change ${target.email} to ${label}?`, `هل تريد تغيير ${target.email} إلى ${label}؟`, `Passer ${target.email} à ${label} ?`),
-      [
-        { text: t('Cancel', 'إلغاء', 'Annuler'), style: 'cancel' },
-        {
-          text: t('Confirm', 'تأكيد', 'Confirmer'),
-          onPress: async () => {
-            setSavingUid(target.uid);
-            setError('');
-            try {
-              const adminUid = auth.currentUser?.uid;
-              if (!adminUid) throw new Error('Administrator sign-in is required.');
-              const now = serverTimestamp();
-              await setDoc(doc(db, 'entitlements', target.uid), {
-                adminOverride: true,
-                adminStatus: access,
-                status: access === 'professional' ? 'active' : 'revoked',
-                expiresAt: access === 'professional' ? new Date('9999-12-31T23:59:59.000Z') : null,
-                source: 'admin',
-                platform: 'admin',
-                productId: null,
-                adminUpdatedBy: adminUid,
-                adminUpdatedAt: now,
-              }, { merge: true });
-              await addDoc(collection(db, 'adminAccessChanges'), {
-                targetUid: target.uid,
-                changedBy: adminUid,
-                access,
-                changedAt: now,
-              });
-              setUsers((current) => current.map((item) => item.uid === target.uid
-                ? { ...item, access, source: 'admin', expiresAt: null }
-                : item));
-            } catch (e: any) {
-              setError(e?.message || t('Could not update account access.', 'تعذر تحديث صلاحية الحساب.', 'Impossible de modifier l’accès.'));
-            } finally {
-              setSavingUid(null);
-            }
-          },
-        },
-      ],
-    );
+    if (target.access === access || savingUid !== null) return;
+    setPendingChange({ target, access });
+  };
+
+  const confirmAccessChange = async () => {
+    if (!pendingChange) return;
+    const { target, access } = pendingChange;
+    setPendingChange(null);
+    setSavingUid(target.uid);
+    setError('');
+    try {
+      const adminUid = auth.currentUser?.uid;
+      if (!adminUid) throw new Error('Administrator sign-in is required.');
+      const now = serverTimestamp();
+      await setDoc(doc(db, 'entitlements', target.uid), {
+        adminOverride: true,
+        adminStatus: access,
+        status: access === 'professional' ? 'active' : 'revoked',
+        expiresAt: access === 'professional' ? new Date('9999-12-31T23:59:59.000Z') : null,
+        source: 'admin',
+        platform: 'admin',
+        productId: null,
+        adminUpdatedBy: adminUid,
+        adminUpdatedAt: now,
+      }, { merge: true });
+      await addDoc(collection(db, 'adminAccessChanges'), {
+        targetUid: target.uid,
+        changedBy: adminUid,
+        access,
+        changedAt: now,
+      });
+      setUsers((current) => current.map((item) => item.uid === target.uid
+        ? { ...item, access, source: 'admin', expiresAt: null }
+        : item));
+    } catch (e: any) {
+      setError(e?.message || t('Could not update account access.', 'تعذر تحديث صلاحية الحساب.', 'Impossible de modifier l’accès.'));
+    } finally {
+      setSavingUid(null);
+    }
   };
 
   return (
@@ -173,6 +165,28 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
       </View>
 
       {!!error && <Text style={styles.error}>{error}</Text>}
+      {pendingChange ? (
+        <View style={styles.confirmOverlay}>
+          <View style={styles.confirmCard}>
+            <Text style={styles.confirmTitle}>{t('Confirm account change', 'تأكيد تغيير الحساب', 'Confirmer le changement')}</Text>
+            <Text style={styles.confirmMessage}>
+              {t(
+                `Change ${pendingChange.target.email} to ${pendingChange.access === 'professional' ? 'Professional' : 'Free / Homeowner'}?`,
+                `هل تريد تغيير ${pendingChange.target.email}؟`,
+                `Modifier l’accès de ${pendingChange.target.email} ?`
+              )}
+            </Text>
+            <View style={styles.actions}>
+              <Pressable style={styles.freeButton} onPress={() => setPendingChange(null)}>
+                <Text style={styles.freeText}>{t('CANCEL', 'إلغاء', 'ANNULER')}</Text>
+              </Pressable>
+              <Pressable style={styles.accessButton} onPress={confirmAccessChange}>
+                <Text style={styles.primaryText}>{t('CONFIRM', 'تأكيد', 'CONFIRMER')}</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      ) : null}
       {loading ? <ActivityIndicator color={GOLD} style={{ marginTop: 24 }} /> : null}
       {!loading && users.length === 0 && !error
         ? <Text style={styles.help}>{t('No registered user profiles found yet.', 'لا توجد حسابات مسجلة بعد.', 'Aucun profil utilisateur trouvé.')}</Text>
@@ -222,6 +236,10 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
 }
 
 const styles = StyleSheet.create({
+  confirmOverlay: { position: 'absolute', zIndex: 1000, elevation: 20, top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(0,0,0,0.82)', justifyContent: 'center', alignItems: 'center', padding: 24 },
+  confirmCard: { width: '100%', maxWidth: 420, backgroundColor: '#191e24', borderWidth: 1, borderColor: GOLD, borderRadius: 14, padding: 20 },
+  confirmTitle: { color: GOLD, fontSize: 18, fontWeight: '900', textAlign: 'center', marginBottom: 12 },
+  confirmMessage: { color: '#fff', fontSize: 14, lineHeight: 21, textAlign: 'center', marginBottom: 18 },
   container: { flex: 1, padding: 18 },
   brand: { color: GOLD, fontSize: 13, fontWeight: '900', letterSpacing: 3, textAlign: 'center', marginTop: 10 },
   heading: { color: '#fff', fontSize: 24, fontWeight: '800', textAlign: 'center', marginTop: 18, marginBottom: 12 },
