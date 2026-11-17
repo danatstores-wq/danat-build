@@ -30,6 +30,12 @@ module.exports = ({ config }) => {
           delayAppMeasurementInit: true,
         },
       ],
+      [
+        "expo-sensors",
+        {
+          motionPermission: "Danat Build uses device motion to measure angles and check surface level.",
+        },
+      ],
     ],
   };
 };
