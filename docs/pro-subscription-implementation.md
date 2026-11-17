@@ -9,42 +9,46 @@
 - The Full Building Calculator and advanced Professional tools require an active entitlement.
 - Entitlement follows the signed-in Firebase UID across Android and iOS.
 
-## Store product types
-- Google Play: annual prepaid subscription base plan (P1Y), not an auto-renewing base plan. Google documents prepaid plans as manually extended and non-auto-renewing.
-- Apple App Store: 1-year non-renewing subscription. Apple does not provide an expiry date for this product type; the app/server must calculate and enforce the 12-month term and support restore/cross-device access.
-- Both store transactions must be validated before granting access. Never trust a client-only boolean or a date sent by the app.
+## Store product types and RevenueCat configuration
+- Google Play: subscription product `danat_build_professional_annual`, base plan `annual-prepaid`, duration P1Y, prepaid (not auto-renewing).
+- Apple App Store: non-renewing in-app purchase `danat_build_professional_annual`, with a 1-year term calculated by the trusted backend.
+- RevenueCat entitlement identifier: `professional`. Do not attach the Apple non-renewing product to a RevenueCat entitlement: Apple supplies no expiry and RevenueCat would otherwise treat it as active indefinitely. The Firebase webhook owns the one-year expiry for Apple.
+- Create a RevenueCat offering named/currently selected as `default`, containing the store products in the annual package `$rc_annual`.
+- The app accepts only package `$rc_annual` with product identifier `danat_build_professional_annual`.
+- Configure the RevenueCat webhook with the deployed `revenueCatWebhook` HTTPS URL and an Authorization header matching the Firebase secret `REVENUECAT_WEBHOOK_AUTHORIZATION`. Enable purchase, renewal, expiration, cancellation, and refund-reversed events for both production and sandbox.
+- RevenueCat must identify each purchaser with the Firebase UID. The app configures the SDK with that UID before a purchase; anonymous RevenueCat IDs are rejected by the webhook.
+- Both store transactions are validated by RevenueCat before its webhook updates Firebase. Never trust a client-only boolean or a date sent by the app.
 
 ## Current repository findings
 - Expo SDK 54, React Native 0.81.5, React 19.
 - Firebase Authentication is initialized in `src/firebase.ts`.
 - `App.tsx` currently defaults to Professional mode and lets any signed-in user select it.
 - The six quick calculators are rendered in `App.tsx`; Full Building Calculator is currently hidden unless Professional mode is selected.
-- `ProfileScreen.tsx` has a placeholder saying subscription management will be available later.
-- `functions/src/index.ts` is still starter boilerplate.
-- `firestore.rules` denies all client reads and writes. It must be deliberately reconciled with the existing AuthScreen profile writes before any subscription document is introduced.
-- No AdMob or store billing package is currently configured in the inspected files.
+- `ProfileScreen.tsx` now links to the Professional plan screen.
+- RevenueCat's React Native SDK is used for store purchase and restore flows; a native development build is required (Expo Go cannot make real purchases).
+- `functions/src/revenuecatWebhook.ts` receives authenticated RevenueCat events and writes server-managed entitlement records.
+- AdMob is not yet integrated. The current app is React Native 0.81.5 / Expo SDK 54; the current AdMob SDK major requires React Native 0.86+ and the New Architecture. A compatible AdMob version and Expo config-plugin path must be validated before adding it; do not install the current latest version into this project as-is.
 
-## Implementation sequence
-1. Configure store products and server credentials:
-   - Google Play annual prepaid base plan and service-account access for purchase verification / notifications.
-   - Apple non-renewing 1-year product, App Store Server API credentials, and App Store Server Notifications.
-   - A trusted backend endpoint that validates each transaction and writes entitlement state using Firebase Admin SDK.
-2. Add the mobile purchase/restore layer and identify store purchases with the signed-in Firebase UID.
-3. Load entitlement on sign-in and refresh it after purchase/restore; default to free access if entitlement cannot be verified.
-4. Enforce the same access policy in navigation and in the screens themselves, not merely by hiding buttons.
-5. Add AdMob only for free users; never show ads to active Professional subscribers.
-6. Test purchase, restore on a second platform/device, expiry, refund/revocation, offline behavior, and ad suppression before release.
+## Remaining configuration and release sequence
+1. Create the Apple and Google store products exactly as listed above and connect both store apps/products in RevenueCat.
+2. Add the RevenueCat public platform API keys to the EAS environment as `EXPO_PUBLIC_REVENUECAT_IOS_API_KEY` and `EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY`. These are public SDK keys, not secret server credentials.
+3. Set the Firebase Functions secret with `firebase functions:secrets:set REVENUECAT_WEBHOOK_AUTHORIZATION`; use the same value in the RevenueCat webhook Authorization header. Never put this value in the app or repository.
+4. Deploy Firestore rules and the RevenueCat webhook only after confirming the Firebase project is on a billing plan that permits Cloud Functions deployment.
+5. Add AdMob only after the Expo/RN compatibility path is confirmed and the user has created Android/iOS AdMob app IDs and ad-unit IDs. Consent must be collected before requesting ads.
+6. Build native Android/iOS development builds and test purchases in the store sandboxes. Expo Go is not sufficient for real purchase tests.
+7. Verify first purchase, manual renewal/top-up, restore on a second device/platform with the same Firebase UID, expiry, refunds, revocation, free-user ads, and paid-user ad suppression before release.
 
 ## Entitlement document contract
 
 The app now listens to `entitlements/{firebaseUid}` and grants Professional access only when:
 - `status` is exactly `active`.
 - `expiresAt` is a Firestore Timestamp later than the device's current time.
+- The entitlement document is readable from the signed-in Firebase account.
 
 The trusted backend must be the only writer and should store at least:
 - `status`: `active` or `expired` (and optionally `revoked`).
 - `expiresAt`: server-calculated Firestore Timestamp.
-- `platform`: `google_play` or `app_store`.
+- `platform`: `google_play` or `apple`.
 - `productId`: the configured store product identifier.
 - `lastValidatedAt`: server timestamp.
 
@@ -56,7 +60,11 @@ Do not accept an entitlement expiry supplied by the mobile client. The app fails
 - The app defaults to Home Owner mode rather than restoring a locally saved Professional mode.
 - Professional mode selection and the Full Building Calculator are gated by the server-managed entitlement.
 - Opening a saved Full Building Calculator project is also gated.
-- No purchase SDK, store verification endpoint, AdMob integration, or deployment has been added yet.
+- Added RevenueCat SDK dependency and a signed-in Firebase UID identity bridge.
+- Added a Professional plan screen with annual purchase and restore actions.
+- Added a RevenueCat webhook with an Authorization secret, event idempotency, product allow-list, server-calculated Apple annual expiry, and Firebase Admin entitlement writes.
+- Added a development-build profile requirement; no native store transaction has been tested yet.
+- AdMob integration and all deployments remain pending.
 
 ## Safety constraints
 - No payment-card numbers, CVV, or expiry dates are stored in Firebase.
