@@ -104,6 +104,7 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('welcome');
   const [mode, setMode] = useState<Mode>('homeowner');
   const [professionalActive, setProfessionalActive] = useState(false);
+  const [entitlementLoaded, setEntitlementLoaded] = useState(false);
   const [professionalExpiry, setProfessionalExpiry] = useState<number | null>(null);
   const [units, setUnits] = useState<'metric' | 'imperial'>('metric');
   const [theme, setTheme] = useState<AppTheme>('dark');
@@ -139,12 +140,14 @@ export default function App() {
     const unsubscribeAuth = onAuthStateChanged(auth, user => {
       unsubscribeEntitlement();
       setProfessionalActive(false);
+      setEntitlementLoaded(false);
       setMode('homeowner');
       setProfessionalExpiry(null);
       if (!user) {
         logOutRevenueCat().catch(error => console.warn('RevenueCat sign-out failed:', error));
         setMode('homeowner');
         setScreen(current => current === 'building' ? 'home' : current);
+        setEntitlementLoaded(true);
         return;
       }
 
@@ -163,6 +166,7 @@ export default function App() {
 
           setProfessionalExpiry(expiryMillis || null);
           setProfessionalActive(active);
+          setEntitlementLoaded(true);
           if (!active) {
             setMode('homeowner');
             setScreen(current => current === 'building' ? 'home' : current);
@@ -172,6 +176,7 @@ export default function App() {
           console.warn('Could not verify Professional access:', error);
           setProfessionalActive(false);
           setProfessionalExpiry(null);
+          setEntitlementLoaded(true);
           setMode('homeowner');
           setScreen(current => current === 'building' ? 'home' : current);
         }
@@ -608,7 +613,7 @@ export default function App() {
                     </Text>
                   </View>
 
-                  <AdBanner enabled={!professionalActive} />
+                  <AdBanner enabled={entitlementLoaded && !professionalActive} />
                 </>
               )}
 
