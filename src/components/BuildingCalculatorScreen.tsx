@@ -828,18 +828,27 @@ export default function BuildingCalculatorScreen({
       detailedValues?: DetailedValues;
       result?: Record<string, any>;
     };
-    const country = payload.selectedCountry || 'LB';
+    const country = COUNTRY_OPTIONS.some(option => option.id === payload.selectedCountry)
+      ? payload.selectedCountry!
+      : 'LB';
     setSelectedCountry(country);
-    if (payload.floors) setFloors(payload.floors);
+    if (payload.floors?.length) setFloors(payload.floors);
     if (payload.values) setValues(payload.values);
     if (payload.detailedValues) {
+      // Preserve every saved BOQ quantity against the automatic quantity
+      // estimator when a saved project is reopened.
+      Object.keys(payload.detailedValues).forEach(key => {
+        if (key.endsWith('Qty')) manuallyEditedQuantities.current[country].add(key);
+      });
       setDetailedValuesByCountry(old => ({ ...old, [country]: payload.detailedValues! }));
     }
-    if (payload.result) setResult(payload.result);
+    if (payload.result !== undefined && payload.result !== null) {
+      setResult(payload.result);
+    }
     setError('');
   }, [savedCalculation]);
 
-  const previousUnits = useRef<'metric' | 'imperial'>('metric');
+  const previousUnits = useRef<'metric' | 'imperial'>(units);
 
   useEffect(() => {
     if (previousUnits.current === units) return;
@@ -928,7 +937,8 @@ export default function BuildingCalculatorScreen({
       });
       return next;
     });
-    setResult(null);
+    // Input handlers and country switching already invalidate stale results.
+    // Do not clear the restored result just because automatic quantities sync.
   }, [automaticQuantities, selectedCountry]);
 
   const updateFloor = (id: number, key: keyof FloorData, value: string) => {
