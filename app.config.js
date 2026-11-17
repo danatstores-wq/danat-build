@@ -5,6 +5,13 @@ module.exports = ({ config }) => {
   const androidAppId = process.env.ADMOB_ANDROID_APP_ID || ANDROID_ADMOB_APP_ID;
   const iosAppId = process.env.ADMOB_IOS_APP_ID || IOS_ADMOB_APP_ID;
 
+  if (process.env.EAS_BUILD_PROFILE === "production" && (
+    !process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY
+    || !process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY
+  )) {
+    throw new Error("Production builds require RevenueCat platform API keys.");
+  }
+
   const existingPlugins = config.plugins || [];
   const plugins = existingPlugins.filter(plugin => {
     const name = Array.isArray(plugin) ? plugin[0] : plugin;
