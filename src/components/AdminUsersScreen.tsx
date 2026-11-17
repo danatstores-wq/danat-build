@@ -18,6 +18,7 @@ import {
   orderBy,
   documentId,
   startAfter,
+  where,
   query,
   serverTimestamp,
   setDoc,
@@ -51,6 +52,8 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
   const lastUserDoc = useRef<any>(null);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [searchMode, setSearchMode] = useState(false);
   const [savingUid, setSavingUid] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [pendingChange, setPendingChange] = useState<{ target: UserResult; access: Access } | null>(null);
@@ -103,6 +106,60 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
   useEffect(() => {
     loadUsers(true);
   }, [loadUsers]);
+
+  const searchAllUsers = async () => {
+    const value = filter.trim();
+    if (!value) {
+      setSearchMode(false);
+      await loadUsers(true);
+      return;
+    }
+    setSearching(true);
+    setError('');
+    try {
+      let profiles: any[] = [];
+      if (value.includes('@')) {
+        const variants = Array.from(new Set([value, value.toLowerCase()]));
+        const matches = await Promise.all(variants.map((email) =>
+          getDocs(query(collection(db, 'users'), where('email', '==', email), limit(50)))
+        ));
+        const unique = new Map<string, any>();
+        matches.forEach((result) => result.docs.forEach((profile) => unique.set(profile.id, profile)));
+        profiles = Array.from(unique.values());
+      } else {
+        const profile = await getDoc(doc(db, 'users', value));
+        if (profile.exists()) profiles = [profile];
+      }
+
+      const rows = await Promise.all(profiles.map(async (profile) => {
+        const uid = profile.id;
+        const profileData = profile.data();
+        const entitlementSnapshot = await getDoc(doc(db, 'entitlements', uid));
+        const data = entitlementSnapshot.data();
+        const hasOverride = data?.adminOverride === true;
+        const expiry = typeof data?.expiresAt?.toMillis === 'function' ? data.expiresAt.toMillis() : null;
+        const isProfessional = hasOverride
+          ? data?.adminStatus === 'professional'
+          : data?.status === 'active' && typeof expiry === 'number' && expiry > Date.now();
+        return {
+          uid,
+          email: String(profileData.email || '(email unavailable)'),
+          access: isProfessional ? 'professional' as Access : 'free' as Access,
+          source: hasOverride ? 'admin' : String(data?.source || 'subscription'),
+          expiresAt: hasOverride ? null : expiry,
+        };
+      }));
+      setUsers(rows);
+      setHasMore(false);
+      lastUserDoc.current = null;
+      setSearchMode(true);
+      if (rows.length === 0) setError(t('No user found. Check the exact email address or UID.', 'لم يتم العثور على مستخدم. تحقق من البريد الإلكتروني الكامل أو UID.', 'Aucun utilisateur trouvé. Vérifiez l’adresse e-mail exacte ou l’UID.'));
+    } catch (e: any) {
+      setError(e?.message || t('Could not search users.', 'تعذر البحث عن المستخدمين.', 'Impossible de rechercher les utilisateurs.'));
+    } finally {
+      setSearching(false);
+    }
+  };
 
   const visibleUsers = useMemo(() => {
     const value = filter.trim().toLowerCase();
@@ -261,7 +318,7 @@ const styles = StyleSheet.create({
   heading: { color: '#fff', fontSize: 24, fontWeight: '800', textAlign: 'center', marginTop: 18, marginBottom: 12 },
   help: { color: '#b7bbc0', fontSize: 13, lineHeight: 20, textAlign: 'center', marginBottom: 14 },
   input: { backgroundColor: '#080b0e', borderWidth: 1, borderColor: '#66553a', borderRadius: 11, padding: 14, color: '#fff', marginBottom: 10 },
-  toolbar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
+  toolbar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },\n  toolbarActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   count: { color: '#c5c8cc', fontSize: 12 },
   refreshButton: { borderColor: GOLD, borderWidth: 1, borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12 },
   error: { color: '#ff7777', marginTop: 10, textAlign: 'center' },
