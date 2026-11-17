@@ -1349,6 +1349,7 @@ export default function BuildingCalculatorScreen({
               await exportCalculationPdf(savedCalculation.projectName || projectName || savedCalculation.title, savedCalculation, language);
             } catch (error) {
               console.warn('Could not export building calculation PDF:', error);
+              setSaveMessage(language === 'ar' ? 'تعذر تصدير ملف PDF. حاول مرة أخرى.' : language === 'fr' ? 'Impossible d’exporter le PDF. Réessayez.' : 'Could not export PDF. Please try again.');
             }
           }}
           style={{ backgroundColor: '#29251d', borderColor: GOLD, borderWidth: 1, borderRadius: 9, padding: 12, marginTop: 10, marginBottom: 12 }}
@@ -1359,6 +1360,7 @@ export default function BuildingCalculatorScreen({
           </Text>
         </Pressable>
       )}
+      {!!saveMessage && <Text style={{ color: GOLD, marginTop: 8, marginBottom: 8, textAlign: 'center' }}>{saveMessage}</Text>}
 
       <View style={ui.infoBox}>
         <Text style={ui.infoText}>
