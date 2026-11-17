@@ -27,14 +27,16 @@
 - `ProfileScreen.tsx` now links to the Professional plan screen.
 - RevenueCat's React Native SDK is used for store purchase and restore flows; a native development build is required (Expo Go cannot make real purchases).
 - `functions/src/revenuecatWebhook.ts` receives authenticated RevenueCat events and writes server-managed entitlement records.
-- AdMob is not yet integrated. The current app is React Native 0.81.5 / Expo SDK 54; the current AdMob SDK major requires React Native 0.86+ and the New Architecture. A compatible AdMob version and Expo config-plugin path must be validated before adding it; do not install the current latest version into this project as-is.
+- AdMob uses `react-native-google-mobile-ads@16.4.0`, the Expo SDK 54-compatible line. Version 17 requires React Native 0.86+ and the New Architecture, so it must not be installed into this app without a planned SDK upgrade.
+- A consent-aware banner is shown on the Home screen only for free mobile users. The web build has no native AdMob placement.
+- Development builds use Google's official test app IDs and test banner unit by default. Real AdMob app IDs and banner unit IDs must be added before release.
 
 ## Remaining configuration and release sequence
 1. Create the Apple and Google store products exactly as listed above and connect both store apps/products in RevenueCat.
 2. Add the RevenueCat public platform API keys to the EAS environment as `EXPO_PUBLIC_REVENUECAT_IOS_API_KEY` and `EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY`. These are public SDK keys, not secret server credentials.
 3. Set the Firebase Functions secret with `firebase functions:secrets:set REVENUECAT_WEBHOOK_AUTHORIZATION`; use the same value in the RevenueCat webhook Authorization header. Never put this value in the app or repository.
 4. Deploy Firestore rules and the RevenueCat webhook only after confirming the Firebase project is on a billing plan that permits Cloud Functions deployment.
-5. Add AdMob only after the Expo/RN compatibility path is confirmed and the user has created Android/iOS AdMob app IDs and ad-unit IDs. Consent must be collected before requesting ads.
+5. Create the Android and iOS apps in AdMob, configure privacy/consent messages, and set EAS environment values `ADMOB_ANDROID_APP_ID`, `ADMOB_IOS_APP_ID`, `EXPO_PUBLIC_ADMOB_ANDROID_BANNER_ID`, and `EXPO_PUBLIC_ADMOB_IOS_BANNER_ID`. The app uses Google's test app IDs/test banner units in development only. Consent is gathered before initializing AdMob.
 6. Build native Android/iOS development builds and test purchases in the store sandboxes. Expo Go is not sufficient for real purchase tests.
 7. Verify first purchase, manual renewal/top-up, restore on a second device/platform with the same Firebase UID, expiry, refunds, revocation, free-user ads, and paid-user ad suppression before release.
 
@@ -64,7 +66,9 @@ Do not accept an entitlement expiry supplied by the mobile client. The app fails
 - Added a Professional plan screen with annual purchase and restore actions.
 - Added a RevenueCat webhook with an Authorization secret, event idempotency, product allow-list, server-calculated Apple annual expiry, and Firebase Admin entitlement writes.
 - Added a development-build profile requirement; no native store transaction has been tested yet.
-- AdMob integration and all deployments remain pending.
+- Added a consent-aware AdMob banner on the Home screen for free mobile accounts only; the web build intentionally renders no ad.
+- Added dynamic native AdMob app-ID configuration with Google's test IDs as safe development defaults.
+- Real AdMob app/unit IDs, consent-message configuration, and native device testing remain pending.
 
 ## Safety constraints
 - No payment-card numbers, CVV, or expiry dates are stored in Firebase.
