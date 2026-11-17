@@ -26,6 +26,13 @@ jobs:
       - name: Install app dependencies
         run: npm install --no-audit --no-fund
 
+      - name: Upload resolved app lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: resolved-app-package-lock
+          path: package-lock.json
+          retention-days: 1
+
       - name: Install Firebase Functions dependencies
         run: npm ci --prefix functions
 
