@@ -3,6 +3,10 @@ name: Validate Danat Build
 permissions:
   contents: write
 
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches:
