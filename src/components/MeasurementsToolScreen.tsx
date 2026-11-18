@@ -148,7 +148,15 @@ export default function MeasurementsToolScreen({ toolId, language, units, onBack
         </View>
       )}
 
-      {!sensorTool && !isAreaTool && !isHeightTool && (
+      {isArTool && (
+        <ARMeasurementView
+          mode={toolId === 'ar-room' ? 'room' : 'distance'}
+          units={units}
+          language={language}
+        />
+      )}
+
+      {!sensorTool && !isAreaTool && !isHeightTool && !isArTool && (
         <View style={s.panel}>
           <Text style={s.eyebrow}>{t('NATIVE AR ENGINE REQUIRED', 'يتطلب محرك واقع معزز أصلي', 'MOTEUR AR NATIF REQUIS')}</Text>
           <Text style={s.muted}>{arPlaceholder}</Text>
