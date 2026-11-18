@@ -9,7 +9,7 @@ import {
 
 type Language = 'en' | 'ar' | 'fr';
 type Point3 = [number, number, number];
-type Props = { mode: 'distance' | 'room'; units: 'metric' | 'imperial'; language: Language };
+type Props = { mode: 'distance' | 'room' | 'height'; units: 'metric' | 'imperial'; language: Language };
 
 const GOLD = '#E9B85D';
 ViroMaterials.createMaterials({
@@ -52,12 +52,14 @@ function DanatARScene(props: any) {
       // Viro 2.53.0 supports a camera-forward ray on both ARCore and ARKit.
       // performARHitTestWithWorldPoints is not available on iOS in this version.
       const hits = await scene.performARHitTestWithRay(camera.forward);
-      const preferred = hits.find((hit: any) =>
-        hit.type === 'ExistingPlaneUsingExtent' ||
-        hit.type === 'ExistingPlane' ||
-        hit.type === 'EstimatedHorizontalPlane' ||
-        hit.type === 'DepthPoint'
-      );
+      const preferred = hits.find((hit: any) => {
+        if (appProps.mode === 'height') {
+          return hit.type === 'ExistingPlane' || hit.type === 'ExistingPlaneUsingExtent' ||
+            hit.type === 'DepthPoint' || hit.type === 'FeaturePoint';
+        }
+        return hit.type === 'ExistingPlaneUsingExtent' || hit.type === 'ExistingPlane' ||
+          hit.type === 'EstimatedHorizontalPlane' || hit.type === 'DepthPoint';
+      });
       const hit = preferred || hits[0];
       const position = hit?.transform?.position;
       if (!Array.isArray(position) || position.length < 3 || !position.every(Number.isFinite)) {
@@ -105,10 +107,11 @@ export default function ARMeasurementView({ mode, units, language }: Props) {
     : 0;
   const area = mode === 'room' && points.length >= 3 && finished ? polygonArea3D(points) : 0;
   const distance = mode === 'distance' && points.length === 2 ? distance3(points[0], points[1]) : 0;
+  const height = mode === 'height' && points.length === 2 ? Math.abs(points[1][1] - points[0][1]) : 0;
 
   const onPoint = (point: Point3) => {
     setPoints(old => {
-      if (mode === 'distance' && old.length >= 2) return old;
+      if ((mode === 'distance' || mode === 'height') && old.length >= 2) return old;
       if (mode === 'room' && finished) return old;
       return [...old, point];
     });
@@ -165,6 +168,7 @@ export default function ARMeasurementView({ mode, units, language }: Props) {
           depthEnabled
           initialScene={{ scene: DanatARScene as any }}
           viroAppProps={{
+            mode,
             points,
             onPoint,
             onSceneReady: onMarkReady,
@@ -188,12 +192,14 @@ export default function ARMeasurementView({ mode, units, language }: Props) {
       <View style={s.controls}>
         <Text style={s.instructions}>
           {mode === 'distance'
-            ? t('Aim the centre reticle at the first surface point and tap MARK POINT. Aim at the second point and mark again.', 'وجّه المؤشر الأوسط إلى نقطة السطح الأولى واضغط تحديد نقطة. وجّهه إلى النقطة الثانية وحددها مجدداً.', 'Visez le premier point avec le réticule central et appuyez sur MARQUER. Visez le second point et recommencez.')
+            ? (mode === 'height'
+              ? t('Aim at the bottom of the object and mark its base. Then aim at the top and mark again.', 'وجّه المؤشر إلى أسفل الجسم وحدد القاعدة، ثم وجّهه إلى أعلاه وحدد مرة أخرى.', 'Visez la base de l’objet et marquez-la. Visez ensuite son sommet et marquez à nouveau.')
+              : t('Aim the centre reticle at the first surface point and tap MARK POINT. Aim at the second point and mark again.', 'وجّه المؤشر الأوسط إلى نقطة السطح الأولى واضغط تحديد نقطة. وجّهه إلى النقطة الثانية وحددها مجدداً.', 'Visez le premier point avec le réticule central et appuyez sur MARQUER. Visez le second point et recommencez.'))
             : t('Aim at each floor corner and tap MARK CORNER. Mark at least three corners, then close the boundary.', 'وجّه المؤشر إلى كل زاوية أرضية واضغط تحديد زاوية. حدد ثلاث زوايا على الأقل ثم أغلق الحدود.', 'Visez chaque coin du sol et appuyez sur MARQUER. Marquez au moins trois coins puis fermez le contour.')}
         </Text>
         <View style={s.row}>
-          <Pressable style={s.primary} onPress={markPoint} disabled={mode === 'distance' && points.length >= 2 || (mode === 'room' && finished)}>
-            <Text style={s.primaryText}>{t(mode === 'distance' ? 'MARK POINT' : 'MARK CORNER', mode === 'distance' ? 'تحديد نقطة' : 'تحديد زاوية', mode === 'distance' ? 'MARQUER LE POINT' : 'MARQUER LE COIN')}</Text>
+          <Pressable style={s.primary} onPress={markPoint} disabled={(mode !== 'room' && points.length >= 2) || (mode === 'room' && finished)}>
+            <Text style={s.primaryText}>{t(mode === 'room' ? 'MARK CORNER' : mode === 'height' ? (points.length === 0 ? 'MARK BASE' : 'MARK TOP') : 'MARK POINT', mode === 'room' ? 'تحديد زاوية' : mode === 'height' ? (points.length === 0 ? 'تحديد القاعدة' : 'تحديد القمة') : 'تحديد نقطة', mode === 'room' ? 'MARQUER LE COIN' : mode === 'height' ? (points.length === 0 ? 'MARQUER LA BASE' : 'MARQUER LE SOMMET') : 'MARQUER LE POINT')}</Text>
           </Pressable>
           {mode === 'room' && !finished && (
             <Pressable style={s.secondary} onPress={finishRoom}>
@@ -208,6 +214,12 @@ export default function ARMeasurementView({ mode, units, language }: Props) {
               <Text style={s.resultLabel}>{t('MEASURED DISTANCE', 'المسافة المقاسة', 'DISTANCE MESURÉE')}</Text>
               <Text style={s.resultValue}>{distance > 0 ? formatDistance(distance, units) : '—'}</Text>
               <Text style={s.small}>{t(points.length + ' of 2 points marked', 'تم تحديد ' + points.length + ' من نقطتين', points.length + ' point(s) sur 2')}</Text>
+            </>
+          ) : mode === 'height' ? (
+            <>
+              <Text style={s.resultLabel}>{t('VERTICAL HEIGHT', 'الارتفاع العمودي', 'HAUTEUR VERTICALE')}</Text>
+              <Text style={s.resultValue}>{height > 0 ? formatDistance(height, units) : '—'}</Text>
+              <Text style={s.small}>{t(points.length + ' of 2 points marked (base and top)', 'تم تحديد ' + points.length + ' من نقطتين (القاعدة والقمة)', points.length + ' point(s) sur 2 (base et sommet)')}</Text>
             </>
           ) : (
             <>
