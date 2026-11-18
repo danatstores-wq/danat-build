@@ -822,6 +822,7 @@ export default function App() {
                   theme={theme}
                   active={professionalActive}
                   onBack={() => setScreen('home')}
+                  onAccessRefresh={refreshRevenueCatAccess}
                 />
               )}
 
