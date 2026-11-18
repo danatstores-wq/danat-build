@@ -77,9 +77,6 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
         const entitlementSnapshot = await getDoc(doc(db, 'entitlements', uid));
         const data = entitlementSnapshot.data();
         const hasOverride = data?.adminOverride === true;
-        const expiry = typeof data?.expiresAt?.toMillis === 'function'
-          ? data.expiresAt.toMillis()
-          : null;
         const isProfessional = hasOverride && data?.adminStatus === 'professional';
         return {
           uid,
@@ -135,7 +132,6 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
         const entitlementSnapshot = await getDoc(doc(db, 'entitlements', uid));
         const data = entitlementSnapshot.data();
         const hasOverride = data?.adminOverride === true;
-        const expiry = typeof data?.expiresAt?.toMillis === 'function' ? data.expiresAt.toMillis() : null;
         const isProfessional = hasOverride && data?.adminStatus === 'professional';
         return {
           uid,
