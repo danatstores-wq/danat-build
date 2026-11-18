@@ -28,7 +28,7 @@ import { db } from '../firestore';
 import { getThemedStyles } from '../theme';
 
 type Language = 'en' | 'ar' | 'fr';
-type Access = 'free' | 'professional';
+type Access = 'free' | 'professional' | 'store-managed';
 type UserResult = {
   uid: string;
   email: string;
@@ -80,15 +80,13 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
         const expiry = typeof data?.expiresAt?.toMillis === 'function'
           ? data.expiresAt.toMillis()
           : null;
-        const isProfessional = hasOverride
-          ? data?.adminStatus === 'professional'
-          : data?.status === 'active' && typeof expiry === 'number' && expiry > Date.now();
+        const isProfessional = hasOverride && data?.adminStatus === 'professional';
         return {
           uid,
           email: String(profileData.email || '(email unavailable)'),
-          access: isProfessional ? 'professional' as Access : 'free' as Access,
-          source: hasOverride ? 'admin' : String(data?.source || 'subscription'),
-          expiresAt: hasOverride ? null : expiry,
+          access: hasOverride ? (isProfessional ? 'professional' as Access : 'free' as Access) : 'store-managed' as Access,
+          source: hasOverride ? 'admin' : 'revenuecat',
+          expiresAt: null,
         };
       }));
       rows.sort((a, b) => a.email.localeCompare(b.email));
@@ -138,15 +136,13 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
         const data = entitlementSnapshot.data();
         const hasOverride = data?.adminOverride === true;
         const expiry = typeof data?.expiresAt?.toMillis === 'function' ? data.expiresAt.toMillis() : null;
-        const isProfessional = hasOverride
-          ? data?.adminStatus === 'professional'
-          : data?.status === 'active' && typeof expiry === 'number' && expiry > Date.now();
+        const isProfessional = hasOverride && data?.adminStatus === 'professional';
         return {
           uid,
           email: String(profileData.email || '(email unavailable)'),
-          access: isProfessional ? 'professional' as Access : 'free' as Access,
-          source: hasOverride ? 'admin' : String(data?.source || 'subscription'),
-          expiresAt: hasOverride ? null : expiry,
+          access: hasOverride ? (isProfessional ? 'professional' as Access : 'free' as Access) : 'store-managed' as Access,
+          source: hasOverride ? 'admin' : 'revenuecat',
+          expiresAt: null,
         };
       }));
       setUsers(rows);
@@ -214,7 +210,7 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
     <View style={ui.container}>
       <Text style={styles.brand}>DANAT BUILD</Text>
       <Text style={styles.heading}>{t('Admin Users', 'إدارة المستخدمين', 'Gestion des utilisateurs')}</Text>
-      <Text style={styles.help}>{t('All registered users and their current access are shown below. You can manage your own account too.', 'تظهر أدناه جميع الحسابات المسجلة وصلاحية كل منها. يمكنك إدارة حسابك أيضاً.', 'Tous les utilisateurs et leur accès actuel sont affichés ci-dessous. Vous pouvez aussi gérer votre propre compte.')}</Text>
+      <Text style={styles.help}>{t('Manage manual Professional overrides here. Store purchases are verified by RevenueCat; check the RevenueCat dashboard for their current status. You can manage your own account too.', 'يمكنك إدارة صلاحيات المحترف اليدوية هنا. يتم التحقق من مشتريات المتجر عبر RevenueCat؛ راجع لوحة RevenueCat لمعرفة حالتها الحالية. يمكنك إدارة حسابك أيضاً.', 'Tous les utilisateurs et leur accès actuel sont affichés ci-dessous. Vous pouvez aussi gérer votre propre compte.')}</Text>
 
       <TextInput
         style={styles.input}
@@ -268,11 +264,11 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
             <View key={item.uid} style={styles.userCard}>
               <View style={styles.userHeader}>
                 <Text style={styles.email}>{item.email}</Text>
-                <Text style={[styles.statusBadge, item.access === 'professional' ? styles.professionalBadge : styles.freeBadge]}>
-                  {item.access === 'professional' ? 'PROFESSIONAL' : 'FREE / HOMEOWNER'}
+                <Text style={[styles.statusBadge, item.access === 'professional' ? styles.professionalBadge : item.access === 'store-managed' ? styles.storeBadge : styles.freeBadge]}>
+                  {item.access === 'professional' ? 'PROFESSIONAL' : item.access === 'store-managed' ? 'STORE-MANAGED' : 'FREE / HOMEOWNER'}
                 </Text>
               </View>
-              <Text style={styles.meta}>{t('Access control', 'مصدر الصلاحية', 'Contrôle d’accès')}: {item.source === 'admin' ? t('Manual admin control', 'تحكم يدوي من المدير', 'Contrôle manuel admin') : t('Store subscription', 'اشتراك المتجر', 'Abonnement boutique')}</Text>
+              <Text style={styles.meta}>{t('Access control', 'مصدر الصلاحية', 'Contrôle d’accès')}: {item.source === 'admin' ? t('Manual admin override', 'تحكم يدوي من المدير', 'Contrôle manuel admin') : t('Check RevenueCat for store purchase status', 'راجع RevenueCat لمعرفة حالة مشتريات المتجر', 'Consultez RevenueCat pour l’état des achats')}</Text>
               {isSelf ? <Text style={styles.selfLabel}>{t('YOUR ADMIN ACCOUNT', 'حساب المدير الخاص بك', 'VOTRE COMPTE ADMIN')}</Text> : null}
               <Text selectable style={styles.uid}>UID: {item.uid}</Text>
               <View style={styles.actions}>
@@ -331,6 +327,7 @@ const styles = StyleSheet.create({
   statusBadge: { fontSize: 10, fontWeight: '900', overflow: 'hidden', borderRadius: 6, paddingVertical: 5, paddingHorizontal: 8 },
   professionalBadge: { color: '#17110a', backgroundColor: GOLD },
   freeBadge: { color: '#d5d8dc', backgroundColor: '#414850' },
+  storeBadge: { color: '#17110a', backgroundColor: '#d9c08f' },
   meta: { color: '#c5c8cc', fontSize: 11, marginBottom: 7 },
   selfLabel: { color: GOLD, fontSize: 10, fontWeight: '900', marginBottom: 6 },
   uid: { color: '#92979d', fontSize: 9, marginBottom: 12 },
