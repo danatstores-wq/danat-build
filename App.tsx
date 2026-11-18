@@ -34,7 +34,7 @@ import { getIdTokenResult, onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { auth } from './src/firebase';
 import { db } from './src/firestore';
-import { configureRevenueCat, logOutRevenueCat } from './src/subscriptions/revenueCat';
+import { configureRevenueCat, getProfessionalAccess, logOutRevenueCat, subscribeToProfessionalAccess } from './src/subscriptions/revenueCat';
 
 type Language = 'en' | 'ar' | 'fr';
 type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'measurements' | 'measurementTool' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings' | 'projects' | 'subscription' | 'adminUsers' | 'contact';
@@ -119,6 +119,8 @@ export default function App() {
   const [professionalActive, setProfessionalActive] = useState(false);
   const [entitlementLoaded, setEntitlementLoaded] = useState(false);
   const [professionalExpiry, setProfessionalExpiry] = useState<number | null>(null);
+  const [revenueCatActive, setRevenueCatActive] = useState(false);
+  const [adminOverrideState, setAdminOverrideState] = useState<{ enabled: boolean; active: boolean } | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [units, setUnits] = useState<'metric' | 'imperial'>('metric');
   const [theme, setTheme] = useState<AppTheme>('dark');
@@ -138,29 +140,23 @@ export default function App() {
 
           if (['en', 'ar', 'fr'].includes(settings.lang)) setLang(settings.lang);
           if (['metric', 'imperial'].includes(settings.units)) setUnits(settings.units);
-          if (['dark', 'light'].includes(settings.theme)) setTheme(settings.theme);
-        }
-      } catch (error) {
-        console.warn('Could not load settings:', error);
-      } finally {
-        setSettingsLoaded(true);
-      }
-    };
-
-    loadSettings();
-  }, []);
-
-  useEffect(() => {
+          if (['dark', 'light'].incl  useEffect(() => {
     let unsubscribeEntitlement = () => {};
+    let unsubscribeRevenueCat = () => {};
     const unsubscribeAuth = onAuthStateChanged(auth, user => {
       unsubscribeEntitlement();
+      unsubscribeRevenueCat();
       setProfessionalActive(false);
+      setRevenueCatActive(false);
+      setAdminOverrideState(null);
       setEntitlementLoaded(false);
       setMode('homeowner');
       setProfessionalExpiry(null);
       setIsAdmin(false);
+
       if (!user) {
         logOutRevenueCat().catch(error => console.warn('RevenueCat sign-out failed:', error));
+        setAdminOverrideState({ enabled: false, active: false });
         setMode('homeowner');
         setScreen(current => current === 'building' ? 'home' : current);
         setEntitlementLoaded(true);
@@ -171,6 +167,7 @@ export default function App() {
       // subscriptions, entitlements, or the main app until email is verified.
       if (!user.emailVerified) {
         logOutRevenueCat().catch(error => console.warn('RevenueCat sign-out failed:', error));
+        setAdminOverrideState({ enabled: false, active: false });
         setMode('homeowner');
         setProfessionalActive(false);
         setProfessionalExpiry(null);
@@ -181,34 +178,82 @@ export default function App() {
       }
 
       getIdTokenResult(user).then(token => setIsAdmin(user.uid === 'psu8GgwqNUSKHSQER9wkcEKbbz22' || token.claims.admin === true)).catch(error => { console.warn('Could not read admin role:', error); setIsAdmin(user.uid === 'psu8GgwqNUSKHSQER9wkcEKbbz22'); });
-      configureRevenueCat(user.uid).catch(error => console.warn('RevenueCat setup failed:', error));
 
+      // RevenueCat validates store purchases directly. No Firebase Cloud
+      // Function or paid Firebase plan is needed to unlock Professional.
+      configureRevenueCat(user.uid).then(async configured => {
+        if (!configured || auth.currentUser?.uid !== user.uid) return;
+
+        const applyRevenueCatAccess = (access: { active: boolean; expiresAt: number | null }) => {
+          if (auth.currentUser?.uid !== user.uid) return;
+          setRevenueCatActive(access.active);
+          setProfessionalExpiry(access.expiresAt);
+        };
+
+        unsubscribeRevenueCat = subscribeToProfessionalAccess(applyRevenueCatAccess);
+        const access = await getProfessionalAccess();
+        applyRevenueCatAccess(access);
+      }).catch(error => {
+        console.warn('RevenueCat setup or customer status check failed:', error);
+        if (auth.currentUser?.uid === user.uid) {
+          setRevenueCatActive(false);
+          setProfessionalExpiry(null);
+        }
+      });
+
+      // Firestore is retained for administrator overrides only. Store purchase
+      // status comes from RevenueCat CustomerInfo, not client-written documents.
       unsubscribeEntitlement = onSnapshot(
         doc(db, 'entitlements', user.uid),
         snapshot => {
           const data = snapshot.data();
-          const expiry = data?.expiresAt;
-          const expiryMillis = typeof expiry?.toMillis === 'function'
-            ? expiry.toMillis()
-            : 0;
           const hasAdminOverride = data?.adminOverride === true;
-          const active = hasAdminOverride
-            ? data?.adminStatus === 'professional'
-            : data?.status === 'active' && expiryMillis > Date.now();
-
-          setProfessionalExpiry(hasAdminOverride ? null : (expiryMillis || null));
-          setProfessionalActive(active);
+          setAdminOverrideState({
+            enabled: hasAdminOverride,
+            active: data?.adminStatus === 'professional',
+          });
           setEntitlementLoaded(true);
-          if (!active) {
-            setMode('homeowner');
-            setScreen(current => current === 'building' ? 'home' : current);
-          }
         },
         error => {
-          console.warn('Could not verify Professional access:', error);
-          setProfessionalActive(false);
-          setProfessionalExpiry(null);
+          console.warn('Could not read administrator access override:', error);
+          setAdminOverrideState({ enabled: false, active: false });
           setEntitlementLoaded(true);
+        }
+      );
+    });
+
+    return () => {
+      unsubscribeAuth();
+      unsubscribeEntitlement();
+      unsubscribeRevenueCat();
+    };
+  }, []);
+
+  // Administrator overrides take precedence; otherwise use RevenueCat's
+  // store-verified Professional access for this Firebase UID.
+  useEffect(() => {
+    if (!adminOverrideState) return;
+    const active = adminOverrideState.enabled
+      ? adminOverrideState.active
+      : revenueCatActive;
+
+    setProfessionalActive(active);
+    if (adminOverrideState.enabled) setProfessionalExpiry(null);
+    if (!active) {
+      setMode('homeowner');
+      setScreen(current => current === 'building' ? 'home' : current);
+    }
+  }, [adminOverrideState, revenueCatActive]);
+
+  const refreshRevenueCatAccess = async () => {
+    try {
+      const access = await getProfessionalAccess();
+      setRevenueCatActive(access.active);
+      setProfessionalExpiry(access.expiresAt);
+    } catch (error) {
+      console.warn('Could not refresh RevenueCat access:', error);
+    }
+  };ed(true);
           setMode('homeowner');
           setScreen(current => current === 'building' ? 'home' : current);
         }
@@ -229,6 +274,7 @@ export default function App() {
     const checkExpiry = () => {
       if (professionalExpiry <= Date.now()) {
         setProfessionalActive(false);
+        setRevenueCatActive(false);
         setMode('homeowner');
         setScreen(current => current === 'building' ? 'home' : current);
       }
