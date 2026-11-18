@@ -151,13 +151,23 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
         );
 
         if (!credential.user.emailVerified) {
-          // Keep existing accounts usable even if Firebase cannot deliver the
-          // legacy verification email. Verification can be completed later.
           try {
             await sendEmailVerification(credential.user);
+            setMessage(t(
+              'Your email is not verified. We sent you a verification link. Open it, then return here and confirm.',
+              'بريدك الإلكتروني غير مؤكّد. أرسلنا إليك رابط التحقق. افتحه ثم عد إلى هنا للتأكيد.',
+              'Votre adresse e-mail n’est pas vérifiée. Nous vous avons envoyé un lien. Ouvrez-le, puis revenez confirmer.'
+            ));
           } catch (verificationError: any) {
             console.warn('Verification email resend failed:', verificationError?.code, verificationError?.message);
+            setMessage(t(
+              'Your email is not verified. Use Resend verification email below, then confirm after opening the link.',
+              'بريدك الإلكتروني غير مؤكّد. استخدم إعادة إرسال رسالة التحقق أدناه، ثم أكّد بعد فتح الرابط.',
+              'Votre adresse e-mail n’est pas vérifiée. Utilisez le renvoi du lien ci-dessous, puis confirmez après l’avoir ouvert.'
+            ));
           }
+          setVerificationPending(true);
+          return;
         }
 
         await ensureUserProfileBestEffort(credential.user);
