@@ -1,8 +1,16 @@
 import { Platform } from "react-native";
-import Purchases, { PurchasesPackage } from "react-native-purchases";
+import Purchases, { CustomerInfo, PurchasesPackage } from "react-native-purchases";
 
 let configured = false;
 let configuredUserId: string | null = null;
+
+const PROFESSIONAL_PRODUCT_ID = "danat_build_professional_annual";
+const GOOGLE_PREPAID_BASE_PLAN_ID = "annual-prepaid";
+
+export type ProfessionalAccess = {
+  active: boolean;
+  expiresAt: number | null;
+};
 
 function getApiKey(): string | undefined {
   if (Platform.OS === "ios") {
@@ -12,6 +20,58 @@ function getApiKey(): string | undefined {
     return process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY;
   }
   return undefined;
+}
+
+function isProfessionalProduct(productId?: string | null): boolean {
+  return productId === PROFESSIONAL_PRODUCT_ID
+    || productId === `${PROFESSIONAL_PRODUCT_ID}:${GOOGLE_PREPAID_BASE_PLAN_ID}`;
+}
+
+function addOneCalendarYear(timestamp: number): number {
+  const date = new Date(timestamp);
+  date.setUTCFullYear(date.getUTCFullYear() + 1);
+  return date.getTime();
+}
+
+/**
+ * Google Play prepaid subscriptions expose a store-verified expiration through
+ * RevenueCat's active entitlement. Apple non-renewing subscriptions have no
+ * store-supplied expiry, so their verified non-subscription transactions are
+ * extended by one calendar year per purchase, including early renewals.
+ */
+export function getProfessionalAccessFromCustomerInfo(
+  customerInfo: CustomerInfo
+): ProfessionalAccess {
+  const googleEntitlement = Object.values(customerInfo.entitlements.active).find(
+    entitlement =>
+      entitlement.store === "PLAY_STORE"
+      && isProfessionalProduct(entitlement.productIdentifier)
+      && !!entitlement.expirationDate
+  );
+
+  if (googleEntitlement?.expirationDate) {
+    const expiresAt = new Date(googleEntitlement.expirationDate).getTime();
+    return {
+      active: Number.isFinite(expiresAt) && expiresAt > Date.now(),
+      expiresAt: Number.isFinite(expiresAt) ? expiresAt : null,
+    };
+  }
+
+  const applePurchases = customerInfo.nonSubscriptionTransactions
+    .filter(transaction => isProfessionalProduct(transaction.productIdentifier))
+    .map(transaction => new Date(transaction.purchaseDate).getTime())
+    .filter(timestamp => Number.isFinite(timestamp) && timestamp > 0)
+    .sort((a, b) => a - b);
+
+  let expiresAt = 0;
+  for (const purchaseDate of applePurchases) {
+    expiresAt = addOneCalendarYear(Math.max(expiresAt, purchaseDate));
+  }
+
+  return {
+    active: expiresAt > Date.now(),
+    expiresAt: expiresAt || null,
+  };
 }
 
 export async function configureRevenueCat(firebaseUid: string): Promise<boolean> {
@@ -32,6 +92,30 @@ export async function configureRevenueCat(firebaseUid: string): Promise<boolean>
   return true;
 }
 
+export async function getProfessionalAccess(): Promise<ProfessionalAccess> {
+  if (Platform.OS === "web" || !configured) {
+    return { active: false, expiresAt: null };
+  }
+
+  const customerInfo = await Purchases.getCustomerInfo();
+  return getProfessionalAccessFromCustomerInfo(customerInfo);
+}
+
+export function subscribeToProfessionalAccess(
+  onUpdate: (access: ProfessionalAccess) => void
+): () => void {
+  if (Platform.OS === "web" || !configured) return () => {};
+
+  const listener = (customerInfo: CustomerInfo) => {
+    onUpdate(getProfessionalAccessFromCustomerInfo(customerInfo));
+  };
+
+  Purchases.addCustomerInfoUpdateListener(listener);
+  return () => {
+    Purchases.removeCustomerInfoUpdateListener(listener);
+  };
+}
+
 export async function logOutRevenueCat(): Promise<void> {
   if (Platform.OS === "web" || !configured || !configuredUserId) return;
   await Purchases.logOut();
@@ -45,7 +129,7 @@ export async function getAnnualProfessionalPackage(): Promise<PurchasesPackage |
   const available = offerings.current?.availablePackages || [];
   return available.find(item =>
     item.identifier === "professional_annual"
-    && item.product.identifier === "danat_build_professional_annual"
+    && isProfessionalProduct(item.product.identifier)
   ) || null;
 }
 
