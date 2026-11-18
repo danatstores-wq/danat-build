@@ -57,6 +57,19 @@ export function getProfessionalAccessFromCustomerInfo(
     };
   }
 
+  // CustomerInfo also exposes active subscription product IDs and their
+  // store-supplied expiration dates. Use this as a fallback if the Play
+  // product has not yet been attached to a RevenueCat entitlement.
+  const activeGoogleProduct = customerInfo.activeSubscriptions.find(isProfessionalProduct);
+  if (activeGoogleProduct) {
+    const expiration = customerInfo.allExpirationDates[activeGoogleProduct]
+      || customerInfo.allExpirationDates[PROFESSIONAL_PRODUCT_ID];
+    const expiresAt = expiration ? new Date(expiration).getTime() : 0;
+    if (expiresAt > Date.now()) {
+      return { active: true, expiresAt };
+    }
+  }
+
   const applePurchases = customerInfo.nonSubscriptionTransactions
     .filter(transaction => isProfessionalProduct(transaction.productIdentifier))
     .map(transaction => new Date(transaction.purchaseDate).getTime())
