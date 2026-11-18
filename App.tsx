@@ -167,6 +167,19 @@ export default function App() {
         return;
       }
 
+      // Keep unverified accounts on the authentication screen. Do not load
+      // subscriptions, entitlements, or the main app until email is verified.
+      if (!user.emailVerified) {
+        logOutRevenueCat().catch(error => console.warn('RevenueCat sign-out failed:', error));
+        setMode('homeowner');
+        setProfessionalActive(false);
+        setProfessionalExpiry(null);
+        setIsAdmin(false);
+        setEntitlementLoaded(true);
+        setScreen('auth');
+        return;
+      }
+
       getIdTokenResult(user).then(token => setIsAdmin(user.uid === 'psu8GgwqNUSKHSQER9wkcEKbbz22' || token.claims.admin === true)).catch(error => { console.warn('Could not read admin role:', error); setIsAdmin(user.uid === 'psu8GgwqNUSKHSQER9wkcEKbbz22'); });
       configureRevenueCat(user.uid).catch(error => console.warn('RevenueCat setup failed:', error));
 
