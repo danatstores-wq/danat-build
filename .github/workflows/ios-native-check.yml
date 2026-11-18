@@ -1,0 +1,45 @@
+name: iOS Native Build Check
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ios-native-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios-simulator-build:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install JavaScript dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Generate native iOS project
+        run: npx expo prebuild --platform ios --non-interactive
+
+      - name: Install CocoaPods
+        working-directory: ios
+        run: pod install
+
+      - name: Build for iOS Simulator
+        working-directory: ios
+        run: |
+          WORKSPACE=$(find . -maxdepth 1 -name '*.xcworkspace' -print -quit)
+          if [ -z "$WORKSPACE" ]; then
+            echo "Expo did not generate an iOS workspace."
+            exit 1
+          fi
+          xcodebuild -workspace "$WORKSPACE" -scheme DanatBuild -sdk iphonesimulator -configuration Debug -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
