@@ -152,16 +152,18 @@ export async function getAnnualProfessionalPackage(): Promise<PurchasesPackage |
 
 export async function purchaseProfessionalPackage(
   purchasePackage: PurchasesPackage
-): Promise<void> {
+): Promise<ProfessionalAccess> {
   if (Platform.OS === "web" || !configured) {
     throw new Error("In-app purchases are available in the Android and iOS app only.");
   }
-  await Purchases.purchasePackage(purchasePackage);
+  const result = await Purchases.purchasePackage(purchasePackage);
+  return getProfessionalAccessFromCustomerInfo(result.customerInfo);
 }
 
-export async function restoreProfessionalPurchases(): Promise<void> {
+export async function restoreProfessionalPurchases(): Promise<ProfessionalAccess> {
   if (Platform.OS === "web" || !configured) {
     throw new Error("Purchase restoration is available in the Android and iOS app only.");
   }
-  await Purchases.restorePurchases();
+  const customerInfo = await Purchases.restorePurchases();
+  return getProfessionalAccessFromCustomerInfo(customerInfo);
 }
