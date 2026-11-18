@@ -206,7 +206,7 @@ export default function AdminUsersScreen({ language, theme, onBack }: Props) {
     <View style={ui.container}>
       <Text style={styles.brand}>DANAT BUILD</Text>
       <Text style={styles.heading}>{t('Admin Users', 'إدارة المستخدمين', 'Gestion des utilisateurs')}</Text>
-      <Text style={styles.help}>{t('Manage manual Professional overrides here. Store purchases are verified by RevenueCat; check the RevenueCat dashboard for their current status. You can manage your own account too.', 'يمكنك إدارة صلاحيات المحترف اليدوية هنا. يتم التحقق من مشتريات المتجر عبر RevenueCat؛ راجع لوحة RevenueCat لمعرفة حالتها الحالية. يمكنك إدارة حسابك أيضاً.', 'Tous les utilisateurs et leur accès actuel sont affichés ci-dessous. Vous pouvez aussi gérer votre propre compte.')}</Text>
+      <Text style={styles.help}>{t('Manage manual Professional overrides here. Store purchases are verified by RevenueCat; check the RevenueCat dashboard for their current status. You can manage your own account too.', 'يمكنك إدارة صلاحيات المحترف اليدوية هنا. يتم التحقق من مشتريات المتجر عبر RevenueCat؛ راجع لوحة RevenueCat لمعرفة حالتها الحالية. يمكنك إدارة حسابك أيضاً.', 'Gérez ici les accès Professionnels accordés manuellement. Les achats des boutiques sont vérifiés par RevenueCat ; consultez son tableau de bord pour leur état actuel. Vous pouvez aussi gérer votre compte.')}</Text>
 
       <TextInput
         style={styles.input}
