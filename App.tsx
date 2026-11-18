@@ -140,7 +140,19 @@ export default function App() {
 
           if (['en', 'ar', 'fr'].includes(settings.lang)) setLang(settings.lang);
           if (['metric', 'imperial'].includes(settings.units)) setUnits(settings.units);
-          if (['dark', 'light'].incl  useEffect(() => {
+          if (['dark', 'light'].includes(settings.theme)) setTheme(settings.theme);
+        }
+      } catch (error) {
+        console.warn('Could not load settings:', error);
+      } finally {
+        setSettingsLoaded(true);
+      }
+    };
+
+    loadSettings();
+  }, []);
+
+  useEffect(() => {
     let unsubscribeEntitlement = () => {};
     let unsubscribeRevenueCat = () => {};
     const unsubscribeAuth = onAuthStateChanged(auth, user => {
@@ -264,17 +276,6 @@ export default function App() {
       }
     });
     return () => subscription.remove();
-  }, []);ed(true);
-          setMode('homeowner');
-          setScreen(current => current === 'building' ? 'home' : current);
-        }
-      );
-    });
-
-    return () => {
-      unsubscribeAuth();
-      unsubscribeEntitlement();
-    };
   }, []);
 
   // Revoke access locally at the exact entitlement expiry, and re-check
