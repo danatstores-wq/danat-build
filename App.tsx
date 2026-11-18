@@ -256,9 +256,9 @@ export default function App() {
     }
   }, [adminOverrideState, revenueCatActive]);
 
-  const refreshRevenueCatAccess = async () => {
+  const refreshRevenueCatAccess = async (verifiedAccess?: { active: boolean; expiresAt: number | null }) => {
     try {
-      const access = await getProfessionalAccess();
+      const access = verifiedAccess || await getProfessionalAccess();
       setRevenueCatActive(access.active);
       setProfessionalExpiry(access.expiresAt);
     } catch (error) {
