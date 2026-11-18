@@ -9,7 +9,7 @@ type Props = {
   theme: "dark" | "light";
   active: boolean;
   onBack: () => void;
-  onAccessRefresh: () => Promise<void>;
+  onAccessRefresh: (access?: { active: boolean; expiresAt: number | null }) => Promise<void>;
 };
 
 const GOLD = "#E9B85D";
@@ -48,8 +48,8 @@ export default function SubscriptionScreen({ language, theme, active, onBack, on
     setError("");
     setMessage("");
     try {
-      await purchaseProfessionalPackage(annualPackage);
-      await onAccessRefresh();
+      const access = await purchaseProfessionalPackage(annualPackage);
+      await onAccessRefresh(access);
       setMessage(t("Purchase completed. Professional access is being refreshed.", "تم الشراء. جارٍ تحديث صلاحية المحترف.", "Achat terminé. Actualisation de l’accès Professionnel."));
     } catch (e: any) {
       if (!e?.userCancelled) {
@@ -66,8 +66,8 @@ export default function SubscriptionScreen({ language, theme, active, onBack, on
     setError("");
     setMessage("");
     try {
-      await restoreProfessionalPurchases();
-      await onAccessRefresh();
+      const access = await restoreProfessionalPurchases();
+      await onAccessRefresh(access);
       setMessage(t("Store purchases have been restored.", "تمت استعادة مشتريات المتجر.", "Les achats du magasin ont été restaurés."));
     } catch (e: any) {
       setError(e?.message || t("Could not restore purchases.", "تعذرت استعادة المشتريات.", "Impossible de restaurer les achats."));
