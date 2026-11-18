@@ -198,20 +198,10 @@ export const revenueCatWebhook = onRequest(
             }, { merge: true });
           }
         } else if (eventType === "CANCELLATION") {
-          // A voluntary cancellation (UNSUBSCRIBE) stops future renewal but
-          // does not end the already-paid term. Revoke immediately only for
-          // an explicit refund or developer-initiated cancellation.
-          const shouldRevokeImmediately = [
-            "CUSTOMER_SUPPORT",
-            "DEVELOPER_INITIATED",
-          ].includes(event.cancel_reason || "");
-          const matchesCurrent = matchesCurrentTransaction(current, event);
-          if (shouldRevokeImmediately && matchesCurrent) {
-            transaction.set(entitlementRef, {
-              status: "revoked",
-              lastValidatedAt: FieldValue.serverTimestamp(),
-            }, { merge: true });
-          }
+          // Cancellation can mean unsubscribe, billing trouble, or a refund.
+          // It does not by itself prove that the paid entitlement has ended.
+          // Keep access until RevenueCat sends EXPIRATION; this also avoids
+          // cutting off users who remain active during a billing grace period.
         } else if (eventType === "REFUND_REVERSED") {
           if (currentExpiry > now && matchesCurrentTransaction(current, event)) {
             transaction.set(entitlementRef, {
