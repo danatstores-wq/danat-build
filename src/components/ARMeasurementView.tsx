@@ -191,11 +191,11 @@ export default function ARMeasurementView({ mode, units, language }: Props) {
 
       <View style={s.controls}>
         <Text style={s.instructions}>
-          {mode === 'distance'
-            ? (mode === 'height'
-              ? t('Aim at the bottom of the object and mark its base. Then aim at the top and mark again.', 'وجّه المؤشر إلى أسفل الجسم وحدد القاعدة، ثم وجّهه إلى أعلاه وحدد مرة أخرى.', 'Visez la base de l’objet et marquez-la. Visez ensuite son sommet et marquez à nouveau.')
-              : t('Aim the centre reticle at the first surface point and tap MARK POINT. Aim at the second point and mark again.', 'وجّه المؤشر الأوسط إلى نقطة السطح الأولى واضغط تحديد نقطة. وجّهه إلى النقطة الثانية وحددها مجدداً.', 'Visez le premier point avec le réticule central et appuyez sur MARQUER. Visez le second point et recommencez.'))
-            : t('Aim at each floor corner and tap MARK CORNER. Mark at least three corners, then close the boundary.', 'وجّه المؤشر إلى كل زاوية أرضية واضغط تحديد زاوية. حدد ثلاث زوايا على الأقل ثم أغلق الحدود.', 'Visez chaque coin du sol et appuyez sur MARQUER. Marquez au moins trois coins puis fermez le contour.')}
+          {mode === 'height'
+            ? t('Aim at the bottom of the object and mark its base. Then aim at the top and mark again.', 'وجّه المؤشر إلى أسفل الجسم وحدد القاعدة، ثم وجّهه إلى أعلاه وحدد مرة أخرى.', 'Visez la base de l’objet et marquez-la. Visez ensuite son sommet et marquez à nouveau.')
+            : mode === 'distance'
+              ? t('Aim the centre reticle at the first surface point and tap MARK POINT. Aim at the second point and mark again.', 'وجّه المؤشر الأوسط إلى نقطة السطح الأولى واضغط تحديد نقطة. وجّهه إلى النقطة الثانية وحددها مجدداً.', 'Visez le premier point avec le réticule central et appuyez sur MARQUER. Visez le second point et recommencez.')
+              : t('Aim at each floor corner and tap MARK CORNER. Mark at least three corners, then close the boundary.', 'وجّه المؤشر إلى كل زاوية أرضية واضغط تحديد زاوية. حدد ثلاث زوايا على الأقل ثم أغلق الحدود.', 'Visez chaque coin du sol et appuyez sur MARQUER. Marquez au moins trois coins puis fermez le contour.')}
         </Text>
         <View style={s.row}>
           <Pressable style={s.primary} onPress={markPoint} disabled={(mode !== 'room' && points.length >= 2) || (mode === 'room' && finished)}>
