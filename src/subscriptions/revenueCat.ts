@@ -49,24 +49,20 @@ export function getProfessionalAccessFromCustomerInfo(
       && !!entitlement.expirationDate
   );
 
+  let googleExpiry = 0;
   if (googleEntitlement?.expirationDate) {
-    const expiresAt = new Date(googleEntitlement.expirationDate).getTime();
-    return {
-      active: Number.isFinite(expiresAt) && expiresAt > Date.now(),
-      expiresAt: Number.isFinite(expiresAt) ? expiresAt : null,
-    };
+    googleExpiry = new Date(googleEntitlement.expirationDate).getTime();
   }
 
   // CustomerInfo also exposes active subscription product IDs and their
   // store-supplied expiration dates. Use this as a fallback if the Play
   // product has not yet been attached to a RevenueCat entitlement.
-  const activeGoogleProduct = customerInfo.activeSubscriptions.find(isProfessionalProduct);
-  if (activeGoogleProduct) {
-    const expiration = customerInfo.allExpirationDates[activeGoogleProduct]
-      || customerInfo.allExpirationDates[PROFESSIONAL_PRODUCT_ID];
-    const expiresAt = expiration ? new Date(expiration).getTime() : 0;
-    if (expiresAt > Date.now()) {
-      return { active: true, expiresAt };
+  if (!googleExpiry) {
+    const activeGoogleProduct = customerInfo.activeSubscriptions.find(isProfessionalProduct);
+    if (activeGoogleProduct) {
+      const expiration = customerInfo.allExpirationDates[activeGoogleProduct]
+        || customerInfo.allExpirationDates[PROFESSIONAL_PRODUCT_ID];
+      googleExpiry = expiration ? new Date(expiration).getTime() : 0;
     }
   }
 
@@ -76,10 +72,18 @@ export function getProfessionalAccessFromCustomerInfo(
     .filter(timestamp => Number.isFinite(timestamp) && timestamp > 0)
     .sort((a, b) => a - b);
 
-  let expiresAt = 0;
+  let appleExpiry = 0;
   for (const purchaseDate of applePurchases) {
-    expiresAt = addOneCalendarYear(Math.max(expiresAt, purchaseDate));
+    appleExpiry = addOneCalendarYear(Math.max(appleExpiry, purchaseDate));
   }
+
+  // A Firebase UID may use the same RevenueCat account on either platform.
+  // Preserve whichever verified store purchase currently grants the later
+  // access end date.
+  const expiresAt = Math.max(
+    Number.isFinite(googleExpiry) ? googleExpiry : 0,
+    appleExpiry
+  );
 
   return {
     active: expiresAt > Date.now(),
