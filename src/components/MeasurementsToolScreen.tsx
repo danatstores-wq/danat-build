@@ -135,6 +135,10 @@ export default function MeasurementsToolScreen({ toolId, language, units, onBack
       )}
 
       {isHeightTool && (
+        <ARMeasurementView mode="height" units={units} language={language} />
+      )}
+
+      {isHeightTool && (
         <View style={s.panel}>
           <Text style={s.eyebrow}>{t('TRIGONOMETRIC HEIGHT ESTIMATE', 'تقدير الارتفاع بالمثلثات', 'ESTIMATION DE HAUTEUR PAR TRIGONOMÉTRIE')}</Text>
           <Text style={s.label}>{t('Horizontal distance to the base', 'المسافة الأفقية إلى القاعدة', 'Distance horizontale jusqu’à la base')} ({unit})</Text>
