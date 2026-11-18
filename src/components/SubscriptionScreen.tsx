@@ -1,5 +1,7 @@
-import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { PurchasesPackage } from "react-native-purchases";
+import { getAnnualProfessionalPackage, purchaseProfessionalPackage, restoreProfessionalPurchases } from "../subscriptions/revenueCat";
 import { getThemedStyles } from "../theme";
 
 type Props = {
@@ -7,14 +9,72 @@ type Props = {
   theme: "dark" | "light";
   active: boolean;
   onBack: () => void;
+  onAccessRefresh: () => Promise<void>;
 };
 
 const GOLD = "#E9B85D";
 
-export default function SubscriptionScreen({ language, theme, active, onBack }: Props) {
+export default function SubscriptionScreen({ language, theme, active, onBack, onAccessRefresh }: Props) {
   const ui = getThemedStyles(styles, theme);
+  const [annualPackage, setAnnualPackage] = useState<PurchasesPackage | null>(null);
+  const [loadingPackage, setLoadingPackage] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+
   const t = (en: string, ar: string, fr: string) =>
     language === "ar" ? ar : language === "fr" ? fr : en;
+
+  const loadPackage = useCallback(async () => {
+    setLoadingPackage(true);
+    setError("");
+    try {
+      setAnnualPackage(await getAnnualProfessionalPackage());
+    } catch (e: any) {
+      setAnnualPackage(null);
+      setError(e?.message || t("Could not load the store product.", "تعذر تحميل منتج المتجر.", "Impossible de charger le produit du magasin."));
+    } finally {
+      setLoadingPackage(false);
+    }
+  }, [language]);
+
+  useEffect(() => {
+    loadPackage();
+  }, [loadPackage]);
+
+  const buy = async () => {
+    if (!annualPackage || busy) return;
+    setBusy(true);
+    setError("");
+    setMessage("");
+    try {
+      await purchaseProfessionalPackage(annualPackage);
+      await onAccessRefresh();
+      setMessage(t("Purchase completed. Professional access is being refreshed.", "تم الشراء. جارٍ تحديث صلاحية المحترف.", "Achat terminé. Actualisation de l’accès Professionnel."));
+    } catch (e: any) {
+      if (!e?.userCancelled) {
+        setError(e?.message || t("The purchase could not be completed.", "تعذر إتمام عملية الشراء.", "L’achat n’a pas pu être effectué."));
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const restore = async () => {
+    if (busy) return;
+    setBusy(true);
+    setError("");
+    setMessage("");
+    try {
+      await restoreProfessionalPurchases();
+      await onAccessRefresh();
+      setMessage(t("Store purchases have been restored.", "تمت استعادة مشتريات المتجر.", "Les achats du magasin ont été restaurés."));
+    } catch (e: any) {
+      setError(e?.message || t("Could not restore purchases.", "تعذرت استعادة المشتريات.", "Impossible de restaurer les achats."));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <View style={ui.container}>
@@ -27,9 +87,9 @@ export default function SubscriptionScreen({ language, theme, active, onBack }: 
         <Text style={ui.price}>$10<Text style={ui.perYear}> / {t("year", "سنوياً", "an")}</Text></Text>
         <Text style={ui.description}>
           {t(
-            "One year of full access. Renew manually whenever you choose.",
-            "سنة كاملة من الوصول. جدد يدوياً عندما ترغب.",
-            "Une année d’accès complet. Renouvelez manuellement quand vous le souhaitez."
+            "One year of full access. Renew manually whenever you choose. No automatic yearly renewal.",
+            "سنة كاملة من الوصول. جدد يدوياً عندما ترغب. لا يوجد تجديد سنوي تلقائي.",
+            "Une année d’accès complet. Renouvelez manuellement quand vous le souhaitez. Aucun renouvellement annuel automatique."
           )}
         </Text>
         <View style={ui.divider} />
@@ -46,15 +106,36 @@ export default function SubscriptionScreen({ language, theme, active, onBack }: 
         <Text style={ui.success}>
           {t("Professional access is active on this account.", "الاشتراك الاحترافي فعال على هذا الحساب.", "L’accès Professionnel est actif sur ce compte.")}
         </Text>
+      ) : null}
+
+      {loadingPackage ? (
+        <ActivityIndicator color={GOLD} style={ui.loader} />
+      ) : annualPackage ? (
+        <Pressable style={[ui.buyButton, busy && ui.disabled]} onPress={buy} disabled={busy}>
+          {busy ? <ActivityIndicator color="#17110a" /> : (
+            <Text style={ui.buyText}>
+              {active
+                ? t("RENEW FOR ONE YEAR", "تجديد لسنة واحدة", "RENOUVELER POUR UN AN")
+                : t("BUY PROFESSIONAL — $10 / YEAR", "اشترِ المحترف — 10$ سنوياً", "ACHETER PRO — 10$ / AN")}
+            </Text>
+          )}
+        </Pressable>
       ) : (
         <Text style={ui.notice}>
           {t(
-            "Online subscriptions are temporarily unavailable. To keep Danat Build on Firebase's free plan and prevent unverified payments, purchases are disabled. An administrator can grant or remove Professional access manually.",
-            "الاشتراكات عبر الإنترنت غير متاحة مؤقتاً. للحفاظ على الخطة المجانية في Firebase ومنع المدفوعات غير المتحقق منها، تم إيقاف الشراء. يمكن للمدير منح أو إزالة صلاحية المحترف يدوياً.",
-            "Les abonnements en ligne sont temporairement indisponibles. Pour conserver l’offre gratuite Firebase et éviter les paiements non vérifiés, les achats sont désactivés. Un administrateur peut accorder ou retirer manuellement l’accès Professionnel."
+            "Store purchases are not configured yet. The Google Play and Apple products and the Professional annual RevenueCat offering must be active before checkout can appear.",
+            "لم يتم إعداد مشتريات المتجر بعد. يجب تفعيل منتجات Google Play وApple وعرض الاشتراك السنوي في RevenueCat قبل إتاحة الشراء.",
+            "Les achats en magasin ne sont pas encore configurés. Les produits Google Play et Apple ainsi que l’offre annuelle RevenueCat doivent être actifs avant de proposer le paiement."
           )}
         </Text>
       )}
+
+      <Pressable style={[ui.restoreButton, busy && ui.disabled]} onPress={restore} disabled={busy || loadingPackage}>
+        <Text style={ui.restoreText}>{t("RESTORE PURCHASES", "استعادة المشتريات", "RESTAURER LES ACHATS")}</Text>
+      </Pressable>
+
+      {!!error && <Text style={ui.error}>{error}</Text>}
+      {!!message && <Text style={ui.success}>{message}</Text>}
 
       <Pressable style={ui.backButton} onPress={onBack}>
         <Text style={ui.backText}>{t("BACK", "رجوع", "RETOUR")}</Text>
@@ -75,6 +156,13 @@ const styles = StyleSheet.create({
   feature: { color: "#f2f2f2", fontSize: 13, lineHeight: 22, marginBottom: 8 },
   notice: { color: "#e9c98c", fontSize: 12, textAlign: "center", marginTop: 20, lineHeight: 20, paddingHorizontal: 8 },
   success: { color: "#9fdaa9", fontSize: 12, textAlign: "center", marginTop: 16, lineHeight: 19 },
+  error: { color: "#ff7777", fontSize: 12, textAlign: "center", marginTop: 14, lineHeight: 19 },
+  loader: { marginTop: 20 },
+  buyButton: { width: "100%", marginTop: 22, borderRadius: 12, backgroundColor: GOLD, paddingVertical: 15, paddingHorizontal: 12, alignItems: "center" },
+  buyText: { color: "#17110a", fontSize: 12, fontWeight: "900", textAlign: "center" },
+  restoreButton: { marginTop: 12, paddingVertical: 12, paddingHorizontal: 16, borderRadius: 10, borderWidth: 1, borderColor: GOLD, width: "100%", alignItems: "center" },
+  restoreText: { color: GOLD, fontSize: 11, fontWeight: "900" },
+  disabled: { opacity: 0.55 },
   backButton: { marginTop: 22, padding: 12 },
   backText: { color: "#bbb", fontWeight: "800", fontSize: 12 },
 });
