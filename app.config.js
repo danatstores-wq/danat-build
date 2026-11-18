@@ -17,6 +17,13 @@ module.exports = ({ config }) => {
   return {
     ...config,
     newArchEnabled: true, // ViroReact ARCore/ARKit requires Fabric and a native development build; APK is published for device testing
+    extra: {
+      ...(config.extra || {}),
+      eas: {
+        ...(config.extra?.eas || {}),
+        projectId: "b3e90d12-040a-4228-9e89-8008ef5a35a1",
+      },
+    },
     plugins: [
       ...plugins,
       [
