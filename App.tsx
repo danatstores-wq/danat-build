@@ -238,7 +238,6 @@ export default function App() {
       : revenueCatActive;
 
     setProfessionalActive(active);
-    if (adminOverrideState.enabled) setProfessionalExpiry(null);
     if (!active) {
       setMode('homeowner');
       setScreen(current => current === 'building' ? 'home' : current);
@@ -253,7 +252,19 @@ export default function App() {
     } catch (error) {
       console.warn('Could not refresh RevenueCat access:', error);
     }
-  };ed(true);
+  };
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', state => {
+      if (state === 'active') {
+        getProfessionalAccess().then(access => {
+          setRevenueCatActive(access.active);
+          setProfessionalExpiry(access.expiresAt);
+        }).catch(error => console.warn('RevenueCat foreground refresh failed:', error));
+      }
+    });
+    return () => subscription.remove();
+  }, []);ed(true);
           setMode('homeowner');
           setScreen(current => current === 'building' ? 'home' : current);
         }
@@ -269,7 +280,7 @@ export default function App() {
   // Revoke access locally at the exact entitlement expiry, and re-check
   // whenever the app returns to the foreground.
   useEffect(() => {
-    if (!professionalExpiry) return;
+    if (!professionalExpiry || adminOverrideState?.enabled) return;
 
     const checkExpiry = () => {
       if (professionalExpiry <= Date.now()) {
@@ -300,7 +311,7 @@ export default function App() {
       clearTimeout(expiryTimer);
       appStateSubscription.remove();
     };
-  }, [professionalExpiry]);
+  }, [professionalExpiry, adminOverrideState]);
 
   useEffect(() => {
     if (!settingsLoaded) return;
