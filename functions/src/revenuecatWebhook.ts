@@ -22,6 +22,7 @@ type RevenueCatEvent = {
   expiration_at_ms?: number | null;
   transaction_id?: string;
   original_transaction_id?: string;
+  cancel_reason?: string;
   environment?: string;
 };
 
@@ -197,10 +198,15 @@ export const revenueCatWebhook = onRequest(
             }, { merge: true });
           }
         } else if (eventType === "CANCELLATION") {
-          // For the configured non-renewing/prepaid products this event is
-          // treated as a refund/revocation, not an auto-renewal cancellation.
+          // A voluntary cancellation (UNSUBSCRIBE) stops future renewal but
+          // does not end the already-paid term. Revoke immediately only for
+          // an explicit refund or developer-initiated cancellation.
+          const shouldRevokeImmediately = [
+            "CUSTOMER_SUPPORT",
+            "DEVELOPER_INITIATED",
+          ].includes(event.cancel_reason || "");
           const matchesCurrent = matchesCurrentTransaction(current, event);
-          if (matchesCurrent) {
+          if (shouldRevokeImmediately && matchesCurrent) {
             transaction.set(entitlementRef, {
               status: "revoked",
               lastValidatedAt: FieldValue.serverTimestamp(),
