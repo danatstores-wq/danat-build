@@ -1,10 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView, StyleSheet, Platform } from 'react-native';
 import { DeviceMotion } from 'expo-sensors';
-import ARMeasurementView from './ARMeasurementView';
 
 type Language = 'en' | 'ar' | 'fr';
 type Props = { toolId: string; language: Language; units: 'metric' | 'imperial'; onBack: () => void };
+
+// Keep the native Viro/AR module out of the app's startup import graph.
+// It is loaded only when the user explicitly opens an AR measurement tool.
+function LazyARMeasurementView(props: { mode: 'distance' | 'room' | 'height'; units: 'metric' | 'imperial'; language: Language }) {
+  const ARMeasurementView = require('./ARMeasurementView').default;
+  return <ARMeasurementView {...props} />;
+}
 
 export default function MeasurementsToolScreen({ toolId, language, units, onBack }: Props) {
   const [available, setAvailable] = useState<boolean | null>(null);
@@ -135,7 +141,7 @@ export default function MeasurementsToolScreen({ toolId, language, units, onBack
       )}
 
       {isHeightTool && (
-        <ARMeasurementView mode="height" units={units} language={language} />
+        <LazyARMeasurementView mode="height" units={units} language={language} />
       )}
 
       {isHeightTool && (
@@ -153,7 +159,7 @@ export default function MeasurementsToolScreen({ toolId, language, units, onBack
       )}
 
       {isArTool && (
-        <ARMeasurementView
+        <LazyARMeasurementView
           mode={toolId === 'ar-room' ? 'room' : 'distance'}
           units={units}
           language={language}
