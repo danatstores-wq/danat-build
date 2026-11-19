@@ -12,10 +12,6 @@ type Point3 = [number, number, number];
 type Props = { mode: 'distance' | 'room' | 'height'; units: 'metric' | 'imperial'; language: Language };
 
 const GOLD = '#E9B85D';
-ViroMaterials.createMaterials({
-  danatGold: { diffuseColor: '#E9B85D', lightingModel: 'Lambert' },
-  danatWhite: { diffuseColor: '#FFFFFF', lightingModel: 'Lambert' },
-});
 
 function distance3(a: Point3, b: Point3) {
   return Math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2);
@@ -41,6 +37,12 @@ function formatDistance(meters: number, units: 'metric' | 'imperial') {
 
 function DanatARScene(props: any) {
   const sceneRef = React.useRef<any>(null);
+  React.useEffect(() => {
+    ViroMaterials.createMaterials({
+      danatGold: { diffuseColor: '#E9B85D', lightingModel: 'Lambert' },
+      danatWhite: { diffuseColor: '#FFFFFF', lightingModel: 'Lambert' },
+    });
+  }, []);
   const appProps = props.sceneNavigator.viroAppProps;
   const points: Point3[] = appProps.points || [];
 
