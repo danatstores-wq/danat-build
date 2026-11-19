@@ -1,6 +1,15 @@
 name: Build Danat Build standalone Android APK
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/build-preview-apk.yml"
+      - "eas.json"
+      - "app.config.js"
+      - "package.json"
+      - "package-lock.json"
   workflow_dispatch:
 
 permissions:
