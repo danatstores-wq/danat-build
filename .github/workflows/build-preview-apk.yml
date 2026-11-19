@@ -77,16 +77,16 @@ jobs:
           print("Configured the Android debug variant to embed the JavaScript bundle.")
           PY
 
-      - name: Build installable standalone APK
+      - name: Build standalone release APK
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon assembleDebug
+          ./gradlew --no-daemon assembleRelease
 
-      - name: Upload standalone APK
+      - name: Upload standalone release APK
         uses: actions/upload-artifact@v4
         with:
           name: danat-build-standalone-preview-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
           retention-days: 7
