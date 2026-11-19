@@ -175,9 +175,18 @@ export default function App() {
         return;
       }
 
-      // Keep unverified accounts on the authentication screen. Do not load
-      // subscriptions, entitlements, or the main app until email is verified.
-      if (!user.emailVerified) {
+      // Accounts created before 19 November 2026 are legacy accounts and
+      // are exempt from the email-verification requirement introduced later.
+      // Firebase creationTime is UTC; midnight on 19 November in Lebanon (UTC+2)
+      // is 2026-11-18T22:00:00.000Z. If creationTime is unavailable, fail closed.
+      const accountCreatedAt = user.metadata.creationTime
+        ? Date.parse(user.metadata.creationTime)
+        : Number.NaN;
+      const emailVerificationRequired =
+        !Number.isFinite(accountCreatedAt) ||
+        accountCreatedAt >= Date.parse('2026-11-18T22:00:00.000Z');
+
+      if (!user.emailVerified && emailVerificationRequired) {
         logOutRevenueCat().catch(error => console.warn('RevenueCat sign-out failed:', error));
         setAdminOverrideState({ enabled: false, active: false });
         setMode('homeowner');
