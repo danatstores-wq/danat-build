@@ -10,6 +10,8 @@ on:
       - "app.config.js"
       - "package.json"
       - "package-lock.json"
+      - "src/**"
+      - "App.tsx"
   workflow_dispatch:
 
 permissions:
@@ -26,24 +28,21 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
           cache: npm
 
-      - name: Verify Expo token
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: |
-          if [ -z "$EXPO_TOKEN" ]; then
-            echo "::error::Add an Expo access token as the GitHub Actions secret EXPO_TOKEN before running this workflow."
-            exit 1
-          fi
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build standalone preview APK with EAS
+      - name: Generate native Android project
+        run: npx expo prebuild --platform android --no-install --clean
         env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           EXPO_PUBLIC_FIREBASE_API_KEY: ${{ secrets.EXPO_PUBLIC_FIREBASE_API_KEY }}
           EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN }}
           EXPO_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.EXPO_PUBLIC_FIREBASE_PROJECT_ID }}
@@ -51,14 +50,43 @@ jobs:
           EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
           EXPO_PUBLIC_FIREBASE_APP_ID: ${{ secrets.EXPO_PUBLIC_FIREBASE_APP_ID }}
           EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID }}
+
+      - name: Bundle JavaScript into the APK
         run: |
-          npx --yes eas-cli@latest build --platform android --profile preview --non-interactive --wait
-          npx --yes eas-cli@latest build:download --latest --platform android --path ./danat-build-preview.apk
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p = Path("android/app/build.gradle")
+          s = p.read_text()
+          match = re.search(r"(?m)^react\\s*\\{", s)
+          if not match:
+              raise SystemExit("Could not find the React Native Gradle react { } configuration.")
+          start = match.end()
+          # Replace an existing debuggableVariants setting, or add one at the start
+          # of the react block. An empty list makes Gradle embed the JS bundle in debug.
+          block_end = s.find("\\n}", start)
+          if block_end < 0:
+              raise SystemExit("Could not find the end of the React Native Gradle configuration.")
+          block = s[start:block_end]
+          if re.search(r"(?m)^\\s*debuggableVariants\\s*=", block):
+              block = re.sub(r"(?m)^\\s*debuggableVariants\\s*=.*$", "    debuggableVariants = []", block)
+          else:
+              block = "\\n    debuggableVariants = []" + block
+          s = s[:start] + block + s[block_end:]
+          p.write_text(s)
+          print("Configured the Android debug variant to embed the JavaScript bundle.")
+          PY
+
+      - name: Build installable standalone APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
 
       - name: Upload standalone APK
         uses: actions/upload-artifact@v4
         with:
           name: danat-build-standalone-preview-apk
-          path: ./danat-build-preview.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 7
