@@ -1,4 +1,5 @@
 name: Build Danat Build standalone Android APK
+# Use assembleRelease so the installed app starts directly and never opens the dev-server launcher.
 
 on:
   push:
