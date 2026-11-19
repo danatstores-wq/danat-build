@@ -150,7 +150,16 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
           password
         );
 
-        if (!credential.user.emailVerified) {
+        // Keep the same legacy-account cutoff as the app-level auth gate.
+        // Accounts created before 19 November 2026 (Lebanon time) are exempt.
+        const accountCreatedAt = credential.user.metadata.creationTime
+          ? Date.parse(credential.user.metadata.creationTime)
+          : Number.NaN;
+        const emailVerificationRequired =
+          !Number.isFinite(accountCreatedAt) ||
+          accountCreatedAt >= Date.parse('2026-11-18T22:00:00.000Z');
+
+        if (!credential.user.emailVerified && emailVerificationRequired) {
           try {
             await sendEmailVerification(credential.user);
             setMessage(t(
