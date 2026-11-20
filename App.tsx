@@ -198,6 +198,9 @@ export default function App() {
         return;
       }
 
+      // A restored Firebase session should bypass the welcome/language screen.
+      setScreen(current => current === 'welcome' || current === 'auth' ? 'home' : current);
+
       getIdTokenResult(user).then(token => setIsAdmin(user.uid === 'psu8GgwqNUSKHSQER9wkcEKbbz22' || token.claims.admin === true)).catch(error => { console.warn('Could not read admin role:', error); setIsAdmin(user.uid === 'psu8GgwqNUSKHSQER9wkcEKbbz22'); });
 
       // RevenueCat validates store purchases directly. No Firebase Cloud
