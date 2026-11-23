@@ -16,6 +16,15 @@ module.exports = ({ config }) => {
 
   return {
     ...config,
+    icon: "./assets/branding/Luxury Gold Construction Emblem.png",
+    android: {
+      ...(config.android || {}),
+      adaptiveIcon: {
+        ...(config.android?.adaptiveIcon || {}),
+        foregroundImage: "./assets/branding/Luxury Gold Construction Emblem.png",
+        backgroundColor: "#080B0E",
+      },
+    },
     newArchEnabled: true, // ViroReact ARCore/ARKit requires Fabric and a native development build; APK is published for device testing
     extra: {
       ...(config.extra || {}),
