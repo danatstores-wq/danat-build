@@ -232,6 +232,8 @@ export default function App() {
         error => {
           console.warn('Could not read administrator access override:', error);
           setAdminOverrideState({ enabled: false, active: false });
+          setRevenueCatActive(false);
+          setProfessionalExpiry(null);
           setEntitlementLoaded(true);
         }
       );
