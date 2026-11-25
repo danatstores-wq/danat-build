@@ -45,6 +45,9 @@ jobs:
       - name: RevenueCat Cloudflare Worker syntax check
         run: npm run check:revenuecat-worker
 
+      - name: RevenueCat Cloudflare Worker integration tests
+        run: npm run test:revenuecat-worker
+
       - name: TypeScript check
         run: npx tsc --noEmit
 
