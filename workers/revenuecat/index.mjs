@@ -134,7 +134,7 @@ async function revenueCatSubscriber(env, uid) {
 async function readDocument(env, token, collection, id) {
   try {
     const doc = await firestoreRequest(env, token, "/" + collection + "/" + encodeURIComponent(id));
-    return { name: doc.name, data: fromFirestoreFields(doc.fields || {}) };
+    return { name: doc.name, updateTime: doc.updateTime, data: fromFirestoreFields(doc.fields || {}) };
   } catch (error) {
     if (error.status === 404) return null;
     throw error;
@@ -169,17 +169,25 @@ async function queryAppleLedger(env, token, uid, productId) {
       refundStateAtMs: data.refundStateAtMs || 0,
       eventIds: data.eventIds || [],
     };
-    docs.push({ name: row.document.name, data });
+    docs.push({ name: row.document.name, updateTime: row.document.updateTime, data });
   }
   return { ledger, docs };
 }
 
-async function writeDocument(env, token, collection, id, data, fields) {
-  const mask = fields.map(field => "updateMask.fieldPaths=" + encodeURIComponent(field)).join("&");
-  const path = "/" + collection + "/" + encodeURIComponent(id) + "?" + mask;
-  return firestoreRequest(env, token, path, {
-    method: "PATCH",
-    body: JSON.stringify(firestoreDocument("", data)),
+function makeWrite(projectId, collection, id, data, fields, precondition) {
+  const name = "projects/" + projectId + "/databases/(default)/documents/"
+    + collection + "/" + id;
+  return {
+    update: firestoreDocument(name, data),
+    updateMask: { fieldPaths: fields },
+    currentDocument: precondition,
+  };
+}
+
+async function commitWrites(env, token, writes) {
+  return firestoreRequest(env, token, ":commit", {
+    method: "POST",
+    body: JSON.stringify({ writes }),
   });
 }
 
@@ -270,9 +278,14 @@ async function processEvent(request, env) {
     adminOverridePreserved: adminOverride,
   };
 
+  const writes = [];
   if (ledgerWrite) {
-    const ledgerFields = Object.keys(ledgerWrite.data);
-    await writeDocument(env, token, "revenuecatTransactions", ledgerWrite.key, ledgerWrite.data, ledgerFields);
+    const existingLedger = (await queryAppleLedger(env, token, uid, appleProduct)).docs
+      .find(doc => doc.name.endsWith("/" + ledgerWrite.key));
+    const precondition = existingLedger?.updateTime
+      ? { updateTime: existingLedger.updateTime } : { exists: false };
+    writes.push(makeWrite(env.FIREBASE_PROJECT_ID, "revenuecatTransactions",
+      ledgerWrite.key, ledgerWrite.data, Object.keys(ledgerWrite.data), precondition));
   }
   if (!adminOverride) {
     const entitlementData = {
@@ -283,9 +296,16 @@ async function processEvent(request, env) {
       productId,
       lastValidatedAt: { __timestamp: now },
     };
-    await writeDocument(env, token, "entitlements", uid, entitlementData, Object.keys(entitlementData));
+    const precondition = currentEntitlement?.updateTime
+      ? { updateTime: currentEntitlement.updateTime } : { exists: false };
+    writes.push(makeWrite(env.FIREBASE_PROJECT_ID, "entitlements", uid,
+      entitlementData, Object.keys(entitlementData), precondition));
   }
-  await writeDocument(env, token, "revenuecatWebhookEvents", eventKey, eventData, Object.keys(eventData));
+  writes.push(makeWrite(env.FIREBASE_PROJECT_ID, "revenuecatWebhookEvents",
+    eventKey, eventData, Object.keys(eventData), { exists: false }));
+  // Firestore Commit applies ledger, entitlement, and idempotency record atomically.
+  // Preconditions make concurrent deliveries retry instead of overwriting newer state.
+  await commitWrites(env, token, writes);
   return response(200, { received: true, processed: true, adminOverridePreserved: adminOverride });
 }
 
