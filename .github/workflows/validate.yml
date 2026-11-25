@@ -39,6 +39,9 @@ jobs:
       - name: Quick calculator regression tests
         run: npm run test:calculators
 
+      - name: RevenueCat refund ledger regression tests
+        run: npm run test:revenuecat-ledger
+
       - name: TypeScript check
         run: npx tsc --noEmit
 
