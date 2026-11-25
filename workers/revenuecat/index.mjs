@@ -81,7 +81,7 @@ async function serviceAccountToken(env) {
     exp: now + 3600,
   })));
   const unsigned = header + "." + claims;
-  const pem = privateKeyPem.replaceAll("-----BEGIN PRIVATE KEY-----", "").replaceAll("-----END PRIVATE KEY-----", "").replaceAll("\\n", "").replaceAll("\\r", "").replaceAll(" ", "");
+  const pem = privateKeyPem.replaceAll("-----BEGIN PRIVATE KEY-----", "").replaceAll("-----END PRIVATE KEY-----", "").replaceAll(String.fromCharCode(10), "").replaceAll(String.fromCharCode(13), "").replaceAll(" ", "");
   const keyBytes = Uint8Array.from(atob(pem), char => char.charCodeAt(0));
   const key = await crypto.subtle.importKey(
     "pkcs8", keyBytes, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]
