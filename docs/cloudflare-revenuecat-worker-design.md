@@ -4,7 +4,7 @@
 
 This is a source-only implementation plan for Firebase project `danat-build` on the Spark plan. It does not deploy a Worker, create Cloudflare resources, change Firebase configuration, or enable purchases.
 
-The checkout safety gate in PR #15 remains required. Keep that PR open and unmerged until this backend and the app's server-authoritative access flow have been tested.
+This branch now contains its own checkout safety gate and Firestore-authoritative app access changes. Keep the gate disabled until the backend and app flow have been tested; PR #15 remains a separate safety-only review.
 
 ## Worker responsibilities
 
@@ -48,15 +48,15 @@ Keep the current public app data model:
 
 Firestore Security Rules do not constrain a service account using the Firestore REST API. Store the service-account private key only as a Cloudflare Worker secret, use a dedicated service account with the minimum feasible IAM role, and never commit credentials or put them in Expo environment variables. Confirm the IAM role and project scope before creating credentials.
 
-## App changes required later
+## App-side safety changes now included in this branch
 
-The current app calculates paid access locally from RevenueCat CustomerInfo. That is not sufficient as the final authority for refunds. Once the Worker is built and tested:
-
-- Make Firestore `entitlements/{uid}` the source of truth for store access as well as administrator overrides.
-- Remove client-side entitlement granting from RevenueCat CustomerInfo. The SDK may still be used to present the store purchase UI and refresh CustomerInfo after purchase.
-- After purchase/restore, show a pending-verification message and wait for the Worker webhook to update Firestore; never unlock Professional from the local purchase callback alone.
-- Keep Firestore rules owner-read/admin-read and prevent client writes to store entitlement fields.
-- Keep the purchase/restore UI disabled until the backend, app changes, and sandbox tests all pass.
+- Store access is read from the server-written `entitlements/{uid}` Firestore document; local RevenueCat CustomerInfo no longer grants Professional.
+- A valid store entitlement requires `source: "revenuecat"`, `status: "active"`, and a future Firestore `expiresAt`.
+- Administrator overrides continue to take precedence.
+- Entitlement listener errors fail closed.
+- Store checkout and restore are hidden in the UI and guarded in the RevenueCat service while `STORE_PURCHASES_ENABLED` is false.
+- The purchase screen explains in English, Arabic, and French that access activates only after server verification.
+- The eventual purchase/restore flow must show a pending-verification state and wait for the Worker webhook to update Firestore; it must never unlock Professional from the local purchase callback alone.
 
 ## Required secrets (names only; values are never committed)
 
