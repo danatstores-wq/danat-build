@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { PurchasesPackage } from "react-native-purchases";
-import { getAnnualProfessionalPackage, purchaseProfessionalPackage, restoreProfessionalPurchases } from "../subscriptions/revenueCat";
+import { getAnnualProfessionalPackage, purchaseProfessionalPackage, restoreProfessionalPurchases, STORE_PURCHASES_ENABLED } from "../subscriptions/revenueCat";
 import { getThemedStyles } from "../theme";
 
 type Props = {
@@ -26,6 +26,11 @@ export default function SubscriptionScreen({ language, theme, active, onBack, on
     language === "ar" ? ar : language === "fr" ? fr : en;
 
   const loadPackage = useCallback(async () => {
+    if (!STORE_PURCHASES_ENABLED) {
+      setAnnualPackage(null);
+      setLoadingPackage(false);
+      return;
+    }
     setLoadingPackage(true);
     setError("");
     try {
@@ -123,16 +128,18 @@ export default function SubscriptionScreen({ language, theme, active, onBack, on
       ) : (
         <Text style={ui.notice}>
           {t(
-            "Store purchases are not configured yet. The Google Play and Apple products and the Professional annual RevenueCat offering must be active before checkout can appear.",
-            "لم يتم إعداد مشتريات المتجر بعد. يجب تفعيل منتجات Google Play وApple وعرض الاشتراك السنوي في RevenueCat قبل إتاحة الشراء.",
-            "Les achats en magasin ne sont pas encore configurés. Les produits Google Play et Apple ainsi que l’offre annuelle RevenueCat doivent être actifs avant de proposer le paiement."
+            "Store checkout is temporarily unavailable. Secure purchase verification and refund handling must be enabled before payments can be accepted.",
+            "الشراء عبر المتجر غير متاح مؤقتاً. يجب تفعيل التحقق الآمن من المشتريات ومعالجة المبالغ المستردة قبل قبول المدفوعات.",
+            "Les achats sont temporairement indisponibles. La vérification sécurisée des achats et la gestion des remboursements doivent être activées avant d’accepter les paiements."
           )}
         </Text>
       )}
 
-      <Pressable style={[ui.restoreButton, busy && ui.disabled]} onPress={restore} disabled={busy || loadingPackage}>
-        <Text style={ui.restoreText}>{t("RESTORE PURCHASES", "استعادة المشتريات", "RESTAURER LES ACHATS")}</Text>
-      </Pressable>
+      {STORE_PURCHASES_ENABLED ? (
+        <Pressable style={[ui.restoreButton, busy && ui.disabled]} onPress={restore} disabled={busy || loadingPackage}>
+          <Text style={ui.restoreText}>{t("RESTORE PURCHASES", "استعادة المشتريات", "RESTAURER LES ACHATS")}</Text>
+        </Pressable>
+      ) : null}
 
       {!!error && <Text style={ui.error}>{error}</Text>}
       {!!message && <Text style={ui.success}>{message}</Text>}
