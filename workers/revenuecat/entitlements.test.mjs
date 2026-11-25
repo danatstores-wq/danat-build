@@ -4,6 +4,7 @@ import {
   applyAppleTransactionEvent,
   calculateAppleExpiry,
   isAppleLedgerComplete,
+  calculateGooglePlayExpiry,
 } from "./entitlements.mjs";
 
 const productId = "danat_build_professional_annual";
@@ -90,4 +91,63 @@ test("incomplete RevenueCat history fails closed", () => {
   assert.equal(isAppleLedgerComplete(transactions, ledger, productId), false);
   ledger.tx2 = { productId, purchasedAtMs: Date.UTC(2026, 1, 1) };
   assert.equal(isAppleLedgerComplete(transactions, ledger, productId), true);
+});
+
+test("Google Play access requires matching entitlement and prepaid plan", () => {
+  const expiry = "2027-01-01T00:00:00.000Z";
+  const subscriber = {
+    entitlements: {
+      professional: {
+        product_identifier: "danat_build_professional_annual",
+        expires_date: expiry,
+        grace_period_expires_date: null,
+      },
+    },
+    subscriptions: {
+      danat_build_professional_annual: {
+        store: "play_store",
+        product_plan_identifier: "annual-prepaid",
+        expires_date: expiry,
+        refunded_at: null,
+      },
+    },
+  };
+  assert.equal(
+    calculateGooglePlayExpiry(subscriber, "danat_build_professional_annual", "annual-prepaid", "professional"),
+    Date.parse(expiry),
+  );
+});
+
+test("Google Play refund, wrong plan, or missing expiry fails closed", () => {
+  const subscriber = {
+    entitlements: {
+      professional: {
+        product_identifier: "danat_build_professional_annual",
+        expires_date: "2027-01-01T00:00:00.000Z",
+      },
+    },
+    subscriptions: {
+      danat_build_professional_annual: {
+        store: "play_store",
+        product_plan_identifier: "annual-prepaid",
+        expires_date: "2027-01-01T00:00:00.000Z",
+        refunded_at: "2026-12-01T00:00:00.000Z",
+      },
+    },
+  };
+  assert.equal(
+    calculateGooglePlayExpiry(subscriber, "danat_build_professional_annual", "annual-prepaid", "professional"),
+    null,
+  );
+  subscriber.subscriptions.danat_build_professional_annual.refunded_at = null;
+  assert.equal(
+    calculateGooglePlayExpiry(subscriber, "danat_build_professional_annual", "wrong-plan", "professional"),
+    null,
+  );
+  subscriber.subscriptions.danat_build_professional_annual.expires_date = null;
+  subscriber.entitlements.professional.expires_date = null;
+  assert.equal(
+    calculateGooglePlayExpiry(subscriber, "danat_build_professional_annual", "annual-prepaid", "professional"),
+    null,
+  );
 });
