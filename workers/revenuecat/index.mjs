@@ -63,7 +63,7 @@ async function sha256Hex(value) {
 function base64url(bytes) {
   let binary = "";
   for (const byte of new Uint8Array(bytes)) binary += String.fromCharCode(byte);
-  return btoa(binary).replace(/=/g, "").replace(/\\+/g, "-").replace(/\\//g, "_");
+  return btoa(binary).replaceAll("=", "").replaceAll("+", "-").replaceAll("/", "_");
 }
 
 async function serviceAccountToken(env) {
@@ -81,7 +81,7 @@ async function serviceAccountToken(env) {
     exp: now + 3600,
   })));
   const unsigned = header + "." + claims;
-  const pem = privateKeyPem.replace(/-----BEGIN PRIVATE KEY-----|-----END PRIVATE KEY-----|\\s/g, "");
+  const pem = privateKeyPem.replaceAll("-----BEGIN PRIVATE KEY-----", "").replaceAll("-----END PRIVATE KEY-----", "").replaceAll("\\n", "").replaceAll("\\r", "").replaceAll(" ", "");
   const keyBytes = Uint8Array.from(atob(pem), char => char.charCodeAt(0));
   const key = await crypto.subtle.importKey(
     "pkcs8", keyBytes, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]
