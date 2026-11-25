@@ -34,7 +34,7 @@ import { getIdTokenResult, onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { auth } from './src/firebase';
 import { db } from './src/firestore';
-import { configureRevenueCat, getProfessionalAccess, logOutRevenueCat, subscribeToProfessionalAccess } from './src/subscriptions/revenueCat';
+// Store access is granted only by the server-written Firestore entitlement.
 
 type Language = 'en' | 'ar' | 'fr';
 type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'measurements' | 'measurementTool' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings' | 'projects' | 'subscription' | 'adminUsers' | 'contact';
@@ -167,7 +167,6 @@ export default function App() {
       setIsAdmin(false);
 
       if (!user) {
-        logOutRevenueCat().catch(error => console.warn('RevenueCat sign-out failed:', error));
         setAdminOverrideState({ enabled: false, active: false });
         setMode('homeowner');
         setScreen(current => current === 'building' ? 'home' : current);
@@ -187,7 +186,6 @@ export default function App() {
         accountCreatedAt >= Date.parse('2026-11-18T22:00:00.000Z');
 
       if (!user.emailVerified && emailVerificationRequired) {
-        logOutRevenueCat().catch(error => console.warn('RevenueCat sign-out failed:', error));
         setAdminOverrideState({ enabled: false, active: false });
         setMode('homeowner');
         setProfessionalActive(false);
@@ -203,30 +201,7 @@ export default function App() {
 
       getIdTokenResult(user).then(token => setIsAdmin(user.uid === 'psu8GgwqNUSKHSQER9wkcEKbbz22' || token.claims.admin === true)).catch(error => { console.warn('Could not read admin role:', error); setIsAdmin(user.uid === 'psu8GgwqNUSKHSQER9wkcEKbbz22'); });
 
-      // RevenueCat validates store purchases directly. No Firebase Cloud
-      // Function or paid Firebase plan is needed to unlock Professional.
-      configureRevenueCat(user.uid).then(async configured => {
-        if (!configured || auth.currentUser?.uid !== user.uid) return;
-
-        const applyRevenueCatAccess = (access: { active: boolean; expiresAt: number | null }) => {
-          if (auth.currentUser?.uid !== user.uid) return;
-          setRevenueCatActive(access.active);
-          setProfessionalExpiry(access.expiresAt);
-        };
-
-        unsubscribeRevenueCat = subscribeToProfessionalAccess(applyRevenueCatAccess);
-        const access = await getProfessionalAccess();
-        applyRevenueCatAccess(access);
-      }).catch(error => {
-        console.warn('RevenueCat setup or customer status check failed:', error);
-        if (auth.currentUser?.uid === user.uid) {
-          setRevenueCatActive(false);
-          setProfessionalExpiry(null);
-        }
-      });
-
-      // Firestore is retained for administrator overrides only. Store purchase
-      // status comes from RevenueCat CustomerInfo, not client-written documents.
+      // Firestore is the only authority for store entitlements and admin overrides.
       unsubscribeEntitlement = onSnapshot(
         doc(db, 'entitlements', user.uid),
         snapshot => {
@@ -236,6 +211,22 @@ export default function App() {
             enabled: hasAdminOverride,
             active: data?.adminStatus === 'professional',
           });
+
+          // Only a server-written RevenueCat entitlement may grant store access.
+          // CustomerInfo from the device is never sufficient to unlock Pro.
+          const expiryValue = data?.expiresAt;
+          const serverExpiry = typeof expiryValue?.toMillis === 'function'
+            ? expiryValue.toMillis()
+            : typeof expiryValue === 'string'
+              ? Date.parse(expiryValue)
+              : Number.NaN;
+          const serverStoreActive =
+            data?.source === 'revenuecat'
+            && data?.status === 'active'
+            && Number.isFinite(serverExpiry)
+            && serverExpiry > Date.now();
+          setRevenueCatActive(serverStoreActive);
+          setProfessionalExpiry(serverStoreActive ? serverExpiry : null);
           setEntitlementLoaded(true);
         },
         error => {
@@ -268,27 +259,10 @@ export default function App() {
     }
   }, [adminOverrideState, revenueCatActive]);
 
-  const refreshRevenueCatAccess = async (verifiedAccess?: { active: boolean; expiresAt: number | null }) => {
-    try {
-      const access = verifiedAccess || await getProfessionalAccess();
-      setRevenueCatActive(access.active);
-      setProfessionalExpiry(access.expiresAt);
-    } catch (error) {
-      console.warn('Could not refresh RevenueCat access:', error);
-    }
+  const refreshRevenueCatAccess = async () => {
+    // Firestore onSnapshot delivers the authoritative server entitlement.
+    // This callback intentionally cannot grant access from a local purchase result.
   };
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', state => {
-      if (state === 'active') {
-        getProfessionalAccess().then(access => {
-          setRevenueCatActive(access.active);
-          setProfessionalExpiry(access.expiresAt);
-        }).catch(error => console.warn('RevenueCat foreground refresh failed:', error));
-      }
-    });
-    return () => subscription.remove();
-  }, []);
 
   // Revoke access locally at the exact entitlement expiry, and re-check
   // whenever the app returns to the foreground.
