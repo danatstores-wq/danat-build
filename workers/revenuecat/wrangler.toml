@@ -1,0 +1,16 @@
+name = "danat-build-revenuecat"
+main = "index.mjs"
+compatibility_date = "2026-11-25"
+
+# Configure the following as encrypted Worker secrets before deployment:
+# REVENUECAT_WEBHOOK_AUTHORIZATION
+# REVENUECAT_SECRET_API_KEY
+# FIREBASE_SERVICE_ACCOUNT_EMAIL
+# FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY
+# FIREBASE_PROJECT_ID
+# REVENUECAT_ENTITLEMENT_ID
+# REVENUECAT_APPLE_PRODUCT_ID
+# REVENUECAT_GOOGLE_PRODUCT_ID
+# REVENUECAT_GOOGLE_BASE_PLAN_ID
+#
+# No account ID, route, secret, or production environment is configured here.
