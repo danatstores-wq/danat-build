@@ -42,6 +42,9 @@ jobs:
       - name: RevenueCat refund ledger regression tests
         run: npm run test:revenuecat-ledger
 
+      - name: RevenueCat Cloudflare Worker syntax check
+        run: npm run check:revenuecat-worker
+
       - name: TypeScript check
         run: npx tsc --noEmit
 
