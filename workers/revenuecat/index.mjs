@@ -226,42 +226,59 @@ async function processEvent(request, env) {
   if (priorEvent) return response(200, { received: true, duplicate: true });
 
   const subscriber = await revenueCatSubscriber(env, uid);
-  let expiryMs = null;
-  let platform = store === "APP_STORE" ? "ios" : "android";
-  let ledgerWrite = null;
+  let appleExpiryMs = null;
+  let googleExpiryMs = null;
+  let appleLedgerWrite = null;
 
-  if (store === "APP_STORE") {
+  const appleHistory = subscriber.non_subscriptions?.[appleProduct];
+  if (store === "APP_STORE" || (Array.isArray(appleHistory) && appleHistory.length > 0)) {
     const { ledger, docs } = await queryAppleLedger(env, token, uid, appleProduct);
-    const result = applyAppleTransactionEvent(ledger, event, appleProduct);
-    const nextLedger = result.ledger;
-    const transactionId = event.transaction_id;
-    const tx = nextLedger[transactionId];
-    if (result.changed && tx) {
-      const key = await sha256Hex("APP_STORE|" + appleProduct + "|" + transactionId);
-      ledgerWrite = {
-        key,
-        data: {
-          uid, store, productId: appleProduct, transactionId,
-          purchasedAtMs: tx.purchasedAtMs,
-          refunded: tx.refunded,
-          refundStateAtMs: tx.refundStateAtMs,
-          eventIds: tx.eventIds,
-          updatedAt: { __timestamp: Date.now() },
-        },
-      };
+    if (store === "APP_STORE") {
+      const result = applyAppleTransactionEvent(ledger, event, appleProduct);
+      const transactionId = event.transaction_id;
+      const tx = result.ledger[transactionId];
+      if (result.changed && tx) {
+        const key = await sha256Hex("APP_STORE|" + appleProduct + "|" + transactionId);
+        appleLedgerWrite = {
+          key,
+          existing: docs.find(doc => doc.name.endsWith("/" + key)),
+          data: {
+            uid, store: "APP_STORE", productId: appleProduct, transactionId,
+            purchasedAtMs: tx.purchasedAtMs,
+            refunded: tx.refunded,
+            refundStateAtMs: tx.refundStateAtMs,
+            eventIds: tx.eventIds,
+            updatedAt: { __timestamp: Date.now() },
+          },
+        };
+      }
+      const completeLedger = { ...ledger };
+      if (tx) completeLedger[transactionId] = tx;
+      if (!isAppleLedgerComplete(subscriber.non_subscriptions, completeLedger, appleProduct)) {
+        return response(503, { error: "Apple transaction ledger is incomplete; reconciliation is required" });
+      }
+      appleExpiryMs = calculateAppleExpiry(completeLedger);
+    } else if (isAppleLedgerComplete(subscriber.non_subscriptions, ledger, appleProduct)) {
+      appleExpiryMs = calculateAppleExpiry(ledger);
     }
-    const completeLedger = { ...ledger };
-    if (tx) completeLedger[transactionId] = tx;
-    if (!isAppleLedgerComplete(subscriber.non_subscriptions, completeLedger, appleProduct)) {
-      return response(503, { error: "Apple transaction ledger is incomplete; reconciliation is required" });
-    }
-    expiryMs = calculateAppleExpiry(completeLedger);
-  } else {
-    expiryMs = calculateGooglePlayExpiry(
-      subscriber, googleProduct, env.REVENUECAT_GOOGLE_BASE_PLAN_ID || "annual-prepaid",
-      env.REVENUECAT_ENTITLEMENT_ID
-    );
+    // Incomplete legacy Apple history does not block an otherwise valid Google Play entitlement.
   }
+
+  googleExpiryMs = calculateGooglePlayExpiry(
+    subscriber, googleProduct, env.REVENUECAT_GOOGLE_BASE_PLAN_ID || "annual-prepaid",
+    env.REVENUECAT_ENTITLEMENT_ID
+  );
+
+  const candidates = [
+    { expiry: appleExpiryMs, platform: "ios", productId: appleProduct },
+    { expiry: googleExpiryMs, platform: "android", productId: googleProduct },
+  ].filter(item => Number.isFinite(item.expiry) && item.expiry > 0)
+    .sort((left, right) => right.expiry - left.expiry);
+  const expiryMs = candidates[0]?.expiry ?? null;
+  const platform = candidates.length > 1 && candidates[0].expiry === candidates[1].expiry
+    ? "both" : (candidates[0]?.platform || (store === "APP_STORE" ? "ios" : "android"));
+  const entitlementProductId = candidates[0]?.productId || productId;
+  const ledgerWrite = appleLedgerWrite;
 
   const adminOverride = currentEntitlement?.data?.adminOverride === true;
   const now = Date.now();
@@ -279,10 +296,8 @@ async function processEvent(request, env) {
 
   const writes = [];
   if (ledgerWrite) {
-    const existingLedger = (await queryAppleLedger(env, token, uid, appleProduct)).docs
-      .find(doc => doc.name.endsWith("/" + ledgerWrite.key));
-    const precondition = existingLedger?.updateTime
-      ? { updateTime: existingLedger.updateTime } : { exists: false };
+    const precondition = ledgerWrite.existing?.updateTime
+      ? { updateTime: ledgerWrite.existing.updateTime } : { exists: false };
     writes.push(makeWrite(env.FIREBASE_PROJECT_ID, "revenuecatTransactions",
       ledgerWrite.key, ledgerWrite.data, Object.keys(ledgerWrite.data), precondition));
   }
@@ -292,7 +307,7 @@ async function processEvent(request, env) {
       expiresAt: expiryMs ? { __timestamp: expiryMs } : null,
       source: "revenuecat",
       platform,
-      productId,
+      productId: entitlementProductId,
       lastValidatedAt: { __timestamp: now },
     };
     const precondition = currentEntitlement?.updateTime
