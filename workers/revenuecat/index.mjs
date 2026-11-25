@@ -255,6 +255,19 @@ async function processEvent(request, env) {
       const completeLedger = { ...ledger };
       if (tx) completeLedger[transactionId] = tx;
       if (!isAppleLedgerComplete(subscriber.non_subscriptions, completeLedger, appleProduct)) {
+        // Persist a newly received refund tombstone before asking RevenueCat to retry.
+        // Otherwise a purchase webhook arriving next could be stored as unrefunded.
+        // Do not write an entitlement or mark this webhook processed until the
+        // complete Apple transaction history can be reconciled.
+        if (appleLedgerWrite) {
+          const precondition = appleLedgerWrite.existing?.updateTime
+            ? { updateTime: appleLedgerWrite.existing.updateTime } : { exists: false };
+          await commitWrites(env, token, [
+            makeWrite(env.FIREBASE_PROJECT_ID, "revenuecatTransactions",
+              appleLedgerWrite.key, appleLedgerWrite.data,
+              Object.keys(appleLedgerWrite.data), precondition),
+          ]);
+        }
         return response(503, { error: "Apple transaction ledger is incomplete; reconciliation is required" });
       }
       appleExpiryMs = calculateAppleExpiry(completeLedger);
