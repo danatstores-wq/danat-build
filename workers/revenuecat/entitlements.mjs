@@ -118,3 +118,31 @@ export function isAppleLedgerComplete(nonSubscriptions, ledger, productId) {
       && validTimestamp(record.purchasedAtMs);
   });
 }
+
+/**
+ * Returns the validated Google Play expiry for the configured prepaid plan.
+ * Requires both a matching RevenueCat entitlement and a matching Play Store
+ * subscription record; null/unknown expiry and refunded transactions fail closed.
+ */
+export function calculateGooglePlayExpiry(subscriber, productId, basePlanId, entitlementId) {
+  if (!subscriber || !productId || !entitlementId) return null;
+
+  const entitlement = subscriber.entitlements?.[entitlementId];
+  const subscription = subscriber.subscriptions?.[productId];
+  if (!entitlement || !subscription) return null;
+  if (entitlement.product_identifier !== productId) return null;
+  if (subscription.store !== "play_store" || subscription.refunded_at) return null;
+  if (basePlanId && subscription.product_plan_identifier !== basePlanId) return null;
+
+  const expiryCandidates = [
+    entitlement.expires_date,
+    entitlement.grace_period_expires_date,
+    subscription.expires_date,
+    subscription.grace_period_expires_date,
+  ]
+    .filter(value => typeof value === "string" && value.length > 0)
+    .map(value => Date.parse(value))
+    .filter(validTimestamp);
+
+  return expiryCandidates.length ? Math.max(...expiryCandidates) : null;
+}
