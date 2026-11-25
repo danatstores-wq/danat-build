@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { PurchasesPackage } from "react-native-purchases";
-import { getAnnualProfessionalPackage, purchaseProfessionalPackage, restoreProfessionalPurchases } from "../subscriptions/revenueCat";
+import { STORE_PURCHASES_ENABLED, getAnnualProfessionalPackage, purchaseProfessionalPackage, restoreProfessionalPurchases } from "../subscriptions/revenueCat";
 import { getThemedStyles } from "../theme";
 
 type Props = {
@@ -29,6 +29,10 @@ export default function SubscriptionScreen({ language, theme, active, onBack, on
     setLoadingPackage(true);
     setError("");
     try {
+      if (!STORE_PURCHASES_ENABLED) {
+        setAnnualPackage(null);
+        return;
+      }
       setAnnualPackage(await getAnnualProfessionalPackage());
     } catch (e: any) {
       setAnnualPackage(null);
@@ -108,7 +112,15 @@ export default function SubscriptionScreen({ language, theme, active, onBack, on
         </Text>
       ) : null}
 
-      {loadingPackage ? (
+      {!STORE_PURCHASES_ENABLED ? (
+        <Text style={ui.notice}>
+          {t(
+            "Store purchases and restores are temporarily disabled while secure server verification and refund handling are completed. Your Professional access will activate only after the server confirms it.",
+            "الشراء والاستعادة من المتجر متوقفان مؤقتاً إلى حين استكمال التحقق الآمن ومعالجة عمليات الاسترداد. سيتم تفعيل الوصول الاحترافي بعد تأكيد الخادم فقط.",
+            "Les achats et restaurations sont temporairement désactivés pendant la mise en place de la vérification sécurisée et du traitement des remboursements. L’accès Pro ne sera activé qu’après confirmation du serveur."
+          )}
+        </Text>
+      ) : loadingPackage ? (
         <ActivityIndicator color={GOLD} style={ui.loader} />
       ) : annualPackage ? (
         <Pressable style={[ui.buyButton, busy && ui.disabled]} onPress={buy} disabled={busy}>
@@ -130,9 +142,11 @@ export default function SubscriptionScreen({ language, theme, active, onBack, on
         </Text>
       )}
 
-      <Pressable style={[ui.restoreButton, busy && ui.disabled]} onPress={restore} disabled={busy || loadingPackage}>
-        <Text style={ui.restoreText}>{t("RESTORE PURCHASES", "استعادة المشتريات", "RESTAURER LES ACHATS")}</Text>
-      </Pressable>
+      {STORE_PURCHASES_ENABLED ? (
+        <Pressable style={[ui.restoreButton, busy && ui.disabled]} onPress={restore} disabled={busy || loadingPackage}>
+          <Text style={ui.restoreText}>{t("RESTORE PURCHASES", "استعادة المشتريات", "RESTAURER LES ACHATS")}</Text>
+        </Pressable>
+      ) : null}
 
       {!!error && <Text style={ui.error}>{error}</Text>}
       {!!message && <Text style={ui.success}>{message}</Text>}
