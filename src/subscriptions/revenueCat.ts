@@ -7,6 +7,9 @@ let configuredUserId: string | null = null;
 const PROFESSIONAL_PRODUCT_ID = "danat_build_professional_annual";
 const GOOGLE_PREPAID_BASE_PLAN_ID = "annual-prepaid";
 
+// Fail closed until trusted purchase verification and refund handling are deployed.
+export const STORE_PURCHASES_ENABLED = false;
+
 export type ProfessionalAccess = {
   active: boolean;
   expiresAt: number | null;
