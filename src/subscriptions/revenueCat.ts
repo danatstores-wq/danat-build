@@ -140,7 +140,7 @@ export async function logOutRevenueCat(): Promise<void> {
 }
 
 export async function getAnnualProfessionalPackage(): Promise<PurchasesPackage | null> {
-  if (Platform.OS === "web" || !configured) return null;
+  if (!STORE_PURCHASES_ENABLED || Platform.OS === "web" || !configured) return null;
 
   const offerings = await Purchases.getOfferings();
   const available = offerings.current?.availablePackages || [];
@@ -153,6 +153,9 @@ export async function getAnnualProfessionalPackage(): Promise<PurchasesPackage |
 export async function purchaseProfessionalPackage(
   purchasePackage: PurchasesPackage
 ): Promise<ProfessionalAccess> {
+  if (!STORE_PURCHASES_ENABLED) {
+    throw new Error("Store purchases are temporarily unavailable until secure purchase verification is enabled.");
+  }
   if (Platform.OS === "web" || !configured) {
     throw new Error("In-app purchases are available in the Android and iOS app only.");
   }
@@ -161,6 +164,9 @@ export async function purchaseProfessionalPackage(
 }
 
 export async function restoreProfessionalPurchases(): Promise<ProfessionalAccess> {
+  if (!STORE_PURCHASES_ENABLED) {
+    throw new Error("Purchase restoration is temporarily unavailable until secure purchase verification is enabled.");
+  }
   if (Platform.OS === "web" || !configured) {
     throw new Error("Purchase restoration is available in the Android and iOS app only.");
   }
