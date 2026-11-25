@@ -37,6 +37,21 @@ The existing app treats Apple purchases as non-renewing annual transactions and 
 
 The precise RevenueCat entitlement identifier and the Apple/Google product configuration must be confirmed in the RevenueCat dashboard before coding the final allow-list. Do not guess these values. RevenueCat's documented `GET /v1/subscribers/{app_user_id}` response is wrapped in `subscriber`; its `non_subscriptions` sample does not expose a refund marker, so the Worker must rely on the separately persisted, transaction-level webhook ledger for Apple refunds and must explicitly handle pre-ledger purchases.
 
+## Worker source currently added
+
+The branch now includes an initial Cloudflare Worker implementation at `workers/revenuecat/index.mjs` and a Wrangler manifest at `workers/revenuecat/wrangler.toml`.
+
+The Worker currently:
+- Authenticates the webhook using the configured authorization secret.
+- Rejects anonymous/invalid Firebase UIDs and ignores products outside the configured Apple/Google allow-list.
+- Re-fetches the RevenueCat subscriber record using a server-only API key.
+- Uses a service-account JWT to access Firestore REST without Firebase Functions/Blaze.
+- Persisting Apple transaction ledger changes, entitlement updates, and webhook idempotency records in one Firestore Commit request with update preconditions.
+- Preserves an existing administrator override and fails closed when Apple transaction history is incomplete.
+- Uses the validated Google Play entitlement/base-plan expiry helper.
+
+This is an implementation foundation, not production-ready or deployed. It still requires integration testing against actual RevenueCat sandbox payloads and a dedicated least-privilege Firebase service account. In particular, verify RevenueCat field names/store identifiers and Firestore REST behavior against the real project before deployment. HMAC signature verification is not implemented; the current required authorization secret is the webhook authentication control. Do not enable purchases based on source validation alone.
+
 ## Firestore data
 
 Keep the current public app data model:
