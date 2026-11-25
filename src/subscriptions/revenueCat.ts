@@ -1,6 +1,8 @@
 import { Platform } from "react-native";
 import Purchases, { CustomerInfo, PurchasesPackage } from "react-native-purchases";
 
+export const STORE_PURCHASES_ENABLED = false;
+
 let configured = false;
 let configuredUserId: string | null = null;
 
@@ -140,7 +142,7 @@ export async function logOutRevenueCat(): Promise<void> {
 }
 
 export async function getAnnualProfessionalPackage(): Promise<PurchasesPackage | null> {
-  if (Platform.OS === "web" || !configured) return null;
+  if (!STORE_PURCHASES_ENABLED || Platform.OS === "web" || !configured) return null;
 
   const offerings = await Purchases.getOfferings();
   const available = offerings.current?.availablePackages || [];
@@ -153,6 +155,9 @@ export async function getAnnualProfessionalPackage(): Promise<PurchasesPackage |
 export async function purchaseProfessionalPackage(
   purchasePackage: PurchasesPackage
 ): Promise<ProfessionalAccess> {
+  if (!STORE_PURCHASES_ENABLED) {
+    throw new Error("Store purchases are temporarily disabled while secure server verification is completed.");
+  }
   if (Platform.OS === "web" || !configured) {
     throw new Error("In-app purchases are available in the Android and iOS app only.");
   }
@@ -161,6 +166,9 @@ export async function purchaseProfessionalPackage(
 }
 
 export async function restoreProfessionalPurchases(): Promise<ProfessionalAccess> {
+  if (!STORE_PURCHASES_ENABLED) {
+    throw new Error("Purchase restoration is temporarily disabled while secure server verification is completed.");
+  }
   if (Platform.OS === "web" || !configured) {
     throw new Error("Purchase restoration is available in the Android and iOS app only.");
   }
