@@ -145,11 +145,9 @@ async function queryAppleLedger(env, token, uid, productId) {
   const query = {
     structuredQuery: {
       from: [{ collectionId: "revenuecatTransactions" }],
-      where: { compositeFilter: { op: "AND", filters: [
-        { fieldFilter: { field: { fieldPath: "uid" }, op: "EQUAL", value: toFirestoreValue(uid) } },
-        { fieldFilter: { field: { fieldPath: "productId" }, op: "EQUAL", value: toFirestoreValue(productId) } },
-        { fieldFilter: { field: { fieldPath: "store" }, op: "EQUAL", value: toFirestoreValue("APP_STORE") } },
-      ] } },
+      where: { fieldFilter: {
+        field: { fieldPath: "uid" }, op: "EQUAL", value: toFirestoreValue(uid),
+      } },
     },
     transaction: undefined,
   };
@@ -161,6 +159,7 @@ async function queryAppleLedger(env, token, uid, productId) {
   for (const row of rows) {
     if (!row.document) continue;
     const data = fromFirestoreFields(row.document.fields || {});
+    if (data.productId !== productId || data.store !== "APP_STORE") continue;
     ledger[data.transactionId] = {
       transactionId: data.transactionId,
       productId: data.productId,
