@@ -28,12 +28,14 @@ The webhook must:
 The existing app treats Apple purchases as non-renewing annual transactions and Google Play as an annual prepaid subscription. The Worker must mirror the actual RevenueCat product configuration:
 
 - Google Play: use the configured Professional entitlement/subscription expiry returned by RevenueCat, including a valid grace-period expiry when applicable.
-- Apple: do not calculate access from `non_subscriptions` history until refund handling is proven. The documented Customer Info response shows non-subscription records with purchase date/store/id but does not show a `refunded_at` field on those records. By contrast, subscription records expose `refunded_at`. A refund event plus a fresh subscriber read may still be insufficient to identify which historical Apple one-time transaction was refunded. Before enabling Apple access, implement and test a transaction-level source that can distinguish refunded from valid non-renewing purchases; otherwise fail closed for Apple rather than grant stale access.
+- Apple: RevenueCat can detect refunds for non-subscription purchases when App Store Platform Server Notifications are configured. RevenueCat's webhook documentation describes `CANCELLATION` for a subscription or non-renewing purchase that was canceled or refunded; `cancel_reason=CUSTOMER_SUPPORT` identifies an Apple-support refund, and the event includes the store transaction identifier. A normal `UNSUBSCRIBE` reason must not be treated as a refund.
+- Maintain a transaction ledger in Firestore keyed by a hash of store + product ID + transaction ID. Record every accepted Apple `NON_RENEWING_PURCHASE`; mark only that exact transaction refunded on a matching Apple `CANCELLATION` with `CUSTOMER_SUPPORT`; and reverse that marker only on a matching `REFUND_REVERSED`. Handle refund-before-purchase delivery by retaining a tombstone so a later purchase webhook cannot restore the refunded transaction. Recompute the annual access end date from the chronological set of non-refunded purchases, rather than incrementing the current aggregate expiry.
+- This ledger is reliable only for transactions whose purchase and refund notifications have been ingested. The RevenueCat subscriber API's documented `non_subscriptions` entries do not expose a refund marker. Therefore, existing Apple purchases predating ledger activation require a controlled migration/reconciliation; do not silently treat an incomplete ledger as complete or grant access based on unverified historical transactions. Keep Apple checkout disabled until App Store Server Notifications are configured in App Store Connect and RevenueCat, the event ledger is tested with a sandbox refund and refund reversal, and legacy-account handling is decided.
 - For both platforms, use the later valid expiry, matching the current app's cross-platform access behavior.
 - Do not infer an Apple expiry from a single webhook event. Do not treat a null RevenueCat entitlement expiry as lifetime access until the Apple product type and entitlement configuration have been verified.
 - Refunds/cancellations must be reconciled by re-reading the current RevenueCat customer record. RevenueCat documents `CANCELLATION` with `cancel_reason=CUSTOMER_SUPPORT` for refunds; a cancellation can also be a normal unsubscribe, so it must not automatically revoke access. `REFUND_REVERSED` must trigger a fresh reconciliation too. Do not assume the subscriber response exposes refund status for every non-renewing transaction; prove that field/source before using transaction history to calculate Apple access.
 
-The precise RevenueCat entitlement identifier and the Apple/Google product configuration must be confirmed in the RevenueCat dashboard before coding the final allow-list. Do not guess these values. RevenueCat's documented `GET /v1/subscribers/{app_user_id}` response is wrapped in `subscriber`; entitlement entries expose `expires_date` and `grace_period_expires_date`, subscription entries expose `refunded_at`, while the documented non-subscription transaction sample exposes `id`, `purchase_date`, `store`, and `is_sandbox` but no refund marker. Treat this as a real implementation blocker for the Apple non-renewing model, not a detail to infer.
+The precise RevenueCat entitlement identifier and the Apple/Google product configuration must be confirmed in the RevenueCat dashboard before coding the final allow-list. Do not guess these values. RevenueCat's documented `GET /v1/subscribers/{app_user_id}` response is wrapped in `subscriber`; its `non_subscriptions` sample does not expose a refund marker, so the Worker must rely on the separately persisted, transaction-level webhook ledger for Apple refunds and must explicitly handle pre-ledger purchases.
 
 ## Firestore data
 
@@ -41,7 +43,8 @@ Keep the current public app data model:
 
 - `users/{uid}`: existing user profile; required to exist before a purchase can be attached to the account.
 - `entitlements/{uid}`: server-written store access fields such as `status`, `expiresAt`, `source: "revenuecat"`, `platform`, `productId`, and `lastValidatedAt`. Preserve admin fields and never overwrite a manual override.
-- `revenuecatWebhookEvents/{eventId}`: private idempotency/audit record with event type, UID, product ID, and received timestamp. Client access remains denied by the catch-all Firestore rule.
+- `revenuecatWebhookEvents/{eventId}`: private idempotency/audit record with event type, UID, product ID, transaction ID, and received timestamp. Client access remains denied by the catch-all Firestore rule.
+- `revenuecatTransactions/{transactionKey}`: private transaction ledger containing UID, store, product ID, transaction ID, purchase timestamp, refund status, and source event IDs. Use a stable one-way hash for the document key; never trust a client-supplied transaction record.
 
 Firestore Security Rules do not constrain a service account using the Firestore REST API. Store the service-account private key only as a Cloudflare Worker secret, use a dedicated service account with the minimum feasible IAM role, and never commit credentials or put them in Expo environment variables. Confirm the IAM role and project scope before creating credentials.
 
@@ -71,7 +74,8 @@ Use Cloudflare's encrypted Worker secrets. Never paste secret values into chat o
 - Valid Google Play license-test annual prepaid purchase.
 - Duplicate webhook delivery.
 - Out-of-order purchase and expiration events.
-- Apple refund and refund reversal.
+- Apple App Store Server Notifications configured end-to-end; sandbox non-renewing purchase, refund, and refund-reversal events update only the matching transaction ledger entry.
+- Legacy Apple transaction migration where purchase events predate ledger activation.
 - Google Play refund/cancellation and later valid purchase.
 - Normal unsubscribe without premature loss of paid access.
 - Grace-period/billing-issue behavior.
