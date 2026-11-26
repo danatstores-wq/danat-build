@@ -14,7 +14,7 @@ One Cloudflare Worker will expose two routes:
 - `GET /access`: optional authenticated diagnostic/read endpoint. The app should continue reading its own Firestore entitlement document through Firebase Auth and Firestore Security Rules; it must not trust a client-supplied UID.
 
 The webhook must:
-1. Require POST and a configured webhook authorization value. If RevenueCat HMAC signing is enabled, verify the raw request body signature as well.
+1. Require POST and a configured webhook authorization value. When `REVENUECAT_WEBHOOK_SIGNING_SECRET` is configured, verify RevenueCat's HMAC-SHA256 signature over the exact raw request body, enforce a five-minute signature timestamp window, and compare signatures in constant time.
 2. Validate the event envelope, Firebase UID format, product ID, store, and configured entitlement/product allow-list.
 3. Ignore RevenueCat TEST events safely; return 200 for unrelated products.
 4. Fetch the customer from RevenueCat REST API v1 using a server-only secret API key and URL-encode the Firebase UID in `GET /v1/subscribers/{app_user_id}`.
@@ -50,7 +50,7 @@ The Worker currently:
 - Preserves an existing administrator override and fails closed when Apple transaction history is incomplete.
 - Uses the validated Google Play entitlement/base-plan expiry helper.
 
-This is an implementation foundation, not production-ready or deployed. It still requires integration testing against actual RevenueCat sandbox payloads and a dedicated least-privilege Firebase service account. In particular, verify RevenueCat field names/store identifiers and Firestore REST behavior against the real project before deployment. HMAC signature verification is not implemented; the current required authorization secret is the webhook authentication control. Do not enable purchases based on source validation alone.
+This is an implementation foundation, not production-ready or deployed. It still requires integration testing against actual RevenueCat sandbox payloads and a dedicated least-privilege Firebase service account. In particular, verify RevenueCat field names/store identifiers and Firestore REST behavior against the real project before deployment. The Worker now supports optional HMAC verification when the signing-secret variable is configured; until then, the required authorization header remains the active webhook authentication control. Do not enable purchases based on source validation alone.
 
 ## Firestore data
 
@@ -76,6 +76,7 @@ Firestore Security Rules do not constrain a service account using the Firestore 
 ## Required secrets (names only; values are never committed)
 
 - `REVENUECAT_WEBHOOK_AUTHORIZATION`
+- `REVENUECAT_WEBHOOK_SIGNING_SECRET` (recommended; enable HMAC signing in the RevenueCat webhook integration when this is configured)
 - `REVENUECAT_SECRET_API_KEY`
 - `FIREBASE_SERVICE_ACCOUNT_EMAIL`
 - `FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY`
