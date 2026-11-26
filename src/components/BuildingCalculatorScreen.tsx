@@ -10,10 +10,13 @@ import { PUBLISHED_MARKET_BENCHMARKS } from '../data/publishedMarketBenchmarks';
 import { getThemedStyles } from '../theme';
 import { saveLocalCalculation, SavedCalculation } from '../storage/localProjects';
 import { exportCalculationPdf } from '../utils/exportCalculationPdf';
+import { getActiveCountryAd, DirectCountryAd } from '../ads/directCountryAds';
 import {
   View,
   Text,
   TextInput,
+  Image,
+  Modal,
   Pressable,
   StyleSheet,
   ScrollView,
@@ -759,6 +762,30 @@ export default function BuildingCalculatorScreen({
   const t = translations[language];
   const isArabic = language === 'ar';
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>('LB');
+  const [sponsoredCountryAd, setSponsoredCountryAd] = useState<DirectCountryAd | null>(null);
+  const [sponsoredAdVisible, setSponsoredAdVisible] = useState(false);
+  const [sponsoredAdLoading, setSponsoredAdLoading] = useState(false);
+
+  const selectCountry = async (countryCode: CountryCode) => {
+    setSelectedCountry(countryCode);
+    setResult(null);
+    setError('');
+    setSponsoredCountryAd(null);
+    setSponsoredAdVisible(false);
+    setSponsoredAdLoading(true);
+    try {
+      const campaign = await getActiveCountryAd(countryCode);
+      if (campaign) {
+        setSponsoredCountryAd(campaign);
+        setSponsoredAdVisible(true);
+      }
+    } catch (error) {
+      // Advertising is optional: a campaign lookup failure must never block the calculator.
+      console.warn('Could not load country-sponsored campaign:', error);
+    } finally {
+      setSponsoredAdLoading(false);
+    }
+  };
   const selectedCurrency = COUNTRY_OPTIONS.find(country => country.id === selectedCountry)?.currency ?? 'USD';
 
   // Benchmark prices are bundled into the published app at build time.
@@ -1327,6 +1354,7 @@ export default function BuildingCalculatorScreen({
   );
 
   return (
+    <>
     <ScrollView
       contentContainerStyle={ui.container}
       keyboardShouldPersistTaps="handled"
@@ -1377,11 +1405,7 @@ export default function BuildingCalculatorScreen({
           {COUNTRY_OPTIONS.map(country => (
             <Pressable
               key={country.id}
-              onPress={() => {
-                setSelectedCountry(country.id);
-                setResult(null);
-                setError('');
-              }}
+              onPress={() => { void selectCountry(country.id); }}
               style={[
                 ui.countryOption,
                 selectedCountry === country.id && ui.countryOptionSelected,
@@ -1757,6 +1781,42 @@ export default function BuildingCalculatorScreen({
         </View>
       )}
     </ScrollView>
+    <Modal
+      visible={sponsoredAdVisible && !!sponsoredCountryAd}
+      transparent
+      animationType="fade"
+      onRequestClose={() => setSponsoredAdVisible(false)}
+    >
+      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.78)', justifyContent: 'center', padding: 22 }}>
+        <View style={{ backgroundColor: '#111820', borderColor: GOLD, borderWidth: 1, borderRadius: 18, padding: 14 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <Text style={{ color: GOLD, fontSize: 11, fontWeight: '900', letterSpacing: 1.1 }}>SPONSORED</Text>
+            <Pressable onPress={() => setSponsoredAdVisible(false)} accessibilityRole="button" accessibilityLabel="Close sponsored advertisement">
+              <Text style={{ color: '#fff', fontSize: 25, paddingHorizontal: 6 }}>×</Text>
+            </Pressable>
+          </View>
+          {!!sponsoredCountryAd?.imageUrl && (
+            <Image source={{ uri: sponsoredCountryAd.imageUrl }} resizeMode="cover" style={{ width: '100%', height: 190, borderRadius: 12, backgroundColor: '#252a30' }} />
+          )}
+          <Text style={{ color: '#fff', fontSize: 18, fontWeight: '900', marginTop: 13, textAlign: 'center' }}>{sponsoredCountryAd?.advertiserName}</Text>
+          <Text style={{ color: '#c7c9cb', fontSize: 12, marginTop: 6, textAlign: 'center' }}>Sponsored for {sponsoredCountryAd?.countryCode}</Text>
+          <Pressable
+            onPress={() => {
+              const url = sponsoredCountryAd?.clickUrl;
+              if (url) Linking.openURL(url).catch(error => console.warn('Could not open advertiser link:', error));
+              setSponsoredAdVisible(false);
+            }}
+            style={{ backgroundColor: GOLD, borderRadius: 11, padding: 14, marginTop: 15, alignItems: 'center' }}
+          >
+            <Text style={{ color: '#17110A', fontWeight: '900' }}>VISIT ADVERTISER</Text>
+          </Pressable>
+          <Pressable onPress={() => setSponsoredAdVisible(false)} style={{ padding: 11, alignItems: 'center' }}>
+            <Text style={{ color: '#c7c9cb', fontSize: 12 }}>Continue to calculator</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
+    </>
   );
 }
 
