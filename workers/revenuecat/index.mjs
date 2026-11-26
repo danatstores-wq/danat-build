@@ -15,6 +15,34 @@ function response(status, body) {
   return new Response(JSON.stringify(body), { status, headers: JSON_HEADERS });
 }
 
+async function verifyWebhookHmac(rawBody, request, secret) {
+  if (!secret) return true;
+
+  const header = request.headers.get("x-revenuecat-webhook-signature") || "";
+  const match = /^t=(\\d+),v1=([a-f0-9]{64})$/i.exec(header);
+  if (!match) return false;
+
+  const timestamp = Number(match[1]);
+  const now = Math.floor(Date.now() / 1000);
+  if (!Number.isSafeInteger(timestamp) || Math.abs(now - timestamp) > 300) return false;
+
+  const key = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+  );
+  const digest = await crypto.subtle.sign(
+    "HMAC", key, new TextEncoder().encode(match[1] + "." + rawBody)
+  );
+  const expected = [...new Uint8Array(digest)]
+    .map(byte => byte.toString(16).padStart(2, "0")).join("");
+  const supplied = match[2].toLowerCase();
+  if (expected.length !== supplied.length) return false;
+  let difference = 0;
+  for (let index = 0; index < expected.length; index += 1) {
+    difference |= expected.charCodeAt(index) ^ supplied.charCodeAt(index);
+  }
+  return difference === 0;
+}
+
 function validUid(uid) {
   return typeof uid === "string" && uid.length > 0 && uid.length <= 128
     && !uid.includes("/") && !uid.startsWith("$");
@@ -196,8 +224,20 @@ async function processEvent(request, env) {
     return response(401, { error: "Unauthorized" });
   }
 
+  const rawBody = await request.text();
+  if (rawBody.length > 65536) return response(413, { error: "Payload too large" });
+  if (env.REVENUECAT_WEBHOOK_SIGNING_SECRET) {
+    let validSignature = false;
+    try {
+      validSignature = await verifyWebhookHmac(rawBody, request, env.REVENUECAT_WEBHOOK_SIGNING_SECRET);
+    } catch {
+      return response(503, { error: "Webhook signature verification unavailable" });
+    }
+    if (!validSignature) return response(401, { error: "Invalid webhook signature" });
+  }
+
   let payload;
-  try { payload = await request.json(); } catch { return response(400, { error: "Invalid JSON" }); }
+  try { payload = JSON.parse(rawBody); } catch { return response(400, { error: "Invalid JSON" }); }
   const event = payload?.event;
   if (!event || typeof event.id !== "string" || !event.id) return response(400, { error: "Missing event" });
   if (event.type === "TEST") return response(200, { received: true, ignored: "test_event" });
