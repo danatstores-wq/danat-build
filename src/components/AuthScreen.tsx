@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  View, Text, TextInput, Pressable, StyleSheet, ActivityIndicator, Platform,
+  View, Text, TextInput, Pressable, StyleSheet, ActivityIndicator, Platform, Modal, ScrollView,
 } from 'react-native';
 import {
   createUserWithEmailAndPassword,
@@ -77,6 +77,8 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
   const [loading, setLoading] = useState(false);
   const [verificationPending, setVerificationPending] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
+  const [policyAccepted, setPolicyAccepted] = useState(false);
+  const [policyVisible, setPolicyVisible] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem('danatBuildRememberMe').then(value => {
@@ -113,6 +115,15 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
       return;
     }
 
+    if (mode === 'register' && !policyAccepted) {
+      setError(t(
+        'You must accept the Construction Assistance Disclaimer before creating an account.',
+        'يجب الموافقة على إخلاء مسؤولية المساعدة في البناء قبل إنشاء الحساب.',
+        'Vous devez accepter l’avis de non-substitution aux conseils professionnels avant de créer un compte.'
+      ));
+      return;
+    }
+
     if (mode !== 'forgot' && password.length < 6) {
       setError(t(
         'Password must contain at least 6 characters.',
@@ -133,8 +144,16 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
           password
         );
 
+        await setDoc(doc(db, 'users', credential.user.uid), {
+          uid: credential.user.uid,
+          email: credential.user.email,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          constructionDisclaimerAccepted: true,
+          constructionDisclaimerVersion: '2026-11-26',
+          constructionDisclaimerAcceptedAt: serverTimestamp(),
+        }, { merge: true });
         await sendEmailVerification(credential.user);
-        await ensureUserProfileBestEffort(credential.user);
         setVerificationPending(true);
         setMessage(t(
           'Verification email sent. Open the link in your inbox, then return here and confirm.',
@@ -422,6 +441,29 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
         </View>
       )}
 
+      {mode === 'register' && (
+        <View style={ui.policySection}>
+          <Pressable
+            onPress={() => setPolicyAccepted(value => !value)}
+            style={ui.policyAcceptRow}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: policyAccepted }}
+          >
+            <View style={[ui.rememberBox, policyAccepted && ui.rememberBoxChecked]}>
+              {policyAccepted && <Text style={ui.rememberTick}>✓</Text>}
+            </View>
+            <Text style={ui.policyAcceptText}>
+              {t('I have read and agree to the Construction Assistance Disclaimer.', 'لقد قرأت وأوافق على إخلاء مسؤولية المساعدة في البناء.', 'J’ai lu et j’accepte l’avis de non-substitution aux conseils professionnels.')}
+            </Text>
+          </Pressable>
+          <Pressable onPress={() => setPolicyVisible(true)}>
+            <Text style={ui.link}>
+              {t('Read the full disclaimer', 'اقرأ إخلاء المسؤولية كاملاً', 'Lire l’avis complet')}
+            </Text>
+          </Pressable>
+        </View>
+      )}
+
       {mode === 'login' && (
         <Pressable
           onPress={() => updateRememberMe(!rememberMe)}
@@ -505,6 +547,24 @@ export default function AuthScreen({ language, theme, onAuthenticated }: Props) 
           </Text>
         </Pressable>
       )}
+
+      <Modal visible={policyVisible} transparent animationType="slide" onRequestClose={() => setPolicyVisible(false)}>
+        <View style={ui.policyModalBackdrop}>
+          <View style={ui.policyModal}>
+            <Text style={ui.heading}>{t('Construction Assistance Disclaimer', 'إخلاء مسؤولية المساعدة في البناء', 'Avis de non-substitution aux conseils professionnels')}</Text>
+            <ScrollView style={ui.policyScroll}>
+              <Text style={ui.policyBody}>{t(
+                'Danat Build is provided only as a general assistance, educational and estimation tool. Its calculations, measurements, quantities, costs and other information are approximate and may be incomplete or inaccurate. The app does not provide architectural, engineering, structural, surveying, construction, legal or other regulated professional advice. It does not replace the advice, drawings, specifications, inspections, approvals or services of a qualified and licensed architect, engineer or other relevant construction professional. Always consult an appropriately qualified professional and obtain all required permits and approvals before starting or changing any construction, structural, renovation or safety-related work. Never rely solely on this app to make decisions that may affect a building’s structure, stability or the safety of people or property. You are responsible for independently verifying all measurements, site conditions, calculations, local codes and project requirements. By ticking the acceptance box and registering, you confirm that you have read and agree to this disclaimer.',
+                'يُقدَّم تطبيق Danat Build للمساعدة العامة والتثقيف وإجراء التقديرات فقط. وقد تكون الحسابات والقياسات والكميات والتكاليف والمعلومات الأخرى تقريبية أو غير مكتملة أو غير دقيقة. لا يقدم التطبيق استشارات معمارية أو هندسية أو إنشائية أو مساحية أو استشارات بناء أو استشارات قانونية أو أي استشارات مهنية منظمة، ولا يحل محل نصائح أو مخططات أو مواصفات أو فحوصات أو موافقات أو خدمات مهندس معماري أو مهندس أو أي مختص مؤهل ومرخص في مجال البناء. استشر دائماً مختصاً مؤهلاً واحصل على جميع التصاريح والموافقات المطلوبة قبل البدء بأي أعمال بناء أو تعديل إنشائي أو تجديد أو أعمال تتعلق بالسلامة. لا تعتمد على التطبيق وحده لاتخاذ قرارات قد تؤثر في هيكل المبنى أو ثباته أو سلامة الأشخاص أو الممتلكات. أنت مسؤول عن التحقق بشكل مستقل من جميع القياسات وظروف الموقع والحسابات والأنظمة المحلية ومتطلبات المشروع. عند تحديد مربع الموافقة والتسجيل، فإنك تؤكد أنك قرأت هذا الإخلاء ووافقت عليه.',
+                'Danat Build est fourni uniquement comme outil d’assistance générale, d’information et d’estimation. Ses calculs, mesures, quantités, coûts et autres informations sont approximatifs et peuvent être incomplets ou inexacts. L’application ne fournit aucun conseil architectural, d’ingénierie, de structure, de topographie, de construction, juridique ou autre conseil professionnel réglementé. Elle ne remplace pas les conseils, plans, spécifications, inspections, autorisations ou services d’un architecte, ingénieur ou autre professionnel du bâtiment qualifié et habilité. Consultez toujours un professionnel compétent et obtenez tous les permis et accords nécessaires avant d’entreprendre des travaux de construction, de structure, de rénovation ou liés à la sécurité. Ne vous fiez jamais uniquement à cette application pour prendre des décisions susceptibles d’affecter la structure ou la stabilité d’un bâtiment, ou la sécurité des personnes ou des biens. Vous êtes responsable de vérifier indépendamment les mesures, les conditions du site, les calculs, les codes locaux et les exigences du projet. En cochant la case d’acceptation et en vous inscrivant, vous confirmez avoir lu et accepté cet avis.'
+              )}</Text>
+            </ScrollView>
+            <Pressable style={ui.button} onPress={() => setPolicyVisible(false)}>
+              <Text style={ui.buttonText}>{t('CLOSE', 'إغلاق', 'FERMER')}</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -539,6 +599,13 @@ const styles = StyleSheet.create({
     marginTop: 9,
     marginBottom: 22,
   },
+  policySection: { marginTop: 4, marginBottom: 8 },
+  policyAcceptRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  policyAcceptText: { color: '#f0e7d7', fontSize: 11, lineHeight: 17, flex: 1 },
+  policyModalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.78)', justifyContent: 'center', padding: 18 },
+  policyModal: { maxHeight: '88%', backgroundColor: '#11161c', borderWidth: 1, borderColor: '#66553a', borderRadius: 18, padding: 20 },
+  policyScroll: { marginVertical: 16 },
+  policyBody: { color: '#e5e0d7', fontSize: 13, lineHeight: 21 },
   rememberRow: { flexDirection: 'row', alignItems: 'flex-start', marginTop: 2, marginBottom: 10, gap: 10 },
   rememberBox: { width: 19, height: 19, borderRadius: 5, borderWidth: 1.5, borderColor: '#8b795b', alignItems: 'center', justifyContent: 'center', marginTop: 1 },
   rememberBoxChecked: { backgroundColor: GOLD, borderColor: GOLD },
