@@ -1,22 +1,64 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
     function signedIn() {
       return request.auth != null;
     }
 
     function isAdvertiserAdmin() {
-      return signedIn() && request.auth.uid == 'psu8GgwqNUSKHSQER9wkcEKbbz22';
+      return signedIn()
+        && request.auth.uid == 'psu8GgwqNUSKHSQER9wkcEKbbz22';
+    }
+
+    function validCampaign(data) {
+      return data.keys().hasAll([
+          'countryCode', 'advertiserName', 'imageUrl',
+          'clickUrl', 'startsAt', 'endsAt', 'active',
+          'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'countryCode', 'advertiserName', 'imageUrl',
+          'clickUrl', 'startsAt', 'endsAt', 'active',
+          'createdAt', 'updatedAt'
+        ])
+        && data.countryCode in [
+          'LB', 'AE', 'SA', 'QA', 'KW',
+          'OM', 'BH', 'EG', 'IQ'
+        ]
+        && data.advertiserName is string
+        && data.imageUrl is string
+        && data.imageUrl.matches('https://.*')
+        && data.clickUrl is string
+        && data.clickUrl.matches('https://.*')
+        && data.startsAt is timestamp
+        && data.endsAt is timestamp
+        && data.endsAt > data.startsAt
+        && data.active is bool
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
     }
 
     match /users/{userId} {
-      allow get: if signedIn() && request.auth.uid == userId;
+      allow get: if signedIn()
+        && request.auth.uid == userId;
+
       allow list: if false;
 
       allow create: if signedIn()
         && request.auth.uid == userId
-        && request.resource.data.keys().hasAll(['uid', 'email', 'createdAt', 'updatedAt', 'constructionDisclaimerAccepted', 'constructionDisclaimerVersion', 'constructionDisclaimerAcceptedAt'])
-        && request.resource.data.keys().hasOnly(['uid', 'email', 'createdAt', 'updatedAt', 'constructionDisclaimerAccepted', 'constructionDisclaimerVersion', 'constructionDisclaimerAcceptedAt'])
+        && request.resource.data.keys().hasAll([
+          'uid', 'email', 'createdAt', 'updatedAt',
+          'constructionDisclaimerAccepted',
+          'constructionDisclaimerVersion',
+          'constructionDisclaimerAcceptedAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'uid', 'email', 'createdAt', 'updatedAt',
+          'constructionDisclaimerAccepted',
+          'constructionDisclaimerVersion',
+          'constructionDisclaimerAcceptedAt'
+        ])
         && request.resource.data.uid == userId
         && request.resource.data.email == request.auth.token.email
         && request.resource.data.createdAt == request.time
@@ -29,31 +71,19 @@ service cloud.firestore {
     }
 
     match /directAdCampaigns/{campaignId} {
-      // App users can only read active campaign documents. Admins can manage all campaigns.
-      allow get, list: if isAdvertiserAdmin() || resource.data.active == true;
+      allow get, list: if isAdvertiserAdmin()
+        || resource.data.active == true;
+
       allow create: if isAdvertiserAdmin()
-        && request.resource.data.keys().hasAll(['countryCode', 'advertiserName', 'imageUrl', 'clickUrl', 'startsAt', 'endsAt', 'active', 'createdAt', 'updatedAt'])
-        && request.resource.data.keys().hasOnly(['countryCode', 'advertiserName', 'imageUrl', 'clickUrl', 'startsAt', 'endsAt', 'active', 'createdAt', 'updatedAt'])
-        && request.resource.data.countryCode in ['LB', 'AE', 'SA', 'QA', 'KW', 'OM', 'BH', 'EG', 'IQ']
-        && request.resource.data.advertiserName is string
-        && request.resource.data.imageUrl is string
-        && request.resource.data.imageUrl.matches('https://.*')
-        && request.resource.data.clickUrl is string
-        && request.resource.data.clickUrl.matches('https://.*')
-        && request.resource.data.startsAt is timestamp
-        && request.resource.data.endsAt is timestamp
-        && request.resource.data.endsAt > request.resource.data.startsAt
-        && request.resource.data.active is bool;
+        && validCampaign(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
       allow update: if isAdvertiserAdmin()
-        && request.resource.data.keys().hasOnly(['countryCode', 'advertiserName', 'imageUrl', 'clickUrl', 'startsAt', 'endsAt', 'active', 'createdAt', 'updatedAt'])
-        && request.resource.data.countryCode in ['LB', 'AE', 'SA', 'QA', 'KW', 'OM', 'BH', 'EG', 'IQ']
-        && request.resource.data.advertiserName is string
-        && request.resource.data.imageUrl.matches('https://.*')
-        && request.resource.data.clickUrl.matches('https://.*')
-        && request.resource.data.startsAt is timestamp
-        && request.resource.data.endsAt is timestamp
-        && request.resource.data.endsAt > request.resource.data.startsAt
-        && request.resource.data.active is bool;
+        && validCampaign(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time;
+
       allow delete: if isAdvertiserAdmin();
     }
 
