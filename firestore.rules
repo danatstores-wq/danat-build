@@ -15,12 +15,12 @@ service cloud.firestore {
       return data.keys().hasAll([
           'countryCode', 'advertiserName', 'imageUrl',
           'clickUrl', 'startsAt', 'endsAt', 'active',
-          'createdAt', 'updatedAt'
+          'displayDurationSeconds', 'createdAt', 'updatedAt'
         ])
         && data.keys().hasOnly([
           'countryCode', 'advertiserName', 'imageUrl',
           'clickUrl', 'startsAt', 'endsAt', 'active',
-          'createdAt', 'updatedAt'
+          'displayDurationSeconds', 'createdAt', 'updatedAt'
         ])
         && data.countryCode in [
           'LB', 'AE', 'SA', 'QA', 'KW',
@@ -35,6 +35,9 @@ service cloud.firestore {
         && data.endsAt is timestamp
         && data.endsAt > data.startsAt
         && data.active is bool
+        && data.displayDurationSeconds is int
+        && data.displayDurationSeconds >= 1
+        && data.displayDurationSeconds <= 300
         && data.createdAt is timestamp
         && data.updatedAt is timestamp;
     }
