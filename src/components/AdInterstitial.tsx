@@ -9,14 +9,21 @@ import { initializeAdMobForUserConsent } from "../ads/initializeAdMob";
 type Props = {
   enabled: boolean;
   safeToShow: boolean;
+  trigger: number;
 };
 
-const INTERVAL_SECONDS = 3 * 60;
+const COOLDOWN_MS = 3 * 60 * 1000;
 const ANDROID_INTERSTITIAL_ID = "ca-app-pub-1622329571366129/5309153996";
 const IOS_INTERSTITIAL_ID = "ca-app-pub-1622329571366129/4100014107";
 
-export default function AdInterstitial({ enabled, safeToShow }: Props) {
+export default function AdInterstitial({ enabled, safeToShow, trigger }: Props) {
   const safeToShowRef = useRef(safeToShow);
+  const adRef = useRef<InterstitialAd | null>(null);
+  const loadedRef = useRef(false);
+  const showingRef = useRef(false);
+  const pendingTapRef = useRef(false);
+  const lastShownAtRef = useRef(0);
+  const appActiveRef = useRef(AppState.currentState === "active");
 
   useEffect(() => {
     safeToShowRef.current = safeToShow;
@@ -26,52 +33,53 @@ export default function AdInterstitial({ enabled, safeToShow }: Props) {
     if (!enabled || Platform.OS === "web") return;
 
     let mounted = true;
-    let elapsedActiveSeconds = 0;
-    let isLoaded = false;
-    let isShowing = false;
-    let appIsActive = AppState.currentState === "active";
-    let ad: InterstitialAd | null = null;
     let removeLoaded = () => {};
     let removeClosed = () => {};
     let removeError = () => {};
-    let appStateSubscription: { remove: () => void } | undefined;
+
+    const showIfEligible = () => {
+      const ad = adRef.current;
+      if (!mounted || !ad || !loadedRef.current || showingRef.current || !appActiveRef.current || !safeToShowRef.current) return;
+      if (Date.now() - lastShownAtRef.current < COOLDOWN_MS) {
+        pendingTapRef.current = false;
+        return;
+      }
+
+      pendingTapRef.current = false;
+      showingRef.current = true;
+      lastShownAtRef.current = Date.now();
+      ad.show().catch(error => {
+        console.warn("Interstitial ad could not be shown:", error);
+        showingRef.current = false;
+        loadedRef.current = false;
+        ad.load();
+      });
+    };
 
     const initialize = async () => {
       try {
         const ready = await initializeAdMobForUserConsent();
         if (!mounted || !ready) return;
 
-        const unitId = Platform.OS === "ios"
-          ? IOS_INTERSTITIAL_ID
-          : ANDROID_INTERSTITIAL_ID;
-        ad = InterstitialAd.createForAdRequest(unitId);
+        const unitId = Platform.OS === "ios" ? IOS_INTERSTITIAL_ID : ANDROID_INTERSTITIAL_ID;
+        const ad = InterstitialAd.createForAdRequest(unitId);
+        adRef.current = ad;
 
         removeLoaded = ad.addAdEventListener(AdEventType.LOADED, () => {
-          isLoaded = true;
-          if (mounted && elapsedActiveSeconds >= INTERVAL_SECONDS && safeToShowRef.current && !isShowing) {
-            isShowing = true;
-            ad?.show().catch(error => {
-              console.warn("Interstitial ad could not be shown:", error);
-              isShowing = false;
-              isLoaded = false;
-              ad?.load();
-            });
-          }
+          loadedRef.current = true;
+          if (pendingTapRef.current) showIfEligible();
         });
-
         removeClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
-          isShowing = false;
-          isLoaded = false;
-          elapsedActiveSeconds = 0;
-          if (mounted) ad?.load();
+          showingRef.current = false;
+          loadedRef.current = false;
+          if (mounted) ad.load();
         });
-
         removeError = ad.addAdEventListener(AdEventType.ERROR, error => {
           console.warn("Interstitial ad failed to load:", error);
-          isLoaded = false;
-          isShowing = false;
+          loadedRef.current = false;
+          showingRef.current = false;
+          pendingTapRef.current = false;
         });
-
         ad.load();
       } catch (error) {
         console.warn("Interstitial AdMob initialization failed:", error);
@@ -79,35 +87,46 @@ export default function AdInterstitial({ enabled, safeToShow }: Props) {
     };
 
     initialize();
-
-    appStateSubscription = AppState.addEventListener("change", state => {
-      appIsActive = state === "active";
+    const appStateSubscription = AppState.addEventListener("change", state => {
+      appActiveRef.current = state === "active";
+      if (appActiveRef.current && pendingTapRef.current) showIfEligible();
     });
-
-    const timer = setInterval(() => {
-      if (!mounted || !appIsActive || isShowing) return;
-      elapsedActiveSeconds += 1;
-      if (elapsedActiveSeconds >= INTERVAL_SECONDS && safeToShowRef.current && isLoaded && ad) {
-        isShowing = true;
-        ad.show().catch(error => {
-          console.warn("Interstitial ad could not be shown:", error);
-          isShowing = false;
-          isLoaded = false;
-          ad?.load();
-        });
-      }
-    }, 1000);
 
     return () => {
       mounted = false;
-      clearInterval(timer);
-      appStateSubscription?.remove();
+      appStateSubscription.remove();
       removeLoaded();
       removeClosed();
       removeError();
-      ad = null;
+      adRef.current = null;
+      loadedRef.current = false;
+      pendingTapRef.current = false;
     };
   }, [enabled]);
+
+  useEffect(() => {
+    if (!enabled || Platform.OS === "web" || trigger === 0) return;
+    if (!safeToShowRef.current) return;
+
+    if (Date.now() - lastShownAtRef.current < COOLDOWN_MS) return;
+    pendingTapRef.current = true;
+
+    const ad = adRef.current;
+    if (ad && loadedRef.current) {
+      const now = Date.now();
+      if (now - lastShownAtRef.current >= COOLDOWN_MS && appActiveRef.current && !showingRef.current) {
+        pendingTapRef.current = false;
+        showingRef.current = true;
+        lastShownAtRef.current = now;
+        ad.show().catch(error => {
+          console.warn("Interstitial ad could not be shown:", error);
+          showingRef.current = false;
+          loadedRef.current = false;
+          ad.load();
+        });
+      }
+    }
+  }, [enabled, trigger]);
 
   return null;
 }
