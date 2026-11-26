@@ -62,18 +62,18 @@ jobs:
           import re
           p = Path("android/app/build.gradle")
           s = p.read_text()
-          match = re.search(r"(?m)^react\\s*\\{", s)
+          match = re.search(r"(?m)^react\s*\{", s)
           if not match:
               raise SystemExit("Could not find the React Native Gradle react { } configuration.")
           start = match.end()
-          block_end = s.find("\\n}", start)
+          block_end = s.find("\n}", start)
           if block_end < 0:
               raise SystemExit("Could not find the end of the React Native Gradle configuration.")
           block = s[start:block_end]
-          if re.search(r"(?m)^\\s*debuggableVariants\\s*=", block):
-              block = re.sub(r"(?m)^\\s*debuggableVariants\\s*=.*$", "    debuggableVariants = []", block)
+          if re.search(r"(?m)^\s*debuggableVariants\s*=", block):
+              block = re.sub(r"(?m)^\s*debuggableVariants\s*=.*$", "    debuggableVariants = []", block)
           else:
-              block = "\\n    debuggableVariants = []" + block
+              block = "\n    debuggableVariants = []" + block
           s = s[:start] + block + s[block_end:]
           p.write_text(s)
           print("Configured the Android debug variant to embed the JavaScript bundle.")
