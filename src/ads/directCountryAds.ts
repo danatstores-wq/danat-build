@@ -9,6 +9,7 @@ export type DirectCountryAd = {
   clickUrl: string;
   startsAt: Date;
   endsAt: Date;
+  displayDurationSeconds: number;
 };
 
 export async function getActiveCountryAd(countryCode: string): Promise<DirectCountryAd | null> {
@@ -29,6 +30,7 @@ export async function getActiveCountryAd(countryCode: string): Promise<DirectCou
         clickUrl: String(data.clickUrl || ''),
         startsAt: data.startsAt?.toDate?.() ?? new Date(data.startsAt),
         endsAt: data.endsAt?.toDate?.() ?? new Date(data.endsAt),
+        displayDurationSeconds: Number.isFinite(Number(data.displayDurationSeconds)) ? Math.min(300, Math.max(1, Number(data.displayDurationSeconds))) : 6,
       } satisfies DirectCountryAd;
     })
     .filter(ad =>
