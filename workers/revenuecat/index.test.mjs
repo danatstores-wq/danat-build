@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { generateKeyPairSync } from "node:crypto";
+import { createHmac, generateKeyPairSync } from "node:crypto";
 import worker from "./index.mjs";
 
 test("refund-before-purchase persists its tombstone without granting access", async () => {
@@ -20,6 +20,12 @@ test("refund-before-purchase persists its tombstone without granting access", as
   };
   const commits = [];
   const originalFetch = globalThis.fetch;
+  const signingSecret = "test-revenuecat-signing-secret";
+  const rawBody = JSON.stringify({ event });
+  const signatureTimestamp = String(Math.floor(Date.now() / 1000));
+  const signature = createHmac("sha256", signingSecret)
+    .update(signatureTimestamp + "." + rawBody)
+    .digest("hex");
 
   globalThis.fetch = async (input, init = {}) => {
     const url = String(input);
@@ -71,11 +77,13 @@ test("refund-before-purchase persists its tombstone without granting access", as
       headers: {
         authorization: "test-webhook-secret",
         "content-type": "application/json",
+        "x-revenuecat-webhook-signature": "t=" + signatureTimestamp + ",v1=" + signature,
       },
-      body: JSON.stringify({ event }),
+      body: rawBody,
     });
     const response = await worker.fetch(request, {
       REVENUECAT_WEBHOOK_AUTHORIZATION: "test-webhook-secret",
+      REVENUECAT_WEBHOOK_SIGNING_SECRET: signingSecret,
       REVENUECAT_APPLE_PRODUCT_ID: productId,
       REVENUECAT_GOOGLE_PRODUCT_ID: "danat_build_professional_annual",
       REVENUECAT_SECRET_API_KEY: "test-revenuecat-secret",
@@ -104,4 +112,22 @@ test("refund-before-purchase persists its tombstone without granting access", as
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+
+test("configured RevenueCat HMAC rejects an invalid signature before processing", async () => {
+  const request = new Request("https://worker.test/revenuecat/webhook", {
+    method: "POST",
+    headers: {
+      authorization: "test-webhook-secret",
+      "content-type": "application/json",
+      "x-revenuecat-webhook-signature": "t=" + Math.floor(Date.now() / 1000) + ",v1=" + "0".repeat(64),
+    },
+    body: JSON.stringify({ event: { id: "invalid-signature", type: "TEST" } }),
+  });
+  const response = await worker.fetch(request, {
+    REVENUECAT_WEBHOOK_AUTHORIZATION: "test-webhook-secret",
+    REVENUECAT_WEBHOOK_SIGNING_SECRET: "test-revenuecat-signing-secret",
+  });
+  assert.equal(response.status, 401);
 });
