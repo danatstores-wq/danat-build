@@ -26,31 +26,14 @@ Use a landscape banner image (recommended 1200 x 600 or similar). Obtain the adv
 
 ## Authorize Danat's administrator
 
-The admin menu is hidden unless the signed-in Firebase user has the custom claim `advertiserAdmin: true`. Firestore rules enforce the same claim; hiding the screen alone is not security.
+The Direct Advertisers menu is available only to the owner Firebase account with UID:
 
-1. Obtain the Firebase project's service-account credentials securely. Never commit the JSON key to GitHub or send it in chat.
-2. Set `GOOGLE_APPLICATION_CREDENTIALS` to the local service-account JSON path and set `GOOGLE_CLOUD_PROJECT` to the Danat Build Firebase project ID.
-3. From the `functions` directory run:
+`psu8GgwqNUSKHSQER9wkcEKbbz22`
 
-   ```bash
-   node scripts/set-advertiser-admin.cjs YOUR_FIREBASE_AUTH_UID
-   ```
-
-4. Sign out and sign in again (or refresh the Firebase ID token). The Direct Advertisers menu item will then appear.
-5. To revoke access:
-
-   ```bash
-   node scripts/set-advertiser-admin.cjs YOUR_FIREBASE_AUTH_UID off
-   ```
-
-The script preserves any other existing custom claims.
+The same UID check is enforced by Firestore Security Rules. No service-account key, terminal command, or custom-claim setup is required. To change the administrator later, update the owner UID in both `App.tsx` and `firestore.rules` through a reviewed code change.
 
 ## Deployment and security
 
-The Firestore rules in this branch allow public reads only of active campaign records; only users with the `advertiserAdmin` custom claim can create, edit, activate/deactivate, or delete campaigns. Deploy the updated rules before activating the feature:
+The Firestore rules allow public reads only of active campaign records; only the fixed owner UID above can create, edit, activate/deactivate, or delete campaigns. Publish the updated rules from Firebase Console → Firestore Database → Rules by reviewing and publishing the repository's `firestore.rules` content. Do not activate campaigns until those rules are published.
 
-```bash
-firebase deploy --only firestore:rules
-```
-
-Do not activate direct campaigns until the rules are deployed and the admin claim has been assigned. This feature does not collect payments, process invoices, or guarantee ad impressions; Danat and each advertiser must agree payment and campaign terms separately.
+This feature does not collect payments, process invoices, or guarantee ad impressions; Danat and each advertiser must agree payment and campaign terms separately.

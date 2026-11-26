@@ -27,7 +27,7 @@ import MeasurementsToolScreen from './src/components/MeasurementsToolScreen';
 import AdvertiserAdminScreen from './src/components/AdvertiserAdminScreen';
 import { SavedCalculation } from './src/storage/localProjects';
 import { AppTheme, getThemedStyles } from './src/theme';
-import { getIdTokenResult, onAuthStateChanged, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from './src/firebase';
 
 type Language = 'en' | 'ar' | 'fr';
@@ -180,12 +180,7 @@ export default function App() {
         return;
       }
 
-      try {
-        const token = await getIdTokenResult(user);
-        setIsAdvertiserAdmin(token.claims.advertiserAdmin === true);
-      } catch {
-        setIsAdvertiserAdmin(false);
-      }
+      setIsAdvertiserAdmin(user.uid === 'psu8GgwqNUSKHSQER9wkcEKbbz22');
 
       // Keep the existing email-verification policy for newly registered accounts.
       const accountCreatedAt = user.metadata.creationTime
