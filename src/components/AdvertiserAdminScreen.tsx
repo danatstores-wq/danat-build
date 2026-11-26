@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Alert, Image, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Timestamp, addDoc, collection, getDocs, orderBy, query, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
-import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { auth } from '../firebase';
 import { db } from '../firestore';
 
@@ -51,15 +50,22 @@ export default function AdvertiserAdminScreen({ language, theme, onBack }: { lan
         else Alert.alert(t('Unsupported image', 'صيغة الصورة غير مدعومة', 'Format non pris en charge'), message);
         return;
       }
-      const uid = auth.currentUser?.uid;
-      if (!uid) throw new Error('Please sign in again before uploading.');
+      const user = auth.currentUser;
+      if (!user) throw new Error('Please sign in again before uploading.');
       setUploading(true);
-      const extension = mimeType === 'image/png' ? 'png' : mimeType === 'image/webp' ? 'webp' : 'jpg';
-      const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80);
-      const storageRef = ref(getStorage(), `directAdBanners/${uid}/${Date.now()}-${safeName || 'banner'}.${extension}`);
-      await uploadBytes(storageRef, file, { contentType: mimeType });
-      const downloadUrl = await getDownloadURL(storageRef);
-      setImageUrl(downloadUrl);
+      const idToken = await user.getIdToken();
+      const form = new FormData();
+      form.append('banner', file, fileName || 'banner');
+      const response = await fetch('https://danatstore.com/danat-build-banners/upload.php', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${idToken}` },
+        body: form,
+      });
+      const result = await response.json().catch(() => ({} as any));
+      if (!response.ok || typeof result.imageUrl !== 'string') {
+        throw new Error(result.error || `Upload service returned HTTP ${response.status}.`);
+      }
+      setImageUrl(result.imageUrl);
       const message = t('Your banner is ready to use in this campaign.', 'أصبحت الصورة جاهزة للاستخدام في الحملة.', 'Votre bannière est prête pour cette campagne.');
       if (Platform.OS === 'web') window.alert(message);
       else Alert.alert(t('Banner uploaded', 'تم رفع الإعلان', 'Bannière envoyée'), message);
