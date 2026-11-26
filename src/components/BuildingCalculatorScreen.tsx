@@ -1803,7 +1803,17 @@ export default function BuildingCalculatorScreen({
             </Pressable>
           </View>
           {!!sponsoredCountryAd?.imageUrl && (
-            <Image source={{ uri: sponsoredCountryAd.imageUrl }} resizeMode="cover" style={{ width: '100%', height: 190, borderRadius: 12, backgroundColor: '#252a30' }} />
+            <Pressable
+              onPress={() => {
+                const url = sponsoredCountryAd?.clickUrl;
+                if (url) Linking.openURL(url).catch(error => console.warn('Could not open advertiser link:', error));
+                setSponsoredAdVisible(false);
+              }}
+              accessibilityRole="link"
+              accessibilityLabel="Open advertiser website"
+            >
+              <Image source={{ uri: sponsoredCountryAd.imageUrl }} resizeMode="cover" style={{ width: '100%', height: 190, borderRadius: 12, backgroundColor: '#252a30' }} />
+            </Pressable>
           )}
           <Text style={{ color: '#fff', fontSize: 18, fontWeight: '900', marginTop: 13, textAlign: 'center' }}>{sponsoredCountryAd?.advertiserName}</Text>
           <Text style={{ color: '#c7c9cb', fontSize: 12, marginTop: 6, textAlign: 'center' }}>Sponsored for {sponsoredCountryAd?.countryCode}</Text>
