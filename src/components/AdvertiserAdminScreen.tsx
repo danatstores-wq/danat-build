@@ -27,7 +27,7 @@ export default function AdvertiserAdminScreen({ language, theme, onBack }: { lan
     const result = await getDocs(query(collection(db, 'directAdCampaigns'), orderBy('createdAt', 'desc')));
     setItems(result.docs.map(item => {
       const d = item.data();
-      return { id: item.id, countryCode: d.countryCode, advertiserName: d.advertiserName, imageUrl: d.imageUrl, clickUrl: d.clickUrl, startsAt: d.startsAt.toDate(), endsAt: d.endsAt.toDate(), active: d.active };
+      return { id: item.id, countryCode: d.countryCode, advertiserName: d.advertiserName, imageUrl: d.imageUrl, clickUrl: d.clickUrl, startsAt: d.startsAt.toDate(), endsAt: d.endsAt.toDate(), active: d.active, displayDurationSeconds: Number(d.displayDurationSeconds) || 6 };
     }));
   };
   useEffect(() => { load().catch(error => console.warn('Could not load direct ad campaigns:', error)); }, []);
