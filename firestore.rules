@@ -5,13 +5,9 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isAdmin() {
-      return signedIn() && (request.auth.uid == 'psu8GgwqNUSKHSQER9wkcEKbbz22' || request.auth.token.admin == true);
-    }
-
     match /users/{userId} {
       allow get: if signedIn() && request.auth.uid == userId;
-      allow list: if isAdmin();
+      allow list: if false;
 
       allow create: if signedIn()
         && request.auth.uid == userId
@@ -23,53 +19,6 @@ service cloud.firestore {
         && request.resource.data.updatedAt == request.time;
 
       allow update, delete: if false;
-    }
-
-    match /entitlements/{userId} {
-      allow get: if signedIn() && (request.auth.uid == userId || isAdmin());
-      allow list: if false;
-
-      allow create: if isAdmin()
-        && request.resource.data.keys().hasAll([
-          'adminOverride', 'adminStatus', 'status', 'expiresAt',
-          'source', 'platform', 'productId', 'adminUpdatedBy', 'adminUpdatedAt'
-        ])
-        && request.resource.data.adminOverride == true
-        && request.resource.data.adminStatus in ['free', 'professional']
-        && request.resource.data.status == (request.resource.data.adminStatus == 'professional' ? 'active' : 'revoked')
-        && request.resource.data.source == 'admin'
-        && request.resource.data.platform == 'admin'
-        && request.resource.data.productId == null
-        && request.resource.data.adminUpdatedBy == request.auth.uid
-        && request.resource.data.adminUpdatedAt == request.time
-        && (request.resource.data.adminStatus == 'free' ? request.resource.data.expiresAt == null : request.resource.data.expiresAt is timestamp);
-
-      allow update: if isAdmin()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'adminOverride', 'adminStatus', 'status', 'expiresAt',
-          'source', 'platform', 'productId', 'adminUpdatedBy', 'adminUpdatedAt'
-        ])
-        && request.resource.data.adminOverride == true
-        && request.resource.data.adminStatus in ['free', 'professional']
-        && request.resource.data.status == (request.resource.data.adminStatus == 'professional' ? 'active' : 'revoked')
-        && request.resource.data.source == 'admin'
-        && request.resource.data.platform == 'admin'
-        && request.resource.data.productId == null
-        && request.resource.data.adminUpdatedBy == request.auth.uid
-        && request.resource.data.adminUpdatedAt == request.time
-        && (request.resource.data.adminStatus == 'free' ? request.resource.data.expiresAt == null : request.resource.data.expiresAt is timestamp);
-
-      allow delete: if false;
-    }
-
-    match /adminAccessChanges/{changeId} {
-      allow create: if isAdmin()
-        && request.resource.data.keys().hasOnly(['targetUid', 'changedBy', 'access', 'changedAt'])
-        && request.resource.data.targetUid is string
-        && request.resource.data.changedBy == request.auth.uid
-        && request.resource.data.access in ['free', 'professional']
-        && request.resource.data.changedAt == request.time;
-      allow read, update, delete: if false;
     }
 
     match /{document=**} {
