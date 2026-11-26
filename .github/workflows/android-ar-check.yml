@@ -1,16 +1,7 @@
 name: Android native AR build check
 
+# Native Android APK checks are manual-only; routine website updates must not build APKs.
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "app.config.js"
-      - "package.json"
-      - "package-lock.json"
-      - "src/components/ARMeasurementView.tsx"
-      - "src/components/ARMeasurementView.web.tsx"
-      - "src/components/MeasurementsToolScreen.tsx"
   workflow_dispatch:
 
 permissions:
