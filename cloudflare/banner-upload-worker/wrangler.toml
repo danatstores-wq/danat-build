@@ -1,0 +1,12 @@
+name = "danat-build-banner-upload"
+main = "src/index.ts"
+compatibility_date = "2026-11-26"
+workers_dev = true
+
+[vars]
+FIREBASE_PROJECT_ID = "danat-build"
+ADMIN_UID = "psu8GgwqNUSKHSQER9wkcEKbbz22"
+
+[[r2_buckets]]
+binding = "BANNERS"
+bucket_name = "danat-build-direct-ad-banners"
