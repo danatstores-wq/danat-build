@@ -7,7 +7,6 @@ on:
     paths:
       - 'firestore.rules'
       - 'firebase.json'
-      - 'storage.rules'
       - '.github/workflows/deploy-firebase.yml'
   workflow_dispatch:
 
@@ -41,4 +40,4 @@ jobs:
           echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-service-account.json" >> "$GITHUB_ENV"
 
       - name: Deploy Firestore rules
-        run: firebase deploy --project danat-build --only firestore:rules,storage --non-interactive
+        run: firebase deploy --project danat-build --only firestore:rules --non-interactive
