@@ -384,7 +384,7 @@ export default {
     try {
       return await processEvent(request, env);
     } catch (error) {
-      return response(503, { error: "Temporary processing failure", detail: String(error?.message || error).slice(0, 240) });
+      return response(503, { error: "Temporary processing failure" });
     }
   },
 };
