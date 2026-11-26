@@ -19,7 +19,7 @@ async function verifyWebhookHmac(rawBody, request, secret) {
   if (!secret) return true;
 
   const header = request.headers.get("x-revenuecat-webhook-signature") || "";
-  const match = /^t=(\\d+),v1=([a-f0-9]{64})$/i.exec(header);
+  const match = /^t=(\d+),v1=([a-f0-9]{64})$/i.exec(header);
   if (!match) return false;
 
   const timestamp = Number(match[1]);
