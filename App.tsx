@@ -1084,7 +1084,7 @@ export default function App() {
             </ScrollView>
 
             <AdBanner enabled={true} />
-            <AdInterstitial enabled={true} safeToShow={screen !== 'welcome' && screen !== 'auth'} trigger={adTrigger} />
+            <AdInterstitial enabled={true} safeToShow={true} trigger={adTrigger} />
 
             <View
               style={[
