@@ -52,6 +52,7 @@ export default function AdInterstitial({ enabled, safeToShow, trigger }: Props) 
         console.warn("Interstitial ad could not be shown:", error);
         showingRef.current = false;
         loadedRef.current = false;
+        lastShownAtRef.current = 0;
         ad.load();
       });
     };
@@ -122,6 +123,7 @@ export default function AdInterstitial({ enabled, safeToShow, trigger }: Props) 
           console.warn("Interstitial ad could not be shown:", error);
           showingRef.current = false;
           loadedRef.current = false;
+          lastShownAtRef.current = 0;
           ad.load();
         });
       }
