@@ -5,25 +5,22 @@ Danat Build is a multilingual construction calculator app built with Expo and Re
 ## Implemented
 
 - Firebase Authentication and user profiles.
-- Free/Homeowner and Professional access modes.
-- Firebase-backed Professional entitlement checks.
-- Administrator screen for granting and revoking Professional access, with an audit trail.
+- Homeowner and Professional work modes, both available to every user at no cost.
+- All calculators and tools are free; there are no subscriptions, paid tiers, in-app purchases, or restore-purchase flows.
 - Six quick calculators: concrete, tiles and ceramics, paint, blocks and bricks, sand and cement, and project cost.
 - Full Building Calculator with floor, structural, finishing, services, and itemized cost estimates.
 - Metric and imperial input/output conversion in quick calculators.
 - English, Arabic, and French interface content.
 - Dark and light themes.
 - Local saved projects and saved calculations.
-- AdMob banner and timed interstitial placements for Free users; Professional users are ad-free.
+- AdMob banner and timed interstitial placements for all users; advertising supports the free app.
 - Web export and GitHub Pages deployment.
 
-## Subscription and payment status
+## Free and ad-supported model
 
-The Professional plan is intended to cost **$10 for one year with manual renewal**. Website card payments are not part of the project scope.
+Danat Build is completely free to use. Every user can access both Homeowner and Professional work modes and all available tools. There are no paid plans, subscriptions, in-app purchases, or website payments. The app is supported by AdMob advertising.
 
-Google Play and Apple App Store purchases are not enabled. Store developer accounts and RevenueCat platform configuration are still required before real purchases can be accepted. The RevenueCat webhook source is present, but a trusted external backend must be deployed and tested before automatic store-purchase entitlements can be activated. Do not enable purchase buttons before end-to-end verification.
-
-Firebase Spark remains the selected plan. The current manual administrator grant/revoke flow is separate from paid store purchases.
+Firebase Spark remains the selected Firebase plan.
 
 ## Saved projects
 
