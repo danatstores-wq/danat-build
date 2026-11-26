@@ -7,7 +7,7 @@ import { auth } from '../firebase';
 import { db } from '../firestore';
 
 type Lang = 'en' | 'ar' | 'fr';
-type Campaign = { id: string; countryCode: string; advertiserName: string; imageUrl: string; clickUrl: string; startsAt: Date; endsAt: Date; active: boolean };
+type Campaign = { id: string; countryCode: string; advertiserName: string; imageUrl: string; clickUrl: string; startsAt: Date; endsAt: Date; active: boolean; displayDurationSeconds: number };
 const countries = ['LB', 'AE', 'SA', 'QA', 'KW', 'OM', 'BH', 'EG', 'IQ'];
 const MAX_BANNER_BYTES = 5 * 1024 * 1024;
 
@@ -17,6 +17,7 @@ export default function AdvertiserAdminScreen({ language, theme, onBack }: { lan
   const [advertiserName, setAdvertiserName] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [clickUrl, setClickUrl] = useState('');
+  const [displayDurationSeconds, setDisplayDurationSeconds] = useState('6');
   const [startsAt, setStartsAt] = useState(new Date().toISOString().slice(0, 10));
   const [endsAt, setEndsAt] = useState(new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10));
   const [saving, setSaving] = useState(false);
@@ -79,14 +80,14 @@ export default function AdvertiserAdminScreen({ language, theme, onBack }: { lan
   const save = async () => {
     const start = new Date(startsAt + 'T00:00:00');
     const end = new Date(endsAt + 'T23:59:59');
-    if (!advertiserName.trim() || !/^https:\/\//i.test(imageUrl) || !/^https:\/\//i.test(clickUrl) || !Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end <= start) {
-      Alert.alert(t('Check campaign details', 'تحقق من بيانات الحملة', 'Vérifiez les détails'), t('Enter a company name, upload a banner (or provide an HTTPS image URL), and enter a destination URL and valid dates.', 'أدخل اسم الشركة وارفع صورة الإعلان أو رابطها، وأدخل رابط الوجهة والتواريخ الصحيحة.', 'Saisissez le nom, téléversez une bannière ou son URL, puis le lien de destination et des dates valides.'));
+    if (!advertiserName.trim() || !/^https:\/\//i.test(imageUrl) || !/^https:\/\//i.test(clickUrl) || !Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end <= start || !/^\d+$/.test(displayDurationSeconds) || Number(displayDurationSeconds) < 1 || Number(displayDurationSeconds) > 300) {
+      Alert.alert(t('Check campaign details', 'تحقق من بيانات الحملة', 'Vérifiez les détails'), t('Enter a company name, banner, destination URL, valid dates, and a display duration from 1 to 300 seconds.', 'أدخل اسم الشركة والصورة ورابط الوجهة والتواريخ ومدة عرض بين 1 و300 ثانية.', 'Saisissez le nom, la bannière, le lien de destination, des dates valides et une durée de 1 à 300 secondes.'));
       return;
     }
     setSaving(true);
     try {
-      await addDoc(collection(db, 'directAdCampaigns'), { countryCode, advertiserName: advertiserName.trim(), imageUrl: imageUrl.trim(), clickUrl: clickUrl.trim(), startsAt: Timestamp.fromDate(start), endsAt: Timestamp.fromDate(end), active: true, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
-      setAdvertiserName(''); setImageUrl(''); setClickUrl('');
+      await addDoc(collection(db, 'directAdCampaigns'), { countryCode, advertiserName: advertiserName.trim(), imageUrl: imageUrl.trim(), clickUrl: clickUrl.trim(), startsAt: Timestamp.fromDate(start), endsAt: Timestamp.fromDate(end), active: true, displayDurationSeconds: Number(displayDurationSeconds), createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+      setAdvertiserName(''); setImageUrl(''); setClickUrl(''); setDisplayDurationSeconds('6');
       await load();
       Alert.alert(t('Campaign created', 'تم إنشاء الحملة', 'Campagne créée'));
     } catch (error) {
@@ -115,6 +116,7 @@ export default function AdvertiserAdminScreen({ language, theme, onBack }: { lan
       <Text style={{ color: '#aaa', fontSize: 12, marginTop: 6 }}>{t('JPG, PNG or WebP · maximum 5 MB · 16:9 recommended', 'JPG أو PNG أو WebP · الحد الأقصى 5 ميغابايت · يفضل 16:9', 'JPG, PNG ou WebP · 5 Mo maximum · format 16:9 conseillé')}</Text>
       {field(t('Or paste an existing banner HTTPS URL', 'أو أدخل رابط صورة HTTPS', 'Ou collez une URL HTTPS existante'), imageUrl, setImageUrl, 'https://example.com/banner.jpg')}
       {field(t('Destination HTTPS URL', 'رابط الوجهة HTTPS', 'URL HTTPS de destination'), clickUrl, setClickUrl, 'https://company.com')}
+      {field(t('Display duration (seconds, 1–300)', 'مدة العرض (بالثواني، 1–300)', 'Durée d’affichage (secondes, 1–300)'), displayDurationSeconds, setDisplayDurationSeconds, '6')}
       {field(t('Start date (YYYY-MM-DD)', 'تاريخ البداية', 'Date de début'), startsAt, setStartsAt, '2026-11-26')}
       {field(t('End date (YYYY-MM-DD)', 'تاريخ الانتهاء', 'Date de fin'), endsAt, setEndsAt, '2026-12-26')}
       <Pressable disabled={saving || uploading} onPress={save} style={{ backgroundColor: '#E9B85D', borderRadius: 10, padding: 14, alignItems: 'center', marginTop: 18, opacity: saving || uploading ? 0.6 : 1 }}><Text style={{ color: '#17110A', fontWeight: '900' }}>{saving ? t('SAVING…', 'جارٍ الحفظ…', 'ENREGISTREMENT…') : t('CREATE CAMPAIGN', 'إنشاء الحملة', 'CRÉER LA CAMPAGNE')}</Text></Pressable>
@@ -122,7 +124,7 @@ export default function AdvertiserAdminScreen({ language, theme, onBack }: { lan
       {items.length === 0 ? <Text style={{ color: '#aaa' }}>{t('No campaigns yet.', 'لا توجد حملات بعد.', 'Aucune campagne pour le moment.')}</Text> : items.map(item => (
         <View key={item.id} style={{ backgroundColor: '#1b2229', borderColor: '#655235', borderWidth: 1, borderRadius: 12, padding: 12, marginBottom: 9 }}>
           <Text style={{ color: '#fff', fontWeight: '900' }}>{item.advertiserName} · {item.countryCode}</Text>
-          <Text style={{ color: '#bbb', marginTop: 4 }}>{item.startsAt.toLocaleDateString()} – {item.endsAt.toLocaleDateString()}</Text>
+          <Text style={{ color: '#bbb', marginTop: 4 }}>{item.startsAt.toLocaleDateString()} – {item.endsAt.toLocaleDateString()} · {item.displayDurationSeconds ?? 6}s</Text>
           <Text style={{ color: item.active ? '#7fd49b' : '#e2a66b', marginTop: 4 }}>{item.active ? t('ACTIVE', 'نشطة', 'ACTIVE') : t('INACTIVE', 'متوقفة', 'INACTIVE')}</Text>
           <Pressable onPress={() => toggle(item)} style={{ padding: 10, borderRadius: 8, backgroundColor: '#303943', marginTop: 9, alignItems: 'center' }}><Text style={{ color: '#fff', fontWeight: '800' }}>{item.active ? t('DEACTIVATE', 'إيقاف', 'DÉSACTIVER') : t('ACTIVATE', 'تفعيل', 'ACTIVER')}</Text></Pressable>
         </View>
