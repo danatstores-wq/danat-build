@@ -98,7 +98,7 @@ export default function ProfileScreen({
 
           <View style={ui.card}>
             <Text style={ui.label}>
-              {t('ACCOUNT TYPE', 'نوع الحساب', 'TYPE DE COMPTE')}
+              {t('WORK MODE', 'وضع العمل', 'MODE DE TRAVAIL')}
             </Text>
             <Text style={ui.value}>
               {mode === 'professional'
