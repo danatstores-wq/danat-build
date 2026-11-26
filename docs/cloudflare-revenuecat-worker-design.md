@@ -4,6 +4,8 @@
 
 This is a source-only implementation plan for Firebase project `danat-build` on the Spark plan. It does not deploy a Worker, create Cloudflare resources, change Firebase configuration, or enable purchases.
 
+**RevenueCat plan prerequisite:** RevenueCat's current documentation lists Webhooks as a Pro-plan feature. Confirm that the RevenueCat account has webhook access before relying on this architecture. If not, pause deployment and compare a Firebase-authenticated, server-side reconciliation flow against the account's available RevenueCat features and pricing.
+
 This branch now contains its own checkout safety gate and Firestore-authoritative app access changes. Keep the gate disabled until the backend and app flow have been tested; PR #15 remains a separate safety-only review.
 
 ## Worker responsibilities
