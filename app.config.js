@@ -5,9 +5,6 @@ module.exports = ({ config }) => {
   const androidAppId = process.env.ADMOB_ANDROID_APP_ID || ANDROID_ADMOB_APP_ID;
   const iosAppId = process.env.ADMOB_IOS_APP_ID || IOS_ADMOB_APP_ID;
 
-  // RevenueCat store credentials are configured separately when each store account is ready.
-  // Missing keys must not block native builds used for device and AR testing.
-
   const existingPlugins = config.plugins || [];
   const plugins = existingPlugins.filter(plugin => {
     const name = Array.isArray(plugin) ? plugin[0] : plugin;
