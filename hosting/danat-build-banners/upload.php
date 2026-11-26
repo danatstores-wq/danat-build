@@ -14,7 +14,7 @@ const ADMIN_UID = 'psu8GgwqNUSKHSQER9wkcEKbbz22';
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 const PUBLIC_BASE_URL = 'https://danatstore.com/danat-build-banners/';
 
-function respond(int $status, array $body): never {
+function respond(int $status, array $body): void {
     http_response_code($status);
     header('Content-Type: application/json; charset=utf-8');
     header('Cache-Control: no-store');
