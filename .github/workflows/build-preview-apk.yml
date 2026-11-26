@@ -1,18 +1,8 @@
 name: Build Danat Build standalone Android APK
 # Use assembleRelease so the installed app starts directly and never opens the dev-server launcher.
 
+# APK builds are manual only. This prevents website updates from building an APK.
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/build-preview-apk.yml"
-      - "eas.json"
-      - "app.config.js"
-      - "package.json"
-      - "package-lock.json"
-      - "src/**"
-      - "App.tsx"
   workflow_dispatch:
 
 permissions:
