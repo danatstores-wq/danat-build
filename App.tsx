@@ -3,7 +3,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   SafeAreaView,
   StatusBar,
-  AppState,
   View,
   Text,
   Image,
@@ -13,7 +12,6 @@ import {
   StyleSheet,
   Platform,
   ImageStyle,
-  Alert,
   Linking,
 } from 'react-native';
 
@@ -21,23 +19,18 @@ import CalculatorScreen from './src/components/CalculatorScreen';
 import BuildingCalculatorScreen from './src/components/BuildingCalculatorScreen';
 import AuthScreen from './src/components/AuthScreen';
 import ProfileScreen from './src/components/ProfileScreen';
-import SubscriptionScreen from './src/components/SubscriptionScreen';
 import AdBanner from './src/components/AdBanner';
 import AdInterstitial from './src/components/AdInterstitial';
 import AdPrivacyOptionsButton from './src/components/AdPrivacyOptionsButton';
-import AdminUsersScreen from './src/components/AdminUsersScreen';
 import MyProjectsScreen from './src/components/MyProjectsScreen';
 import MeasurementsToolScreen from './src/components/MeasurementsToolScreen';
 import { SavedCalculation } from './src/storage/localProjects';
 import { AppTheme, getThemedStyles } from './src/theme';
-import { getIdTokenResult, onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from './src/firebase';
-import { db } from './src/firestore';
-import { configureRevenueCat, getProfessionalAccess, logOutRevenueCat, subscribeToProfessionalAccess } from './src/subscriptions/revenueCat';
 
 type Language = 'en' | 'ar' | 'fr';
-type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'measurements' | 'measurementTool' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings' | 'projects' | 'subscription' | 'adminUsers' | 'contact';
+type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'measurements' | 'measurementTool' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings' | 'projects' | 'contact';
 type Mode = 'professional' | 'homeowner';
 
 type Tool = {
@@ -115,13 +108,9 @@ const tools: Tool[] = [
 export default function App() {
   const [lang, setLang] = useState<Language>('en');
   const [screen, setScreen] = useState<Screen>('welcome');
-  const [mode, setMode] = useState<Mode>('homeowner');
-  const [professionalActive, setProfessionalActive] = useState(false);
-  const [entitlementLoaded, setEntitlementLoaded] = useState(false);
-  const [professionalExpiry, setProfessionalExpiry] = useState<number | null>(null);
-  const [revenueCatActive, setRevenueCatActive] = useState(false);
-  const [adminOverrideState, setAdminOverrideState] = useState<{ enabled: boolean; active: boolean } | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [mode, setMode] = useState<Mode>('professional');
+  // Every calculator and feature is free. Ads are shown to all users.
+  const professionalActive = true;
   const [units, setUnits] = useState<'metric' | 'imperial'>('metric');
   const [theme, setTheme] = useState<AppTheme>('dark');
   const [settingsLoaded, setSettingsLoaded] = useState(false);
@@ -129,6 +118,35 @@ export default function App() {
   const [selectedMeasurement, setSelectedMeasurement] = useState(measurementTools[0]);
   const [savedCalculation, setSavedCalculation] = useState<SavedCalculation | null>(null);
   const [favourites, setFavourites] = useState<string[]>([]);
+  const [internetStatus, setInternetStatus] = useState<'checking' | 'online' | 'offline'>('checking');
+  const [adTrigger, setAdTrigger] = useState(0);
+  const [internetRetry, setInternetRetry] = useState(0);
+
+  const requestInterstitial = () => setAdTrigger(value => value + 1);
+
+  useEffect(() => {
+    let mounted = true;
+    let checking = false;
+    const checkInternet = async () => {
+      if (checking) return;
+      checking = true;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 7000);
+      try {
+        // no-cors allows the browser preview to test reachability without needing a readable response.
+        await fetch('https://www.google.com/generate_204', { method: 'GET', mode: 'no-cors', cache: 'no-store', signal: controller.signal });
+        if (mounted) setInternetStatus('online');
+      } catch {
+        if (mounted) setInternetStatus('offline');
+      } finally {
+        clearTimeout(timeout);
+        checking = false;
+      }
+    };
+    checkInternet();
+    const interval = setInterval(checkInternet, 15000);
+    return () => { mounted = false; clearInterval(interval); };
+  }, [internetRetry]);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -153,32 +171,13 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    let unsubscribeEntitlement = () => {};
-    let unsubscribeRevenueCat = () => {};
     const unsubscribeAuth = onAuthStateChanged(auth, user => {
-      unsubscribeEntitlement();
-      unsubscribeRevenueCat();
-      setProfessionalActive(false);
-      setRevenueCatActive(false);
-      setAdminOverrideState(null);
-      setEntitlementLoaded(false);
-      setMode('homeowner');
-      setProfessionalExpiry(null);
-      setIsAdmin(false);
-
       if (!user) {
-        logOutRevenueCat().catch(error => console.warn('RevenueCat sign-out failed:', error));
-        setAdminOverrideState({ enabled: false, active: false });
-        setMode('homeowner');
         setScreen(current => current === 'building' ? 'home' : current);
-        setEntitlementLoaded(true);
         return;
       }
 
-      // Accounts created before 19 November 2026 are legacy accounts and
-      // are exempt from the email-verification requirement introduced later.
-      // Firebase creationTime is UTC; midnight on 19 November in Lebanon (UTC+2)
-      // is 2026-11-18T22:00:00.000Z. If creationTime is unavailable, fail closed.
+      // Keep the existing email-verification policy for newly registered accounts.
       const accountCreatedAt = user.metadata.creationTime
         ? Date.parse(user.metadata.creationTime)
         : Number.NaN;
@@ -187,144 +186,16 @@ export default function App() {
         accountCreatedAt >= Date.parse('2026-11-18T22:00:00.000Z');
 
       if (!user.emailVerified && emailVerificationRequired) {
-        logOutRevenueCat().catch(error => console.warn('RevenueCat sign-out failed:', error));
-        setAdminOverrideState({ enabled: false, active: false });
-        setMode('homeowner');
-        setProfessionalActive(false);
-        setProfessionalExpiry(null);
-        setIsAdmin(false);
-        setEntitlementLoaded(true);
         setScreen('auth');
         return;
       }
 
-      // A restored Firebase session should bypass the welcome/language screen.
+      // A restored Firebase session bypasses the welcome/language screen.
       setScreen(current => current === 'welcome' || current === 'auth' ? 'home' : current);
-
-      getIdTokenResult(user).then(token => setIsAdmin(user.uid === 'psu8GgwqNUSKHSQER9wkcEKbbz22' || token.claims.admin === true)).catch(error => { console.warn('Could not read admin role:', error); setIsAdmin(user.uid === 'psu8GgwqNUSKHSQER9wkcEKbbz22'); });
-
-      // RevenueCat validates store purchases directly. No Firebase Cloud
-      // Function or paid Firebase plan is needed to unlock Professional.
-      configureRevenueCat(user.uid).then(async configured => {
-        if (!configured || auth.currentUser?.uid !== user.uid) return;
-
-        const applyRevenueCatAccess = (access: { active: boolean; expiresAt: number | null }) => {
-          if (auth.currentUser?.uid !== user.uid) return;
-          setRevenueCatActive(access.active);
-          setProfessionalExpiry(access.expiresAt);
-        };
-
-        unsubscribeRevenueCat = subscribeToProfessionalAccess(applyRevenueCatAccess);
-        const access = await getProfessionalAccess();
-        applyRevenueCatAccess(access);
-      }).catch(error => {
-        console.warn('RevenueCat setup or customer status check failed:', error);
-        if (auth.currentUser?.uid === user.uid) {
-          setRevenueCatActive(false);
-          setProfessionalExpiry(null);
-        }
-      });
-
-      // Firestore is retained for administrator overrides only. Store purchase
-      // status comes from RevenueCat CustomerInfo, not client-written documents.
-      unsubscribeEntitlement = onSnapshot(
-        doc(db, 'entitlements', user.uid),
-        snapshot => {
-          const data = snapshot.data();
-          const hasAdminOverride = data?.adminOverride === true;
-          setAdminOverrideState({
-            enabled: hasAdminOverride,
-            active: data?.adminStatus === 'professional',
-          });
-          setEntitlementLoaded(true);
-        },
-        error => {
-          console.warn('Could not read administrator access override:', error);
-          setAdminOverrideState({ enabled: false, active: false });
-          setEntitlementLoaded(true);
-        }
-      );
     });
 
-    return () => {
-      unsubscribeAuth();
-      unsubscribeEntitlement();
-      unsubscribeRevenueCat();
-    };
+    return () => unsubscribeAuth();
   }, []);
-
-  // Administrator overrides take precedence; otherwise use RevenueCat's
-  // store-verified Professional access for this Firebase UID.
-  useEffect(() => {
-    if (!adminOverrideState) return;
-    const active = adminOverrideState.enabled
-      ? adminOverrideState.active
-      : revenueCatActive;
-
-    setProfessionalActive(active);
-    if (!active) {
-      setMode('homeowner');
-      setScreen(current => current === 'building' ? 'home' : current);
-    }
-  }, [adminOverrideState, revenueCatActive]);
-
-  const refreshRevenueCatAccess = async (verifiedAccess?: { active: boolean; expiresAt: number | null }) => {
-    try {
-      const access = verifiedAccess || await getProfessionalAccess();
-      setRevenueCatActive(access.active);
-      setProfessionalExpiry(access.expiresAt);
-    } catch (error) {
-      console.warn('Could not refresh RevenueCat access:', error);
-    }
-  };
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', state => {
-      if (state === 'active') {
-        getProfessionalAccess().then(access => {
-          setRevenueCatActive(access.active);
-          setProfessionalExpiry(access.expiresAt);
-        }).catch(error => console.warn('RevenueCat foreground refresh failed:', error));
-      }
-    });
-    return () => subscription.remove();
-  }, []);
-
-  // Revoke access locally at the exact entitlement expiry, and re-check
-  // whenever the app returns to the foreground.
-  useEffect(() => {
-    if (!professionalExpiry || adminOverrideState?.enabled) return;
-
-    const checkExpiry = () => {
-      if (professionalExpiry <= Date.now()) {
-        setProfessionalActive(false);
-        setRevenueCatActive(false);
-        setMode('homeowner');
-        setScreen(current => current === 'building' ? 'home' : current);
-      }
-    };
-
-    checkExpiry();
-    let expiryTimer: ReturnType<typeof setTimeout>;
-    const scheduleExpiryCheck = () => {
-      const remaining = Math.max(0, professionalExpiry - Date.now());
-      // JS timers have a signed 32-bit delay limit; reschedule long terms.
-      expiryTimer = setTimeout(() => {
-        checkExpiry();
-        if (Date.now() < professionalExpiry) scheduleExpiryCheck();
-      }, Math.min(remaining, 2_147_000_000));
-    };
-    scheduleExpiryCheck();
-
-    const appStateSubscription = AppState.addEventListener('change', state => {
-      if (state === 'active') checkExpiry();
-    });
-
-    return () => {
-      clearTimeout(expiryTimer);
-      appStateSubscription.remove();
-    };
-  }, [professionalExpiry, adminOverrideState]);
 
   useEffect(() => {
     if (!settingsLoaded) return;
@@ -346,12 +217,14 @@ export default function App() {
     lang === 'ar' ? tool.ar : lang === 'fr' ? tool.fr : tool.en;
 
   const openTool = (id: string) => {
+    requestInterstitial();
     setSavedCalculation(null);
     setSelected(id);
     setScreen('calculator');
   };
 
   const toggleFavourite = (id: string) => {
+    requestInterstitial();
     setFavourites(old =>
       old.includes(id)
         ? old.filter(item => item !== id)
@@ -365,7 +238,7 @@ export default function App() {
     icon: string
   ) => (
     <Pressable
-      onPress={() => setScreen(target)}
+      onPress={() => { requestInterstitial(); setScreen(target); }}
       style={ui.navItem}
     >
       <Text
@@ -505,7 +378,7 @@ export default function App() {
 
             <Pressable
               style={ui.goldButton}
-              onPress={() => setScreen('auth')}
+              onPress={() => { requestInterstitial(); setScreen('auth'); }}
             >
               <Text style={ui.goldButtonText}>
                 {tr(
@@ -533,7 +406,7 @@ export default function App() {
               showsVerticalScrollIndicator={false}
             >
               <View style={ui.topbar}>
-                <Pressable onPress={() => setScreen(screen === 'home' ? 'menu' : 'home')}>
+                <Pressable onPress={() => { requestInterstitial(); setScreen(screen === 'home' ? 'menu' : 'home'); }}>
                   <Text style={ui.backIcon}>
                     {screen === 'home' ? '☰' : '‹'}
                   </Text>
@@ -580,11 +453,8 @@ export default function App() {
                   >
                     <Pressable
                       onPress={() => {
-                        if (professionalActive) {
-                          setMode('professional');
-                        } else {
-                          setScreen('subscription');
-                        }
+                        requestInterstitial();
+                        setMode('professional');
                       }}
                       style={[
                         ui.modeCard,
@@ -618,7 +488,7 @@ export default function App() {
                     </Pressable>
 
                     <Pressable
-                      onPress={() => setMode('homeowner')}
+                      onPress={() => { requestInterstitial(); setMode('homeowner'); }}
                       style={[
                         ui.modeCard,
                         mode === 'homeowner' && ui.modeActive,
@@ -653,7 +523,7 @@ export default function App() {
 
                   {mode === 'professional' && professionalActive && (
                   <Pressable
-                    onPress={() => { setSavedCalculation(null); setScreen('building'); }}
+                    onPress={() => { requestInterstitial(); setSavedCalculation(null); setScreen('building'); }}
                     style={ui.buildingCard}
                   >
                     <ImageBackground
@@ -698,7 +568,7 @@ export default function App() {
                   </View>
 
                   <Pressable
-                    onPress={() => setScreen('measurements')}
+                    onPress={() => { requestInterstitial(); setScreen('measurements'); }}
                     style={ui.measurementsEntry}
                   >
                     <View style={ui.measurementsEntryIcon}>
@@ -744,7 +614,7 @@ export default function App() {
                     {measurementTools.map(tool => (
                       <Pressable
                         key={tool.id}
-                        onPress={() => { setSelectedMeasurement(tool); setScreen('measurementTool'); }}
+                        onPress={() => { requestInterstitial(); setSelectedMeasurement(tool); setScreen('measurementTool'); }}
                         style={ui.measurementCard}
                       >
                         <ImageBackground
@@ -821,41 +691,11 @@ export default function App() {
                     if (payload.units) setUnits(payload.units);
                     setScreen('calculator');
                   } else {
-                    if (!professionalActive) {
-                      setSavedCalculation(null);
-                      Alert.alert(
-                        tr('Professional plan required', 'تتطلب هذه الميزة الاشتراك الاحترافي', 'Abonnement Professionnel requis'),
-                        tr(
-                          'Subscribe for $10 per year to open the Full Building Calculator.',
-                          'اشترك مقابل 10 دولارات سنوياً لفتح حاسبة البناء الشاملة.',
-                          'Abonnez-vous pour 10 $ par an pour ouvrir le calculateur complet du bâtiment.'
-                        )
-                      );
-                      return;
-                    }
                     const payload = calculation.payload as { units?: 'metric' | 'imperial' };
                     if (payload.units) setUnits(payload.units);
                     setScreen('building');
                   }
                 }} />
-              )}
-
-              {screen === 'subscription' && (
-                <SubscriptionScreen
-                  language={lang}
-                  theme={theme}
-                  active={professionalActive}
-                  onBack={() => setScreen('home')}
-                  onAccessRefresh={refreshRevenueCatAccess}
-                />
-              )}
-
-              {screen === 'adminUsers' && isAdmin && (
-                <AdminUsersScreen
-                  language={lang}
-                  theme={theme}
-                  onBack={() => setScreen('menu')}
-                />
               )}
 
               {screen === 'profile' && (
@@ -867,7 +707,6 @@ export default function App() {
                     await signOut(auth);
                     setScreen('auth');
                   }}
-                  onManageSubscription={() => setScreen('subscription')}
                 />
               )}
 
@@ -1059,13 +898,6 @@ export default function App() {
                     {tr('Settings', 'الإعدادات', 'Paramètres')}
                   </Text>
 
-                  {isAdmin && (
-                    <Pressable onPress={() => setScreen('adminUsers')} style={ui.menuRow}>
-                      <Text style={ui.menuRowText}>♙   {tr('Admin Users', 'إدارة المستخدمين', 'Gestion des utilisateurs')}</Text>
-                      <Text style={ui.menuArrow}>›</Text>
-                    </Pressable>
-                  )}
-
                   <Text style={ui.section}>
                     {tr('LANGUAGE', 'اللغة', 'LANGUE')}
                   </Text>
@@ -1135,10 +967,6 @@ export default function App() {
                       <Pressable
                         key={option}
                         onPress={() => {
-                          if (option === 'professional' && !professionalActive) {
-                            setScreen('subscription');
-                            return;
-                          }
                           setMode(option);
                         }}
                         style={[ui.langBtn, mode === option && ui.langOn]}
@@ -1205,6 +1033,7 @@ export default function App() {
                     <Pressable
                       key={item}
                       onPress={() => {
+                        requestInterstitial();
                         if (index === 0) setScreen('about');
                         if (index === 1) setScreen('guide');
                         if (index === 2) setScreen('contact');
@@ -1254,8 +1083,8 @@ export default function App() {
               )}
             </ScrollView>
 
-            <AdBanner enabled={entitlementLoaded && !professionalActive} />
-            <AdInterstitial enabled={entitlementLoaded && !professionalActive} safeToShow={screen === "home" || screen === "menu" || screen === "favorites"} />
+            <AdBanner enabled={true} />
+            <AdInterstitial enabled={true} safeToShow={true} trigger={adTrigger} />
 
             <View
               style={[
@@ -1287,6 +1116,20 @@ export default function App() {
                 '●'
               )}
             </View>
+          </View>
+        )}
+        {internetStatus !== 'online' && (
+          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, elevation: 30, backgroundColor: '#080B0E', alignItems: 'center', justifyContent: 'center', padding: 28 }}>
+            <Text style={{ color: GOLD, fontSize: 24, fontWeight: '900', textAlign: 'center', marginBottom: 14 }}>DANAT BUILD</Text>
+            <Text style={{ color: '#FFFFFF', fontSize: 17, fontWeight: '800', textAlign: 'center', marginBottom: 10 }}>
+              {internetStatus === 'checking' ? tr('Checking internet connection…', 'جارٍ التحقق من اتصال الإنترنت…', 'Vérification de la connexion Internet…') : tr('Internet connection required', 'يلزم الاتصال بالإنترنت', 'Connexion Internet requise')}
+            </Text>
+            <Text style={{ color: '#C7C9CB', fontSize: 13, lineHeight: 20, textAlign: 'center', marginBottom: 22 }}>
+              {tr('Please connect to the internet to use Danat Build. Your work will be available when the connection returns.', 'يرجى الاتصال بالإنترنت لاستخدام دانات للبناء. ستتمكن من متابعة عملك عند عودة الاتصال.', 'Veuillez vous connecter à Internet pour utiliser Danat Build. Votre travail sera disponible lorsque la connexion sera rétablie.')}
+            </Text>
+            <Pressable onPress={() => { setInternetStatus('checking'); setInternetRetry(value => value + 1); }} style={{ backgroundColor: GOLD, borderRadius: 12, paddingVertical: 14, paddingHorizontal: 26 }}>
+              <Text style={{ color: '#17110A', fontWeight: '900' }}>{tr('RETRY', 'إعادة المحاولة', 'RÉESSAYER')}</Text>
+            </Pressable>
           </View>
         )}
       </SafeAreaView>

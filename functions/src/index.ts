@@ -31,5 +31,3 @@ setGlobalOptions({maxInstances: 10});
 //   response.send("Hello from Firebase!");
 // });
 
-export { revenueCatWebhook } from "./revenuecatWebhook";
-export { adminLookupUser, adminSetUserAccess } from "./adminUsers";
