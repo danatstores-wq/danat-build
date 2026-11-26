@@ -2,14 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { Timestamp, addDoc, collection, getDocs, orderBy, query, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../firestore';
-import { getThemedStyles } from '../theme';
 
 type Lang = 'en' | 'ar' | 'fr';
 type Campaign = { id: string; countryCode: string; advertiserName: string; imageUrl: string; clickUrl: string; startsAt: Date; endsAt: Date; active: boolean };
 const countries = ['LB', 'AE', 'SA', 'QA', 'KW', 'OM', 'BH', 'EG', 'IQ'];
 
 export default function AdvertiserAdminScreen({ language, theme, onBack }: { language: Lang; theme: 'dark' | 'light'; onBack: () => void }) {
-  const ui = getThemedStyles({} as any, theme);
   const [items, setItems] = useState<Campaign[]>([]);
   const [countryCode, setCountryCode] = useState('KW');
   const [advertiserName, setAdvertiserName] = useState('');
