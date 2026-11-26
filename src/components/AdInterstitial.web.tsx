@@ -1,6 +1,7 @@
 type Props = {
   enabled: boolean;
   safeToShow: boolean;
+  trigger: number;
 };
 
 export default function AdInterstitial(_props: Props) {
