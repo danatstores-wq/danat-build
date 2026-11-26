@@ -20,7 +20,7 @@ Danat Build is a multilingual construction calculator app built with Expo and Re
 
 Danat Build is completely free to use. Every user can access both Homeowner and Professional work modes and all available tools. There are no paid plans, subscriptions, in-app purchases, or website payments. The app is supported by AdMob advertising.
 
-Firebase Spark remains the selected Firebase plan.
+Firebase Spark remains the selected Firebase plan; no Firebase billing upgrade is needed for the free feature set.
 
 ## Saved projects
 
