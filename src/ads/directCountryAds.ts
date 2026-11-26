@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firestore';
 
@@ -11,6 +12,8 @@ export type DirectCountryAd = {
   endsAt: Date;
   displayDurationSeconds: number;
 };
+
+const lastShownKey = (countryCode: string) => `directCountryAds:lastShown:${countryCode}`;
 
 export async function getActiveCountryAd(countryCode: string): Promise<DirectCountryAd | null> {
   const campaigns = await getDocs(query(
@@ -43,6 +46,29 @@ export async function getActiveCountryAd(countryCode: string): Promise<DirectCou
       ad.startsAt.getTime() <= now &&
       ad.endsAt.getTime() >= now
     )
-    .sort((a, b) => a.endsAt.getTime() - b.endsAt.getTime());
-  return eligible[0] ?? null;
+    // Keep the order stable so every device advances through the same campaign list.
+    .sort((a, b) => a.advertiserName.localeCompare(b.advertiserName) || a.id.localeCompare(b.id));
+
+  if (eligible.length === 0) return null;
+
+  // Round-robin rotation is stored locally per device and country.
+  // This avoids extra Firestore writes and keeps advertiser selection independent by country.
+  let lastShownId: string | null = null;
+  try {
+    lastShownId = await AsyncStorage.getItem(lastShownKey(countryCode));
+  } catch (error) {
+    console.warn('Could not read the last country ad rotation position:', error);
+  }
+
+  const lastIndex = eligible.findIndex(ad => ad.id === lastShownId);
+  const nextIndex = lastIndex < 0 ? 0 : (lastIndex + 1) % eligible.length;
+  const selectedAd = eligible[nextIndex];
+
+  try {
+    await AsyncStorage.setItem(lastShownKey(countryCode), selectedAd.id);
+  } catch (error) {
+    console.warn('Could not save the country ad rotation position:', error);
+  }
+
+  return selectedAd;
 }
