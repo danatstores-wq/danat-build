@@ -22,6 +22,7 @@ export default function AdInterstitial({ enabled, safeToShow, trigger }: Props) 
   const loadedRef = useRef(false);
   const showingRef = useRef(false);
   const pendingTapRef = useRef(false);
+  const actionsSinceLastAdRef = useRef(0);
   const lastShownAtRef = useRef(0);
   const appActiveRef = useRef(AppState.currentState === "active");
 
@@ -39,13 +40,14 @@ export default function AdInterstitial({ enabled, safeToShow, trigger }: Props) 
 
     const showIfEligible = () => {
       const ad = adRef.current;
-      if (!mounted || !ad || !loadedRef.current || showingRef.current || !appActiveRef.current || !safeToShowRef.current) return;
+      if (!mounted || !ad || !loadedRef.current || showingRef.current || !appActiveRef.current || !safeToShowRef.current || actionsSinceLastAdRef.current < 2) return;
       if (Date.now() - lastShownAtRef.current < COOLDOWN_MS) {
         pendingTapRef.current = false;
         return;
       }
 
       pendingTapRef.current = false;
+      actionsSinceLastAdRef.current = 0;
       showingRef.current = true;
       lastShownAtRef.current = Date.now();
       ad.show().catch(error => {
@@ -109,6 +111,8 @@ export default function AdInterstitial({ enabled, safeToShow, trigger }: Props) 
     if (!enabled || Platform.OS === "web" || trigger === 0) return;
     if (!safeToShowRef.current) return;
 
+    actionsSinceLastAdRef.current += 1;
+    if (actionsSinceLastAdRef.current < 2) return;
     if (Date.now() - lastShownAtRef.current < COOLDOWN_MS) return;
     pendingTapRef.current = true;
 
@@ -117,6 +121,7 @@ export default function AdInterstitial({ enabled, safeToShow, trigger }: Props) 
       const now = Date.now();
       if (now - lastShownAtRef.current >= COOLDOWN_MS && appActiveRef.current && !showingRef.current) {
         pendingTapRef.current = false;
+        actionsSinceLastAdRef.current = 0;
         showingRef.current = true;
         lastShownAtRef.current = now;
         ad.show().catch(error => {
