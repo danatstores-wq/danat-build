@@ -766,6 +766,13 @@ export default function BuildingCalculatorScreen({
   const [sponsoredAdVisible, setSponsoredAdVisible] = useState(false);
   const [sponsoredAdLoading, setSponsoredAdLoading] = useState(false);
 
+  useEffect(() => {
+    if (!sponsoredAdVisible || !sponsoredCountryAd) return;
+    const durationMs = (sponsoredCountryAd.displayDurationSeconds || 6) * 1000;
+    const timeout = setTimeout(() => setSponsoredAdVisible(false), durationMs);
+    return () => clearTimeout(timeout);
+  }, [sponsoredAdVisible, sponsoredCountryAd]);
+
   const selectCountry = async (countryCode: CountryCode) => {
     setSelectedCountry(countryCode);
     setResult(null);
