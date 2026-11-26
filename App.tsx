@@ -111,7 +111,6 @@ export default function App() {
   const [mode, setMode] = useState<Mode>('professional');
   // Every calculator and feature is free. Ads are shown to all users.
   const professionalActive = true;
-  const entitlementLoaded = true;
   const [units, setUnits] = useState<'metric' | 'imperial'>('metric');
   const [theme, setTheme] = useState<AppTheme>('dark');
   const [settingsLoaded, setSettingsLoaded] = useState(false);
