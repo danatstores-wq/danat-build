@@ -58,13 +58,13 @@ export default function AdvertiserAdminScreen({ language, theme, onBack }: { lan
       const idToken = await currentUser.getIdToken();
       const form = new FormData();
       form.append('file', file, fileName || 'banner');
-      const response = await fetch(`${BANNER_UPLOAD_API.replace(/\\/+$/, '')}/api/banner-upload`, {
+      const response = await fetch(`${BANNER_UPLOAD_API.replace(/\/+$/, '')}/api/banner-upload`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${idToken}` },
         body: form,
       });
       const result = await response.json().catch(() => ({})) as { imageUrl?: string; error?: string };
-      if (!response.ok || !result.imageUrl || !/^https:\\/\\//i.test(result.imageUrl)) {
+      if (!response.ok || !result.imageUrl || !/^https:\/\//i.test(result.imageUrl)) {
         throw new Error(result.error || `Upload service returned HTTP ${response.status}.`);
       }
       setImageUrl(result.imageUrl);
