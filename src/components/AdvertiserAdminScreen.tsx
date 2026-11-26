@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Alert, Image, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Timestamp, addDoc, collection, getDocs, orderBy, query, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
-import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { auth } from '../firebase';
 import { db } from '../firestore';
+import { BANNER_UPLOAD_API } from '../config/bannerUpload';
 
 type Lang = 'en' | 'ar' | 'fr';
 type Campaign = { id: string; countryCode: string; advertiserName: string; imageUrl: string; clickUrl: string; startsAt: Date; endsAt: Date; active: boolean; displayDurationSeconds: number };
@@ -51,15 +51,23 @@ export default function AdvertiserAdminScreen({ language, theme, onBack }: { lan
         else Alert.alert(t('Unsupported image', 'صيغة الصورة غير مدعومة', 'Format non pris en charge'), message);
         return;
       }
-      const uid = auth.currentUser?.uid;
-      if (!uid) throw new Error('Please sign in again before uploading.');
+      if (!BANNER_UPLOAD_API) throw new Error('The secure Cloudflare banner upload service has not been connected yet.');
+      const currentUser = auth.currentUser;
+      if (!currentUser) throw new Error('Please sign in again before uploading.');
       setUploading(true);
-      const extension = mimeType === 'image/png' ? 'png' : mimeType === 'image/webp' ? 'webp' : 'jpg';
-      const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80);
-      const storageRef = ref(getStorage(), `directAdBanners/${uid}/${Date.now()}-${safeName || 'banner'}.${extension}`);
-      await uploadBytes(storageRef, file, { contentType: mimeType });
-      const downloadUrl = await getDownloadURL(storageRef);
-      setImageUrl(downloadUrl);
+      const idToken = await currentUser.getIdToken();
+      const form = new FormData();
+      form.append('file', file, fileName || 'banner');
+      const response = await fetch(`${BANNER_UPLOAD_API.replace(/\\/+$/, '')}/api/banner-upload`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${idToken}` },
+        body: form,
+      });
+      const result = await response.json().catch(() => ({})) as { imageUrl?: string; error?: string };
+      if (!response.ok || !result.imageUrl || !/^https:\\/\\//i.test(result.imageUrl)) {
+        throw new Error(result.error || `Upload service returned HTTP ${response.status}.`);
+      }
+      setImageUrl(result.imageUrl);
       const message = t('Your banner is ready to use in this campaign.', 'أصبحت الصورة جاهزة للاستخدام في الحملة.', 'Votre bannière est prête pour cette campagne.');
       if (Platform.OS === 'web') window.alert(message);
       else Alert.alert(t('Banner uploaded', 'تم رفع الإعلان', 'Bannière envoyée'), message);
@@ -74,8 +82,6 @@ export default function AdvertiserAdminScreen({ language, theme, onBack }: { lan
 
   const uploadBanner = async () => {
     if (Platform.OS === 'web') {
-      // Use the browser's native file chooser on the website. The chooser must be
-      // opened synchronously from the user's click so popup protections allow it.
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/jpeg,image/png,image/webp';
@@ -89,7 +95,6 @@ export default function AdvertiserAdminScreen({ language, theme, onBack }: { lan
       input.click();
       return;
     }
-
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
@@ -104,8 +109,7 @@ export default function AdvertiserAdminScreen({ language, theme, onBack }: { lan
       await processBannerFile(blob, asset.mimeType || 'image/jpeg', asset.fileName || 'banner');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      if (Platform.OS === 'web') window.alert(message);
-      else Alert.alert(t('Upload failed', 'فشل رفع الصورة', 'Échec du téléversement'), message);
+      Alert.alert(t('Upload failed', 'فشل رفع الصورة', 'Échec du téléversement'), message);
     }
   };
   const save = async () => {
