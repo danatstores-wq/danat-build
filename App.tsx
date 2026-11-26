@@ -118,6 +118,34 @@ export default function App() {
   const [selectedMeasurement, setSelectedMeasurement] = useState(measurementTools[0]);
   const [savedCalculation, setSavedCalculation] = useState<SavedCalculation | null>(null);
   const [favourites, setFavourites] = useState<string[]>([]);
+  const [internetStatus, setInternetStatus] = useState<'checking' | 'online' | 'offline'>('checking');
+  const [adTrigger, setAdTrigger] = useState(0);
+
+  const requestInterstitial = () => setAdTrigger(value => value + 1);
+
+  useEffect(() => {
+    let mounted = true;
+    let checking = false;
+    const checkInternet = async () => {
+      if (checking) return;
+      checking = true;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 7000);
+      try {
+        // no-cors allows the browser preview to test reachability without needing a readable response.
+        await fetch('https://www.google.com/generate_204', { method: 'GET', mode: 'no-cors', cache: 'no-store', signal: controller.signal });
+        if (mounted) setInternetStatus('online');
+      } catch {
+        if (mounted) setInternetStatus('offline');
+      } finally {
+        clearTimeout(timeout);
+        checking = false;
+      }
+    };
+    checkInternet();
+    const interval = setInterval(checkInternet, 15000);
+    return () => { mounted = false; clearInterval(interval); };
+  }, []);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -188,6 +216,7 @@ export default function App() {
     lang === 'ar' ? tool.ar : lang === 'fr' ? tool.fr : tool.en;
 
   const openTool = (id: string) => {
+    requestInterstitial();
     setSavedCalculation(null);
     setSelected(id);
     setScreen('calculator');
@@ -207,7 +236,7 @@ export default function App() {
     icon: string
   ) => (
     <Pressable
-      onPress={() => setScreen(target)}
+      onPress={() => { requestInterstitial(); setScreen(target); }}
       style={ui.navItem}
     >
       <Text
@@ -347,7 +376,7 @@ export default function App() {
 
             <Pressable
               style={ui.goldButton}
-              onPress={() => setScreen('auth')}
+              onPress={() => { requestInterstitial(); setScreen('auth'); }}
             >
               <Text style={ui.goldButtonText}>
                 {tr(
@@ -375,7 +404,7 @@ export default function App() {
               showsVerticalScrollIndicator={false}
             >
               <View style={ui.topbar}>
-                <Pressable onPress={() => setScreen(screen === 'home' ? 'menu' : 'home')}>
+                <Pressable onPress={() => { requestInterstitial(); setScreen(screen === 'home' ? 'menu' : 'home'); }}>
                   <Text style={ui.backIcon}>
                     {screen === 'home' ? '☰' : '‹'}
                   </Text>
@@ -422,6 +451,7 @@ export default function App() {
                   >
                     <Pressable
                       onPress={() => {
+                        requestInterstitial();
                         setMode('professional');
                       }}
                       style={[
@@ -456,7 +486,7 @@ export default function App() {
                     </Pressable>
 
                     <Pressable
-                      onPress={() => setMode('homeowner')}
+                      onPress={() => { requestInterstitial(); setMode('homeowner'); }}
                       style={[
                         ui.modeCard,
                         mode === 'homeowner' && ui.modeActive,
@@ -491,7 +521,7 @@ export default function App() {
 
                   {mode === 'professional' && professionalActive && (
                   <Pressable
-                    onPress={() => { setSavedCalculation(null); setScreen('building'); }}
+                    onPress={() => { requestInterstitial(); setSavedCalculation(null); setScreen('building'); }}
                     style={ui.buildingCard}
                   >
                     <ImageBackground
@@ -536,7 +566,7 @@ export default function App() {
                   </View>
 
                   <Pressable
-                    onPress={() => setScreen('measurements')}
+                    onPress={() => { requestInterstitial(); setScreen('measurements'); }}
                     style={ui.measurementsEntry}
                   >
                     <View style={ui.measurementsEntryIcon}>
@@ -582,7 +612,7 @@ export default function App() {
                     {measurementTools.map(tool => (
                       <Pressable
                         key={tool.id}
-                        onPress={() => { setSelectedMeasurement(tool); setScreen('measurementTool'); }}
+                        onPress={() => { requestInterstitial(); setSelectedMeasurement(tool); setScreen('measurementTool'); }}
                         style={ui.measurementCard}
                       >
                         <ImageBackground
@@ -1001,6 +1031,7 @@ export default function App() {
                     <Pressable
                       key={item}
                       onPress={() => {
+                        requestInterstitial();
                         if (index === 0) setScreen('about');
                         if (index === 1) setScreen('guide');
                         if (index === 2) setScreen('contact');
@@ -1051,7 +1082,7 @@ export default function App() {
             </ScrollView>
 
             <AdBanner enabled={true} />
-            <AdInterstitial enabled={true} safeToShow={screen === "home" || screen === "menu" || screen === "favorites"} />
+            <AdInterstitial enabled={true} safeToShow={screen !== 'welcome' && screen !== 'auth'} trigger={adTrigger} />
 
             <View
               style={[
@@ -1083,6 +1114,20 @@ export default function App() {
                 '●'
               )}
             </View>
+          </View>
+        )}
+        {internetStatus !== 'online' && (
+          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, elevation: 30, backgroundColor: '#080B0E', alignItems: 'center', justifyContent: 'center', padding: 28 }}>
+            <Text style={{ color: GOLD, fontSize: 24, fontWeight: '900', textAlign: 'center', marginBottom: 14 }}>DANAT BUILD</Text>
+            <Text style={{ color: '#FFFFFF', fontSize: 17, fontWeight: '800', textAlign: 'center', marginBottom: 10 }}>
+              {internetStatus === 'checking' ? tr('Checking internet connection…', 'جارٍ التحقق من اتصال الإنترنت…', 'Vérification de la connexion Internet…') : tr('Internet connection required', 'يلزم الاتصال بالإنترنت', 'Connexion Internet requise')}
+            </Text>
+            <Text style={{ color: '#C7C9CB', fontSize: 13, lineHeight: 20, textAlign: 'center', marginBottom: 22 }}>
+              {tr('Please connect to the internet to use Danat Build. Your work will be available when the connection returns.', 'يرجى الاتصال بالإنترنت لاستخدام دانات للبناء. ستتمكن من متابعة عملك عند عودة الاتصال.', 'Veuillez vous connecter à Internet pour utiliser Danat Build. Votre travail sera disponible lorsque la connexion sera rétablie.')}
+            </Text>
+            <Pressable onPress={() => setInternetStatus('checking')} style={{ backgroundColor: GOLD, borderRadius: 12, paddingVertical: 14, paddingHorizontal: 26 }}>
+              <Text style={{ color: '#17110A', fontWeight: '900' }}>{tr('RETRY', 'إعادة المحاولة', 'RÉESSAYER')}</Text>
+            </Pressable>
           </View>
         )}
       </SafeAreaView>
