@@ -1,0 +1,18 @@
+{
+  "name": "danat-build-banner-upload-worker",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "jose": "^6.1.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20261126.0",
+    "typescript": "^5.9.2",
+    "wrangler": "^4.45.0"
+  }
+}
