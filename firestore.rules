@@ -5,6 +5,10 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function isAdvertiserAdmin() {
+      return signedIn() && request.auth.token.advertiserAdmin == true;
+    }
+
     match /users/{userId} {
       allow get: if signedIn() && request.auth.uid == userId;
       allow list: if false;
@@ -22,6 +26,35 @@ service cloud.firestore {
         && request.resource.data.constructionDisclaimerAcceptedAt == request.time;
 
       allow update, delete: if false;
+    }
+
+    match /directAdCampaigns/{campaignId} {
+      // App users can only read active campaign documents. Admins can manage all campaigns.
+      allow get, list: if isAdvertiserAdmin() || resource.data.active == true;
+      allow create: if isAdvertiserAdmin()
+        && request.resource.data.keys().hasAll(['countryCode', 'advertiserName', 'imageUrl', 'clickUrl', 'startsAt', 'endsAt', 'active', 'createdAt', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['countryCode', 'advertiserName', 'imageUrl', 'clickUrl', 'startsAt', 'endsAt', 'active', 'createdAt', 'updatedAt'])
+        && request.resource.data.countryCode in ['LB', 'AE', 'SA', 'QA', 'KW', 'OM', 'BH', 'EG', 'IQ']
+        && request.resource.data.advertiserName is string
+        && request.resource.data.imageUrl is string
+        && request.resource.data.imageUrl.matches('https://.*')
+        && request.resource.data.clickUrl is string
+        && request.resource.data.clickUrl.matches('https://.*')
+        && request.resource.data.startsAt is timestamp
+        && request.resource.data.endsAt is timestamp
+        && request.resource.data.endsAt > request.resource.data.startsAt
+        && request.resource.data.active is bool;
+      allow update: if isAdvertiserAdmin()
+        && request.resource.data.keys().hasOnly(['countryCode', 'advertiserName', 'imageUrl', 'clickUrl', 'startsAt', 'endsAt', 'active', 'createdAt', 'updatedAt'])
+        && request.resource.data.countryCode in ['LB', 'AE', 'SA', 'QA', 'KW', 'OM', 'BH', 'EG', 'IQ']
+        && request.resource.data.advertiserName is string
+        && request.resource.data.imageUrl.matches('https://.*')
+        && request.resource.data.clickUrl.matches('https://.*')
+        && request.resource.data.startsAt is timestamp
+        && request.resource.data.endsAt is timestamp
+        && request.resource.data.endsAt > request.resource.data.startsAt
+        && request.resource.data.active is bool;
+      allow delete: if isAdvertiserAdmin();
     }
 
     match /{document=**} {
