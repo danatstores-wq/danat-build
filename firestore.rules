@@ -6,7 +6,7 @@ service cloud.firestore {
     }
 
     function isAdvertiserAdmin() {
-      return signedIn() && request.auth.token.advertiserAdmin == true;
+      return signedIn() && request.auth.uid == 'psu8GgwqNUSKHSQER9wkcEKbbz22';
     }
 
     match /users/{userId} {
