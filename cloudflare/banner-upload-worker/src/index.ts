@@ -96,7 +96,7 @@ export default {
 
     if (request.method === 'GET' && url.pathname.startsWith('/banners/')) {
       const objectKey = decodeURIComponent(url.pathname.slice('/banners/'.length));
-      if (!/^direct-ad-banners\\/[a-f0-9-]+\\.(jpg|png|webp)$/.test(objectKey)) {
+      if (!/^direct-ad-banners\/[a-f0-9-]+\.(jpg|png|webp)$/.test(objectKey)) {
         return new Response('Not found', { status: 404, headers: corsHeaders });
       }
       const object = await env.BANNERS.get(objectKey);
