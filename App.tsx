@@ -120,6 +120,7 @@ export default function App() {
   const [favourites, setFavourites] = useState<string[]>([]);
   const [internetStatus, setInternetStatus] = useState<'checking' | 'online' | 'offline'>('checking');
   const [adTrigger, setAdTrigger] = useState(0);
+  const [internetRetry, setInternetRetry] = useState(0);
 
   const requestInterstitial = () => setAdTrigger(value => value + 1);
 
@@ -167,7 +168,7 @@ export default function App() {
     };
 
     loadSettings();
-  }, []);
+  }, [internetRetry]);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, user => {
@@ -223,6 +224,7 @@ export default function App() {
   };
 
   const toggleFavourite = (id: string) => {
+    requestInterstitial();
     setFavourites(old =>
       old.includes(id)
         ? old.filter(item => item !== id)
@@ -1125,7 +1127,7 @@ export default function App() {
             <Text style={{ color: '#C7C9CB', fontSize: 13, lineHeight: 20, textAlign: 'center', marginBottom: 22 }}>
               {tr('Please connect to the internet to use Danat Build. Your work will be available when the connection returns.', 'يرجى الاتصال بالإنترنت لاستخدام دانات للبناء. ستتمكن من متابعة عملك عند عودة الاتصال.', 'Veuillez vous connecter à Internet pour utiliser Danat Build. Votre travail sera disponible lorsque la connexion sera rétablie.')}
             </Text>
-            <Pressable onPress={() => setInternetStatus('checking')} style={{ backgroundColor: GOLD, borderRadius: 12, paddingVertical: 14, paddingHorizontal: 26 }}>
+            <Pressable onPress={() => { setInternetStatus('checking'); setInternetRetry(value => value + 1); }} style={{ backgroundColor: GOLD, borderRadius: 12, paddingVertical: 14, paddingHorizontal: 26 }}>
               <Text style={{ color: '#17110A', fontWeight: '900' }}>{tr('RETRY', 'إعادة المحاولة', 'RÉESSAYER')}</Text>
             </Pressable>
           </View>
