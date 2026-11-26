@@ -146,7 +146,7 @@ export default function App() {
     checkInternet();
     const interval = setInterval(checkInternet, 15000);
     return () => { mounted = false; clearInterval(interval); };
-  }, []);
+  }, [internetRetry]);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -168,7 +168,7 @@ export default function App() {
     };
 
     loadSettings();
-  }, [internetRetry]);
+  }, []);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, user => {
