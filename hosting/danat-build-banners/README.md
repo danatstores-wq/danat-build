@@ -21,7 +21,7 @@ Do not put FTP credentials in this file, the app, or GitHub. This endpoint has n
 - Maximum upload size of 5 MB.
 - Generates a random filename and never overwrites an existing image.
 
-The certificate cache is stored in the server's system temporary directory. The endpoint needs outbound HTTPS access to Google's public certificate endpoint and PHP extensions `openssl` and `fileinfo`.
+The certificate cache is stored in the server's system temporary directory. The endpoint requires PHP 8.0 or newer plus the `openssl` and `fileinfo` extensions. It also needs outbound HTTPS access to Google's public certificate endpoint (using cURL when available, otherwise PHP URL streams).
 
 ## Before testing
 
