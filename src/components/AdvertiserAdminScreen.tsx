@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Alert, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { Timestamp, addDoc, collection, getDocs, orderBy, query, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
+import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { auth } from '../firebase';
 import { db } from '../firestore';
 
 type Lang = 'en' | 'ar' | 'fr';
 type Campaign = { id: string; countryCode: string; advertiserName: string; imageUrl: string; clickUrl: string; startsAt: Date; endsAt: Date; active: boolean };
 const countries = ['LB', 'AE', 'SA', 'QA', 'KW', 'OM', 'BH', 'EG', 'IQ'];
+const MAX_BANNER_BYTES = 5 * 1024 * 1024;
 
 export default function AdvertiserAdminScreen({ language, theme, onBack }: { language: Lang; theme: 'dark' | 'light'; onBack: () => void }) {
   const [items, setItems] = useState<Campaign[]>([]);
@@ -16,7 +20,7 @@ export default function AdvertiserAdminScreen({ language, theme, onBack }: { lan
   const [startsAt, setStartsAt] = useState(new Date().toISOString().slice(0, 10));
   const [endsAt, setEndsAt] = useState(new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10));
   const [saving, setSaving] = useState(false);
-  const ar = language === 'ar';
+  const [uploading, setUploading] = useState(false);
   const t = (en: string, a: string, fr: string) => language === 'ar' ? a : language === 'fr' ? fr : en;
   const load = async () => {
     const result = await getDocs(query(collection(db, 'directAdCampaigns'), orderBy('createdAt', 'desc')));
@@ -32,11 +36,51 @@ export default function AdvertiserAdminScreen({ language, theme, onBack }: { lan
       <TextInput value={value} onChangeText={set} placeholder={placeholder} placeholderTextColor="#888" autoCapitalize="none" style={{ color: '#fff', backgroundColor: '#252b32', borderRadius: 9, borderWidth: 1, borderColor: '#655235', padding: 11 }} />
     </View>
   );
+  const uploadBanner = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [16, 9],
+        quality: 0.85,
+      });
+      if (result.canceled || !result.assets?.[0]) return;
+      const asset = result.assets[0];
+      if (asset.fileSize && asset.fileSize > MAX_BANNER_BYTES) {
+        Alert.alert(t('Image too large', 'الصورة كبيرة جداً', 'Image trop volumineuse'), t('Choose an image smaller than 5 MB.', 'اختر صورة أصغر من 5 ميغابايت.', 'Choisissez une image de moins de 5 Mo.'));
+        return;
+      }
+      const mimeType = asset.mimeType || 'image/jpeg';
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(mimeType)) {
+        Alert.alert(t('Unsupported image', 'صيغة الصورة غير مدعومة', 'Format non pris en charge'), t('Please choose a JPG, PNG or WebP image.', 'اختر صورة JPG أو PNG أو WebP.', 'Choisissez une image JPG, PNG ou WebP.'));
+        return;
+      }
+      const response = await fetch(asset.uri);
+      const blob = await response.blob();
+      if (blob.size > MAX_BANNER_BYTES) {
+        Alert.alert(t('Image too large', 'الصورة كبيرة جداً', 'Image trop volumineuse'), t('Choose an image smaller than 5 MB.', 'اختر صورة أصغر من 5 ميغابايت.', 'Choisissez une image de moins de 5 Mo.'));
+        return;
+      }
+      const uid = auth.currentUser?.uid;
+      if (!uid) throw new Error('Please sign in again before uploading.');
+      setUploading(true);
+      const extension = mimeType === 'image/png' ? 'png' : mimeType === 'image/webp' ? 'webp' : 'jpg';
+      const storageRef = ref(getStorage(), `directAdBanners/${uid}/${Date.now()}.${extension}`);
+      await uploadBytes(storageRef, blob, { contentType: mimeType });
+      const downloadUrl = await getDownloadURL(storageRef);
+      setImageUrl(downloadUrl);
+      Alert.alert(t('Banner uploaded', 'تم رفع الإعلان', 'Bannière envoyée'), t('Your banner is ready to use in this campaign.', 'أصبحت الصورة جاهزة للاستخدام في الحملة.', 'Votre bannière est prête pour cette campagne.'));
+    } catch (error) {
+      Alert.alert(t('Upload failed', 'فشل رفع الصورة', 'Échec du téléversement'), error instanceof Error ? error.message : String(error));
+    } finally {
+      setUploading(false);
+    }
+  };
   const save = async () => {
     const start = new Date(startsAt + 'T00:00:00');
     const end = new Date(endsAt + 'T23:59:59');
     if (!advertiserName.trim() || !/^https:\/\//i.test(imageUrl) || !/^https:\/\//i.test(clickUrl) || !Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end <= start) {
-      Alert.alert(t('Check campaign details', 'تحقق من بيانات الحملة', 'Vérifiez les détails'), t('Enter a company name, HTTPS image and destination URLs, and valid dates.', 'أدخل اسم الشركة وروابط HTTPS وتواريخ صحيحة.', 'Saisissez un nom, des liens HTTPS et des dates valides.'));
+      Alert.alert(t('Check campaign details', 'تحقق من بيانات الحملة', 'Vérifiez les détails'), t('Enter a company name, upload a banner (or provide an HTTPS image URL), and enter a destination URL and valid dates.', 'أدخل اسم الشركة وارفع صورة الإعلان أو رابطها، وأدخل رابط الوجهة والتواريخ الصحيحة.', 'Saisissez le nom, téléversez une bannière ou son URL, puis le lien de destination et des dates valides.'));
       return;
     }
     setSaving(true);
@@ -63,11 +107,17 @@ export default function AdvertiserAdminScreen({ language, theme, onBack }: { lan
         {countries.map(code => <Pressable key={code} onPress={() => setCountryCode(code)} style={{ padding: 10, borderRadius: 9, borderWidth: 1, borderColor: countryCode === code ? '#E9B85D' : '#555', backgroundColor: countryCode === code ? '#4a3920' : '#222831' }}><Text style={{ color: '#fff', fontWeight: '800' }}>{code}</Text></Pressable>)}
       </View>
       {field(t('Company name', 'اسم الشركة', 'Nom de l’entreprise'), advertiserName, setAdvertiserName, 'ABC Building Materials')}
-      {field(t('Banner image HTTPS URL', 'رابط صورة الإعلان HTTPS', 'URL HTTPS de la bannière'), imageUrl, setImageUrl, 'https://example.com/banner.jpg')}
+      <Text style={{ color: '#E9B85D', fontWeight: '800', marginTop: 14, marginBottom: 7 }}>{t('BANNER IMAGE', 'صورة الإعلان', 'IMAGE DE LA BANNIÈRE')}</Text>
+      <Pressable disabled={uploading} onPress={uploadBanner} style={{ backgroundColor: '#303943', borderColor: '#E9B85D', borderWidth: 1, borderRadius: 10, padding: 14, alignItems: 'center', opacity: uploading ? 0.6 : 1 }}>
+        <Text style={{ color: '#fff', fontWeight: '900' }}>{uploading ? t('UPLOADING…', 'جارٍ الرفع…', 'TÉLÉVERSEMENT…') : t('UPLOAD BANNER FROM DEVICE', 'رفع صورة من الجهاز', 'TÉLÉVERSER UNE BANNIÈRE')}</Text>
+      </Pressable>
+      {imageUrl ? <Image source={{ uri: imageUrl }} resizeMode="contain" style={{ width: '100%', height: 150, marginTop: 10, borderRadius: 9, backgroundColor: '#252b32' }} /> : null}
+      <Text style={{ color: '#aaa', fontSize: 12, marginTop: 6 }}>{t('JPG, PNG or WebP · maximum 5 MB · 16:9 recommended', 'JPG أو PNG أو WebP · الحد الأقصى 5 ميغابايت · يفضل 16:9', 'JPG, PNG ou WebP · 5 Mo maximum · format 16:9 conseillé')}</Text>
+      {field(t('Or paste an existing banner HTTPS URL', 'أو أدخل رابط صورة HTTPS', 'Ou collez une URL HTTPS existante'), imageUrl, setImageUrl, 'https://example.com/banner.jpg')}
       {field(t('Destination HTTPS URL', 'رابط الوجهة HTTPS', 'URL HTTPS de destination'), clickUrl, setClickUrl, 'https://company.com')}
       {field(t('Start date (YYYY-MM-DD)', 'تاريخ البداية', 'Date de début'), startsAt, setStartsAt, '2026-11-26')}
       {field(t('End date (YYYY-MM-DD)', 'تاريخ الانتهاء', 'Date de fin'), endsAt, setEndsAt, '2026-12-26')}
-      <Pressable disabled={saving} onPress={save} style={{ backgroundColor: '#E9B85D', borderRadius: 10, padding: 14, alignItems: 'center', marginTop: 18, opacity: saving ? 0.6 : 1 }}><Text style={{ color: '#17110A', fontWeight: '900' }}>{saving ? t('SAVING…', 'جارٍ الحفظ…', 'ENREGISTREMENT…') : t('CREATE CAMPAIGN', 'إنشاء الحملة', 'CRÉER LA CAMPAGNE')}</Text></Pressable>
+      <Pressable disabled={saving || uploading} onPress={save} style={{ backgroundColor: '#E9B85D', borderRadius: 10, padding: 14, alignItems: 'center', marginTop: 18, opacity: saving || uploading ? 0.6 : 1 }}><Text style={{ color: '#17110A', fontWeight: '900' }}>{saving ? t('SAVING…', 'جارٍ الحفظ…', 'ENREGISTREMENT…') : t('CREATE CAMPAIGN', 'إنشاء الحملة', 'CRÉER LA CAMPAGNE')}</Text></Pressable>
       <Text style={{ color: '#E9B85D', fontWeight: '900', marginTop: 26, marginBottom: 10 }}>{t('EXISTING CAMPAIGNS', 'الحملات الحالية', 'CAMPAGNES EXISTANTES')}</Text>
       {items.length === 0 ? <Text style={{ color: '#aaa' }}>{t('No campaigns yet.', 'لا توجد حملات بعد.', 'Aucune campagne pour le moment.')}</Text> : items.map(item => (
         <View key={item.id} style={{ backgroundColor: '#1b2229', borderColor: '#655235', borderWidth: 1, borderRadius: 12, padding: 12, marginBottom: 9 }}>
