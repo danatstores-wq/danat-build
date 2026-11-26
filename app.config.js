@@ -8,7 +8,7 @@ module.exports = ({ config }) => {
   const existingPlugins = config.plugins || [];
   const plugins = existingPlugins.filter(plugin => {
     const name = Array.isArray(plugin) ? plugin[0] : plugin;
-    return name !== "react-native-google-mobile-ads";
+    return name !== "react-native-google-mobile-ads" && name !== "expo-image-picker";
   });
 
   return {
@@ -22,7 +22,7 @@ module.exports = ({ config }) => {
         backgroundColor: "#080B0E",
       },
     },
-    newArchEnabled: true, // ViroReact ARCore/ARKit requires Fabric and a native development build; APK is published for device testing
+    newArchEnabled: true,
     extra: {
       ...(config.extra || {}),
       eas: {
@@ -32,6 +32,9 @@ module.exports = ({ config }) => {
     },
     plugins: [
       ...plugins,
+      ["expo-image-picker", {
+        photosPermission: "Danat Build lets you choose a banner image for a direct advertising campaign.",
+      }],
       [
         "react-native-google-mobile-ads",
         {

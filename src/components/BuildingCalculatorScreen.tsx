@@ -764,7 +764,21 @@ export default function BuildingCalculatorScreen({
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>('LB');
   const [sponsoredCountryAd, setSponsoredCountryAd] = useState<DirectCountryAd | null>(null);
   const [sponsoredAdVisible, setSponsoredAdVisible] = useState(false);
+  const [sponsoredAdCountdown, setSponsoredAdCountdown] = useState(6);
   const [sponsoredAdLoading, setSponsoredAdLoading] = useState(false);
+
+  useEffect(() => {
+    if (!sponsoredAdVisible || !sponsoredCountryAd) return;
+    const durationSeconds = Math.max(1, Number(sponsoredCountryAd.displayDurationSeconds) || 6);
+    const startedAt = Date.now();
+    setSponsoredAdCountdown(durationSeconds);
+    const interval = setInterval(() => {
+      const remaining = Math.max(0, Math.ceil((durationSeconds * 1000 - (Date.now() - startedAt)) / 1000));
+      setSponsoredAdCountdown(remaining);
+      if (remaining === 0) setSponsoredAdVisible(false);
+    }, 250);
+    return () => clearInterval(interval);
+  }, [sponsoredAdVisible, sponsoredCountryAd]);
 
   const selectCountry = async (countryCode: CountryCode) => {
     setSelectedCountry(countryCode);
@@ -1790,13 +1804,28 @@ export default function BuildingCalculatorScreen({
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.78)', justifyContent: 'center', padding: 22 }}>
         <View style={{ backgroundColor: '#111820', borderColor: GOLD, borderWidth: 1, borderRadius: 18, padding: 14 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <Text style={{ color: GOLD, fontSize: 11, fontWeight: '900', letterSpacing: 1.1 }}>SPONSORED</Text>
+            <View>
+              <Text style={{ color: GOLD, fontSize: 11, fontWeight: '900', letterSpacing: 1.1 }}>SPONSORED</Text>
+              <Text accessibilityLiveRegion="polite" style={{ color: '#fff', fontSize: 13, fontWeight: '800', marginTop: 5 }}>
+                {language === 'ar' ? `ينتهي الإعلان خلال ${sponsoredAdCountdown} ثوانٍ` : language === 'fr' ? `Fin de la publicité dans ${sponsoredAdCountdown} s` : `Ad closes in ${sponsoredAdCountdown}s`}
+              </Text>
+            </View>
             <Pressable onPress={() => setSponsoredAdVisible(false)} accessibilityRole="button" accessibilityLabel="Close sponsored advertisement">
               <Text style={{ color: '#fff', fontSize: 25, paddingHorizontal: 6 }}>×</Text>
             </Pressable>
           </View>
           {!!sponsoredCountryAd?.imageUrl && (
-            <Image source={{ uri: sponsoredCountryAd.imageUrl }} resizeMode="cover" style={{ width: '100%', height: 190, borderRadius: 12, backgroundColor: '#252a30' }} />
+            <Pressable
+              onPress={() => {
+                const url = sponsoredCountryAd?.clickUrl;
+                if (url) Linking.openURL(url).catch(error => console.warn('Could not open advertiser link:', error));
+                setSponsoredAdVisible(false);
+              }}
+              accessibilityRole="link"
+              accessibilityLabel="Open advertiser website"
+            >
+              <Image source={{ uri: sponsoredCountryAd.imageUrl }} resizeMode="cover" style={{ width: '100%', height: 190, borderRadius: 12, backgroundColor: '#252a30' }} />
+            </Pressable>
           )}
           <Text style={{ color: '#fff', fontSize: 18, fontWeight: '900', marginTop: 13, textAlign: 'center' }}>{sponsoredCountryAd?.advertiserName}</Text>
           <Text style={{ color: '#c7c9cb', fontSize: 12, marginTop: 6, textAlign: 'center' }}>Sponsored for {sponsoredCountryAd?.countryCode}</Text>
