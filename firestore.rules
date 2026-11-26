@@ -11,12 +11,15 @@ service cloud.firestore {
 
       allow create: if signedIn()
         && request.auth.uid == userId
-        && request.resource.data.keys().hasAll(['uid', 'email', 'createdAt', 'updatedAt'])
-        && request.resource.data.keys().hasOnly(['uid', 'email', 'createdAt', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['uid', 'email', 'createdAt', 'updatedAt', 'constructionDisclaimerAccepted', 'constructionDisclaimerVersion', 'constructionDisclaimerAcceptedAt'])
+        && request.resource.data.keys().hasOnly(['uid', 'email', 'createdAt', 'updatedAt', 'constructionDisclaimerAccepted', 'constructionDisclaimerVersion', 'constructionDisclaimerAcceptedAt'])
         && request.resource.data.uid == userId
         && request.resource.data.email == request.auth.token.email
         && request.resource.data.createdAt == request.time
-        && request.resource.data.updatedAt == request.time;
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.constructionDisclaimerAccepted == true
+        && request.resource.data.constructionDisclaimerVersion == '2026-11-26'
+        && request.resource.data.constructionDisclaimerAcceptedAt == request.time;
 
       allow update, delete: if false;
     }
