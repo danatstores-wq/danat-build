@@ -13,7 +13,8 @@ Danat Build is a multilingual construction calculator app built with Expo and Re
 - English, Arabic, and French interface content.
 - Dark and light themes.
 - Local saved projects and saved calculations.
-- AdMob banner and timed interstitial placements for all users; advertising supports the free app.
+- AdMob banner placements for all users and Google interstitial ads requested when users tap main feature/navigation icons, with a strict three-minute cooldown between shown interstitials.
+- Internet connection is required to use the app. The app checks reachability and blocks the interface while offline, with a retry action.
 - Web export and GitHub Pages deployment.
 
 ## Free and ad-supported model
