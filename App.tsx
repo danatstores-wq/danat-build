@@ -24,13 +24,14 @@ import AdInterstitial from './src/components/AdInterstitial';
 import AdPrivacyOptionsButton from './src/components/AdPrivacyOptionsButton';
 import MyProjectsScreen from './src/components/MyProjectsScreen';
 import MeasurementsToolScreen from './src/components/MeasurementsToolScreen';
+import AdvertiserAdminScreen from './src/components/AdvertiserAdminScreen';
 import { SavedCalculation } from './src/storage/localProjects';
 import { AppTheme, getThemedStyles } from './src/theme';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { getIdTokenResult, onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from './src/firebase';
 
 type Language = 'en' | 'ar' | 'fr';
-type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'measurements' | 'measurementTool' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings' | 'projects' | 'contact';
+type Screen = 'welcome' | 'auth' | 'home' | 'calculator' | 'building' | 'measurements' | 'measurementTool' | 'favorites' | 'menu' | 'profile' | 'about' | 'guide' | 'settings' | 'projects' | 'contact' | 'advertisers';
 type Mode = 'professional' | 'homeowner';
 
 type Tool = {
@@ -121,6 +122,7 @@ export default function App() {
   const [internetStatus, setInternetStatus] = useState<'checking' | 'online' | 'offline'>('checking');
   const [adTrigger, setAdTrigger] = useState(0);
   const [internetRetry, setInternetRetry] = useState(0);
+  const [isAdvertiserAdmin, setIsAdvertiserAdmin] = useState(false);
 
   const requestInterstitial = () => setAdTrigger(value => value + 1);
 
@@ -171,10 +173,18 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, user => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async user => {
       if (!user) {
+        setIsAdvertiserAdmin(false);
         setScreen(current => current === 'building' ? 'home' : current);
         return;
+      }
+
+      try {
+        const token = await getIdTokenResult(user);
+        setIsAdvertiserAdmin(token.claims.advertiserAdmin === true);
+      } catch {
+        setIsAdvertiserAdmin(false);
       }
 
       // Keep the existing email-verification policy for newly registered accounts.
@@ -1017,6 +1027,10 @@ export default function App() {
                 </>
               )}
 
+              {screen === 'advertisers' && isAdvertiserAdmin && (
+                <AdvertiserAdminScreen language={lang} theme={theme} onBack={() => setScreen('menu')} />
+              )}
+
               {screen === 'menu' && (
                 <>
                   <Text style={ui.h1}>
@@ -1049,6 +1063,13 @@ export default function App() {
                       <Text style={ui.menuArrow}>›</Text>
                     </Pressable>
                   ))}
+
+                  {isAdvertiserAdmin && (
+                    <Pressable onPress={() => setScreen('advertisers')} style={ui.menuRow}>
+                      <Text style={ui.menuRowText}>▣   {tr('Direct Advertisers', 'إدارة الإعلانات المباشرة', 'Annonceurs directs')}</Text>
+                      <Text style={ui.menuArrow}>›</Text>
+                    </Pressable>
+                  )}
 
                   <Text style={ui.section}>
                     {tr('LANGUAGE', 'اللغة', 'LANGUE')}
