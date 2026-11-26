@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Alert, Image, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Timestamp, addDoc, collection, getDocs, orderBy, query, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
@@ -37,7 +37,59 @@ export default function AdvertiserAdminScreen({ language, theme, onBack }: { lan
       <TextInput value={value} onChangeText={set} placeholder={placeholder} placeholderTextColor="#888" autoCapitalize="none" style={{ color: '#fff', backgroundColor: '#252b32', borderRadius: 9, borderWidth: 1, borderColor: '#655235', padding: 11 }} />
     </View>
   );
+  const processBannerFile = async (file: Blob, mimeType: string, fileName = 'banner') => {
+    try {
+      if (file.size > MAX_BANNER_BYTES) {
+        const message = t('Choose an image smaller than 5 MB.', 'اختر صورة أصغر من 5 ميغابايت.', 'Choisissez une image de moins de 5 Mo.');
+        if (Platform.OS === 'web') window.alert(message);
+        else Alert.alert(t('Image too large', 'الصورة كبيرة جداً', 'Image trop volumineuse'), message);
+        return;
+      }
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(mimeType)) {
+        const message = t('Please choose a JPG, PNG or WebP image.', 'اختر صورة JPG أو PNG أو WebP.', 'Choisissez une image JPG, PNG ou WebP.');
+        if (Platform.OS === 'web') window.alert(message);
+        else Alert.alert(t('Unsupported image', 'صيغة الصورة غير مدعومة', 'Format non pris en charge'), message);
+        return;
+      }
+      const uid = auth.currentUser?.uid;
+      if (!uid) throw new Error('Please sign in again before uploading.');
+      setUploading(true);
+      const extension = mimeType === 'image/png' ? 'png' : mimeType === 'image/webp' ? 'webp' : 'jpg';
+      const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80);
+      const storageRef = ref(getStorage(), `directAdBanners/${uid}/${Date.now()}-${safeName || 'banner'}.${extension}`);
+      await uploadBytes(storageRef, file, { contentType: mimeType });
+      const downloadUrl = await getDownloadURL(storageRef);
+      setImageUrl(downloadUrl);
+      const message = t('Your banner is ready to use in this campaign.', 'أصبحت الصورة جاهزة للاستخدام في الحملة.', 'Votre bannière est prête pour cette campagne.');
+      if (Platform.OS === 'web') window.alert(message);
+      else Alert.alert(t('Banner uploaded', 'تم رفع الإعلان', 'Bannière envoyée'), message);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (Platform.OS === 'web') window.alert(`${t('Upload failed', 'فشل رفع الصورة', 'Échec du téléversement')}: ${message}`);
+      else Alert.alert(t('Upload failed', 'فشل رفع الصورة', 'Échec du téléversement'), message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const uploadBanner = async () => {
+    if (Platform.OS === 'web') {
+      // Use the browser's native file chooser on the website. The chooser must be
+      // opened synchronously from the user's click so popup protections allow it.
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/jpeg,image/png,image/webp';
+      input.style.display = 'none';
+      input.onchange = () => {
+        const file = input.files?.[0];
+        input.remove();
+        if (file) void processBannerFile(file, file.type || 'image/jpeg', file.name);
+      };
+      document.body.appendChild(input);
+      input.click();
+      return;
+    }
+
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
@@ -47,34 +99,13 @@ export default function AdvertiserAdminScreen({ language, theme, onBack }: { lan
       });
       if (result.canceled || !result.assets?.[0]) return;
       const asset = result.assets[0];
-      if (asset.fileSize && asset.fileSize > MAX_BANNER_BYTES) {
-        Alert.alert(t('Image too large', 'الصورة كبيرة جداً', 'Image trop volumineuse'), t('Choose an image smaller than 5 MB.', 'اختر صورة أصغر من 5 ميغابايت.', 'Choisissez une image de moins de 5 Mo.'));
-        return;
-      }
-      const mimeType = asset.mimeType || 'image/jpeg';
-      if (!['image/jpeg', 'image/png', 'image/webp'].includes(mimeType)) {
-        Alert.alert(t('Unsupported image', 'صيغة الصورة غير مدعومة', 'Format non pris en charge'), t('Please choose a JPG, PNG or WebP image.', 'اختر صورة JPG أو PNG أو WebP.', 'Choisissez une image JPG, PNG ou WebP.'));
-        return;
-      }
       const response = await fetch(asset.uri);
       const blob = await response.blob();
-      if (blob.size > MAX_BANNER_BYTES) {
-        Alert.alert(t('Image too large', 'الصورة كبيرة جداً', 'Image trop volumineuse'), t('Choose an image smaller than 5 MB.', 'اختر صورة أصغر من 5 ميغابايت.', 'Choisissez une image de moins de 5 Mo.'));
-        return;
-      }
-      const uid = auth.currentUser?.uid;
-      if (!uid) throw new Error('Please sign in again before uploading.');
-      setUploading(true);
-      const extension = mimeType === 'image/png' ? 'png' : mimeType === 'image/webp' ? 'webp' : 'jpg';
-      const storageRef = ref(getStorage(), `directAdBanners/${uid}/${Date.now()}.${extension}`);
-      await uploadBytes(storageRef, blob, { contentType: mimeType });
-      const downloadUrl = await getDownloadURL(storageRef);
-      setImageUrl(downloadUrl);
-      Alert.alert(t('Banner uploaded', 'تم رفع الإعلان', 'Bannière envoyée'), t('Your banner is ready to use in this campaign.', 'أصبحت الصورة جاهزة للاستخدام في الحملة.', 'Votre bannière est prête pour cette campagne.'));
+      await processBannerFile(blob, asset.mimeType || 'image/jpeg', asset.fileName || 'banner');
     } catch (error) {
-      Alert.alert(t('Upload failed', 'فشل رفع الصورة', 'Échec du téléversement'), error instanceof Error ? error.message : String(error));
-    } finally {
-      setUploading(false);
+      const message = error instanceof Error ? error.message : String(error);
+      if (Platform.OS === 'web') window.alert(message);
+      else Alert.alert(t('Upload failed', 'فشل رفع الصورة', 'Échec du téléversement'), message);
     }
   };
   const save = async () => {
